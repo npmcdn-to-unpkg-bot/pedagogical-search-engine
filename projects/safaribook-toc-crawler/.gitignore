@@ -1,0 +1,8 @@
+
+# Ignore files created by Development Environments
+# ..
+# IntellIJ
+safaribook-toc-crawler.iml
+src/main/main.iml
+.idea/
+target/
