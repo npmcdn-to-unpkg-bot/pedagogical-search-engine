@@ -1,0 +1,10 @@
+# Ignore files created by Development Environments
+# ..
+# IntellIJ
+safaribook-toc-extractor.iml
+src/main/main.iml
+.idea/
+target/
+
+# Files produced by the program
+extracted-tocs-v1.0/
