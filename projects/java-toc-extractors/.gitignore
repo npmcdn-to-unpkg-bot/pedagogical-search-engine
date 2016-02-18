@@ -1,7 +1,7 @@
 # Ignore files created by Development Environments
 # ..
 # IntellIJ
-safaribook-toc-extractor.iml
+java-toc-extractors.iml
 src/main/main.iml
 .idea/
 target/
