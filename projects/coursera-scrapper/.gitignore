@@ -1,9 +1,5 @@
 # Ignore files created by Development Environments
 # ..
-# IntellIJ
-coursera-scrapper.iml
-.idea/
-target/
 
 # Files produced by the program
 # ..
