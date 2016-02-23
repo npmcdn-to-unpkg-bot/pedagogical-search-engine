@@ -65,8 +65,8 @@ var timeoutMs = 60 * 60 * 1000;
 var refreshMs = 1 * 500;
 var courseraDomain = 'https://www.coursera.org';
 var appended = '?languages=en';
-var screenshotsPath = 'output/course-list-screenshots';
-var imagesPath = 'output/course-miniatures';
+var screenshotsPath = 'output/courses/list-screenshots';
+var imagesPath = 'output/courses/miniatures';
 
 function closeAndExit(page) {
 	// Finally, quitting
