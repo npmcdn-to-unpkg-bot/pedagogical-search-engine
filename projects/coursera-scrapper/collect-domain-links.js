@@ -24,7 +24,7 @@ function waitFor(testFn, successFn, timeOutFn, finallyFn, timeOutMs, refreshMs) 
 };
 
 // Handling output
-var outputPath = 'output/category-links.txt';
+var outputPath = 'output/domain-links.txt';
 console.log('Opening ' + outputPath);
 var output = fs.open(outputPath, {
 	mode: 'w',
@@ -44,8 +44,8 @@ page.viewportSize = {
 // Open catalog
 var timeoutMs = 60 * 60  * 1000;
 var refreshMs = 1 * 1000;
-var domain = 'http://www.coursera.org';
-page.open(domain + '/browse?languages=en', function (status) {
+var courseraDomain = 'http://www.coursera.org';
+page.open(courseraDomain + '/browse?languages=en', function (status) {
     // Check for page load success
     if (status !== "success") {
         console.log("Unable to access network");
@@ -66,7 +66,7 @@ page.open(domain + '/browse?languages=en', function (status) {
 					return $.map($(sel), function(e) {
 						return {
 							href: $(e).attr('href'),
-							text: $(e).text()
+							label: $(e).text()
 						};
 					});
 				}, categorySel);
