@@ -57,7 +57,6 @@ page.open(domain + '/browse?languages=en', function (status) {
         		// Test if the page has loaded
 	            return page.evaluate(function(sel) {
 	            	var links = $(sel);
-	            	console.log("booh " + links.length);
 	                return links.length == 10;
 	            }, categorySel);
 	        }, function(elapsed) {
@@ -65,14 +64,19 @@ page.open(domain + '/browse?languages=en', function (status) {
 	        	// Get links
 				var links = page.evaluate(function(sel) {
 					return $.map($(sel), function(e) {
-						return $(e).attr('href');
+						return {
+							href: $(e).attr('href'),
+							text: $(e).text()
+						};
 					});
 				}, categorySel);
 
 				// Write them
 				for(var i = 0; i < links.length; i++) {
-					var href = links[i];
+					var href = links[i].href;
+					var text = links[i].text;
 					output.writeLine(domain + href);
+					output.writeLine(text);
 				}
 	            console.log("Links successfully collected");
 	        }, function(elapsed) {
