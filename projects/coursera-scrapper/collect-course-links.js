@@ -23,12 +23,6 @@ function waitFor(testFn, successFn, timeOutFn, finallyFn, timeOutMs, refreshMs) 
     }, refreshMs);
 };
 
-// ReplaceAll
-// source: http://stackoverflow.com/questions/1144783/replacing-all-occurrences-of-a-string-in-javascript
-function replaceAll(str, search, replacement) {
-    return str.replace(new RegExp(search, 'g'), replacement);
-};
-
 // source: http://stackoverflow.com/questions/16716753/how-to-download-images-from-a-site-with-phantomjs
 function getImgDimensions($i) {
     return {
@@ -87,7 +81,6 @@ function openLink(data, domainPosition, subdomainPosition) {
 		uniqueName = domainPosition;
 	}
 	var link = courseraDomain + list.href;
-	// todo: if (typeof maybeObject != "undefined") {
 
 	page.open(link, function(status) {
 		// Check for page load success
