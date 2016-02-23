@@ -117,18 +117,20 @@ function openLink(data, domainPosition, subdomainPosition, coursePosition) {
 			if(status !== 'success') {
 				console.log("Unable to access network, status: " + status);
 			} else {
-				var aboutSel = '.about-container';
-				var aboutSel2 = '.c-cd-section';
+				var aboutSel = '.about-container'; // Courses v1
+				var aboutSel2 = '.c-cd-section'; // Courses v2
+				var aboutSel3 = '.rc-AboutS12n'; // Specializations
 
 		        // Wait for page-load
 		        waitFor(
 		        	function(elapsed) {
 		        		// Test if the page has loaded
-			            return page.evaluate(function(aboutSel, aboutSel2) {
+			            return page.evaluate(function(aboutSel, aboutSel2, aboutSel3) {
 			            	var about = $(aboutSel);
 			            	var about2 = $(aboutSel2);
-			            	return (about.text().length > 0) || (about2.text().length > 0);
-			            }, aboutSel, aboutSel2);
+			            	var about3 = $(aboutSel3);
+			            	return (about.text().length > 0) || (about2.text().length > 0) || (about3.text().length > 0);
+			            }, aboutSel, aboutSel2, aboutSel3);
 			        }, function(elapsed) {
 			        	// When we think that the page has loaded
 			        	// ..
