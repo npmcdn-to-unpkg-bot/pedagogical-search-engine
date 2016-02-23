@@ -54,19 +54,19 @@ page.viewportSize = {
   width: width,
   height: height
 };
-//* Uncomment for log messages in .evaluate sections
+/* Uncomment for log messages in .evaluate sections
 page.onConsoleMessage = function(msg) {
   console.log(msg);
 };
 // */
 
 // Open each domain link
-var timeoutMs = 20 * 1000;
-var refreshMs = 1 * 1000;
+var timeoutMs = 60 * 60 * 1000;
+var refreshMs = 1 * 500;
 var courseraDomain = 'https://www.coursera.org';
 var appended = '?languages=en';
-var screenshotsPath = 'screenshots';
-var imagesPath = 'output/images';
+var screenshotsPath = 'output/course-list-screenshots';
+var imagesPath = 'output/course-miniatures';
 
 function closeAndExit(page) {
 	// Finally, quitting
@@ -82,8 +82,9 @@ function openLink(data, domainPosition, subdomainPosition) {
 		var list = subdomain;
 		var uniqueName = domainPosition + '-' + subdomainPosition;
 	} else {
-		list = domain[0];
-		uniqueName = domainPosition + '';
+		subdomain = undefined;
+		list = domain;
+		uniqueName = domainPosition;
 	}
 	var link = courseraDomain + list.href;
 	// todo: if (typeof maybeObject != "undefined") {
@@ -104,7 +105,7 @@ function openLink(data, domainPosition, subdomainPosition) {
 	        		// Test if the page has loaded
 		            return page.evaluate(function(linkSel) {
 		            	var courses = $(linkSel);
-		            	return courses.length > 5;
+		            	return courses.length > 0;
 		            }, linkSel);
 		        }, function(elapsed) {
 		        	// When we think that the page has loaded
@@ -191,23 +192,32 @@ function openLink(data, domainPosition, subdomainPosition) {
 			            // Write course info
 			            fs.write(outputPath, JSON.stringify(data, null, 3), 'w');
 
-			            // Todo: Continue the work
-			            /*
-			            if(typeof subdomain != "undefined")) {
+			            // Continue the work
+			            var goToNextDomain = true;
+			            // Check if we are in a subdomain
+			            if(typeof subdomain != "undefined") {
 		        			// Check if there are other subdomains
-			            } else {
-			            	// Continue to the next domain
+		        			if((subdomainPosition + 1) < domain.subdomain.length) {
+		        				openLink(data, domainPosition, subdomainPosition + 1);
+		        				goToNextDomain = false;
+		        			}
 			            }
-			            */
 
-			            // Quit
-		            	closeAndExit(page);
-		        	}, 1 * 1000);
+			            if(goToNextDomain) {
+			            	// Check if there is a next domain
+			            	if((domainPosition + 1) < data.length) {
+			            		openLink(data, domainPosition + 1, 0);
+			            	} else {
+					            // Quit
+				            	closeAndExit(page);
+			            	}
+			            }
+		        	}, 2 * 1000);
 		        }, function(elapsed) {
 		        	// If the page cannot be loaded
 		        	console.error("Cannot load the course list: " + 
 		        		list.label + "(" + list.href + ")");
-		        	page.render(screenshotPath + "/" + "error.png");
+		        	page.render(screenshotsPath + "/" + "error.png");
 		        	closeAndExit(page);
 		        }, function() {
 		        	// nothing here
