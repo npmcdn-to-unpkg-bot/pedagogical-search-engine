@@ -151,7 +151,7 @@ function openDomains(domains, position) {
 						}
 
 						// Screenshot for info
-						page.render(screenshotPath + "/" + domain.label + ".png");
+						// page.render(screenshotPath + "/" + domain.label + ".png");
 
 			            // At the end only
 			            if(position == (domains.length - 1)) {
