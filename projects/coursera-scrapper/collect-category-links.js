@@ -24,9 +24,9 @@ function waitFor(testFn, successFn, timeOutFn, finallyFn, timeOutMs, refreshMs) 
 };
 
 // Handling output
-var outputPath = 'output/courses-links.txt';
+var outputPath = 'output/category-links.txt';
 console.log('Opening ' + outputPath);
-var output = fs.open('courses-links.txt', {
+var output = fs.open(outputPath, {
 	mode: 'w',
 	charset: 'UTF-8'
 });
@@ -42,32 +42,46 @@ page.viewportSize = {
 };
 
 // Open catalog
-var timeoutMs = 60 * 60  * 1000; // 1-hour
-var refreshMs = 1 * 1000; // 1 sec
-page.open("http://www.coursera.org/browse?languages=en", function (status) {
+var timeoutMs = 60 * 60  * 1000;
+var refreshMs = 1 * 1000;
+var domain = 'http://www.coursera.org';
+page.open(domain + '/browse?languages=en', function (status) {
     // Check for page load success
     if (status !== "success") {
         console.log("Unable to access network");
     } else {
+    	var categorySel = 'div.rc-DomainNav a';
         // Wait for page-load
         waitFor(
         	function(elapsed) {
         		// Test if the page has loaded
-	            return page.evaluate(function() {
-	            	var links = $("div.rc-DomainNav a");
+	            return page.evaluate(function(sel) {
+	            	var links = $(sel);
 	            	console.log("booh " + links.length);
 	                return links.length == 10;
-	            });
+	            }, categorySel);
 	        }, function(elapsed) {
 	        	// When the page has loaded
-	        	page.render('example.png');
-	            console.log("success");
+	        	// Get links
+				var links = page.evaluate(function(sel) {
+					return $.map($(sel), function(e) {
+						return $(e).attr('href');
+					});
+				}, categorySel);
+
+				// Write them
+				for(var i = 0; i < links.length; i++) {
+					var href = links[i];
+					output.writeLine(domain + href);
+				}
+	            console.log("Links successfully collected");
 	        }, function(elapsed) {
 	        	// If the page cannot be loaded
 	        	console.error("Cannot load the catalog-page.");
 	        }, function() {
 				// Finally, quitting
 				console.log('Quitting Script');
+				page.close();
 				output.close();
 				phantom.exit();
 			}, timeoutMs, refreshMs
