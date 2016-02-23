@@ -141,7 +141,7 @@ function openDomains(domains, position) {
 								var label = links[i].label;
 
 								domain.subdomain.push({
-									href: courseraDomain + href,
+									href: href,
 									label: label
 								});
 							}
