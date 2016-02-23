@@ -72,12 +72,7 @@ page.open(domain + '/browse?languages=en', function (status) {
 				}, categorySel);
 
 				// Write them
-				for(var i = 0; i < links.length; i++) {
-					var href = links[i].href;
-					var text = links[i].text;
-					output.writeLine(domain + href);
-					output.writeLine(text);
-				}
+				output.write(JSON.stringify(links));
 	            console.log("Links successfully collected");
 	        }, function(elapsed) {
 	        	// If the page cannot be loaded
