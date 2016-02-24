@@ -125,19 +125,22 @@ function openLink(data, domainPosition, subdomainPosition, coursePosition) {
 				var aboutSel2 = '.c-cd-section'; // Courses v2
 				var aboutSel3 = '.rc-AboutS12n'; // Specializations
 				var aboutSel4 = '.rc-WhatYouLearnSection'; // Course v3 (mentor-guided?) (e.g. https://www.coursera.org/learn/project-management)
+				var aboutSel5 = '.content'; // Program (e.g. https://www.coursera.org/course/imba)
 
 		        // Wait for page-load
 		        waitFor(
 		        	function(elapsed) {
 		        		// Test if the page has loaded
-			            return page.evaluate(function(aboutSel, aboutSel2, aboutSel3, aboutSel4) {
+			            return page.evaluate(function(aboutSel, aboutSel2, aboutSel3, aboutSel4, aboutSel5) {
 			            	var about = $(aboutSel);
 			            	var about2 = $(aboutSel2);
 			            	var about3 = $(aboutSel3);
 			            	var about4 = $(aboutSel4);
+			            	var about5 = $(aboutSel5);
 			            	return (about.text().length > 0) || (about2.text().length > 0)
-			            		|| (about3.text().length > 0) || (about4.text().length > 0);
-			            }, aboutSel, aboutSel2, aboutSel3, aboutSel4);
+			            		|| (about3.text().length > 0) || (about4.text().length > 0)
+			            		|| (about5.text().length > 0);
+			            }, aboutSel, aboutSel2, aboutSel3, aboutSel4, aboutSel5);
 			        }, function(finallyFn) {
 			        	// When we think that the page has loaded
 			        	// ..
@@ -169,7 +172,7 @@ function openLink(data, domainPosition, subdomainPosition, coursePosition) {
 			        }, function(elapsed, finallyFn) {
 			        	// If the page cannot be loaded, pass it
 						console.log('Skipping course ' + uniqueName);
-						
+
 			            // Continue
 			            finallyFn();
 			        }, function() {
