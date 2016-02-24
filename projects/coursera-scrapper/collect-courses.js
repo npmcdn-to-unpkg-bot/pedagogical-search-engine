@@ -12,11 +12,10 @@ function waitFor(testFn, successFn, timeOutFn, finallyFn, timeOutMs, refreshMs) 
             condition = testFn(elapsed);
         } else {
             if(!condition) {
-                timeOutFn(elapsed);
-                finallyFn();
+                timeOutFn(elapsed, finallyFn);
+                clearInterval(interval);
             } else {
-                successFn();
-                finallyFn();
+                successFn(finallyFn);
                 clearInterval(interval);
             }
         }
@@ -52,7 +51,7 @@ page.onConsoleMessage = function(msg) {
 // */
 
 // Open each domain link
-var timeoutMs = 60 * 60 * 1000;
+var timeoutMs = 10 * 1000;
 var refreshMs = 1 * 1000;
 var courseraDomain = 'https://www.coursera.org';
 var pathPrefix = 'output/courses';
@@ -70,7 +69,9 @@ function closeAndExit(page) {
 function openLink(data, domainPosition, subdomainPosition, coursePosition) {
 	// define go next function
 	function goNext() {
+		var goToNextDomain = true;
         if((coursePosition + 1) < list.courses.length) {
+        	console.log('new course');
         	openLink(data, domainPosition, subdomainPosition, coursePosition + 1);
 			goToNextDomain = false;
         } else {
@@ -78,6 +79,7 @@ function openLink(data, domainPosition, subdomainPosition, coursePosition) {
             if(typeof subdomain != "undefined") {
     			// Check if there are other subdomains
     			if((subdomainPosition + 1) < domain.subdomain.length) {
+        			console.log('new subdomain, first course');
     				openLink(data, domainPosition, subdomainPosition + 1, 0);
     				goToNextDomain = false;
     			}
@@ -87,6 +89,7 @@ function openLink(data, domainPosition, subdomainPosition, coursePosition) {
         if(goToNextDomain) {
         	// Check if there is a next domain
         	if((domainPosition + 1) < data.length) {
+        		console.log('new domain, (first subdomain), first course');
         		openLink(data, domainPosition + 1, 0, 0);
         	} else {
 	            // Quit
@@ -112,26 +115,30 @@ function openLink(data, domainPosition, subdomainPosition, coursePosition) {
 		console.log('Passing course ' + uniqueName);
 		goNext();
 	} else {
-		page.open(courseraDomain + course.href, function(status) {
+		var currentUrl = courseraDomain + course.href;
+		page.open(currentUrl, function(status) {
 			// Check for page load success
 			if(status !== 'success') {
-				console.log("Unable to access network, status: " + status);
+				console.log("Unable to access network, status: " + status + ', url: ' + currentUrl);
 			} else {
 				var aboutSel = '.about-container'; // Courses v1
 				var aboutSel2 = '.c-cd-section'; // Courses v2
 				var aboutSel3 = '.rc-AboutS12n'; // Specializations
+				var aboutSel4 = '.rc-WhatYouLearnSection'; // Course v3 (mentor-guided?) (e.g. https://www.coursera.org/learn/project-management)
 
 		        // Wait for page-load
 		        waitFor(
 		        	function(elapsed) {
 		        		// Test if the page has loaded
-			            return page.evaluate(function(aboutSel, aboutSel2, aboutSel3) {
+			            return page.evaluate(function(aboutSel, aboutSel2, aboutSel3, aboutSel4) {
 			            	var about = $(aboutSel);
 			            	var about2 = $(aboutSel2);
 			            	var about3 = $(aboutSel3);
-			            	return (about.text().length > 0) || (about2.text().length > 0) || (about3.text().length > 0);
-			            }, aboutSel, aboutSel2, aboutSel3);
-			        }, function(elapsed) {
+			            	var about4 = $(aboutSel4);
+			            	return (about.text().length > 0) || (about2.text().length > 0)
+			            		|| (about3.text().length > 0) || (about4.text().length > 0);
+			            }, aboutSel, aboutSel2, aboutSel3, aboutSel4);
+			        }, function(finallyFn) {
 			        	// When we think that the page has loaded
 			        	// ..
 			        	// wait an additional time
@@ -156,17 +163,18 @@ function openLink(data, domainPosition, subdomainPosition, coursePosition) {
 				            // Write course current info
 				            fs.write(courseLinksPath, JSON.stringify(data, null, 3), 'w');
 
-				            // Continue the work
-				            goNext();
+				            // Continue
+				            finallyFn();
 			        	}, 3 * 1000);
-			        }, function(elapsed) {
-			        	// If the page cannot be loaded
-			        	console.error("Cannot load the course: " + 
-			        		course.label + "(" + course.href + ")");
-			        	page.render(paths.screenshot + "/" + "error.png");
-			        	closeAndExit(page);
+			        }, function(elapsed, finallyFn) {
+			        	// If the page cannot be loaded, pass it
+						console.log('Skipping course ' + uniqueName);
+						
+			            // Continue
+			            finallyFn();
 			        }, function() {
-			        	// nothing here
+			            // Continue the work
+			            goNext();
 					}, timeoutMs, refreshMs
 			    );
 			}
