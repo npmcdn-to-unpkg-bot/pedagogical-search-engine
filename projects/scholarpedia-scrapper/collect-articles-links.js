@@ -78,57 +78,59 @@ function openList(links, position) {
 		if(status !== 'success') {
 			console.log("Unable to access network, status: " + status + ', url: ' + currentUrl);
 		} else {
-			var linkSel = '.mw-allpages-table-chunk td a';
+			page.includeJs('http://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js', function() {
+				var linkSel = '.mw-allpages-table-chunk td a';
 
-	        // Wait for page-load
-	        waitFor(
-	        	function(elapsed) {
-	        		// Test if the page has loaded
-		            return page.evaluate(function(linkSel) {
-		            	var links = $(linkSel);
-		            	return (links.length > 10);
-		            }, linkSel);
+		        // Wait for page-load
+		        waitFor(
+		        	function(elapsed) {
+		        		// Test if the page has loaded
+			            return page.evaluate(function(linkSel) {
+			            	var links = $(linkSel);
+			            	return (links.length > 10);
+			            }, linkSel);
 
-		        }, function(finallyFn) {
-		        	// When we think that the page has loaded
-		        	// ..
-		        	// wait an additional time
-		        	setTimeout(function() {
-		        		// Get the links
-				        var articleLinks = page.evaluate(function(sel, data) {
-							return $.map($(sel), function(e) {
-								return {
-									href: $(e).attr('href'),
-									label: $(e).text()
-								};
-							});
-						}, linkSel, data);
+			        }, function(finallyFn) {
+			        	// When we think that the page has loaded
+			        	// ..
+			        	// wait an additional time
+			        	setTimeout(function() {
+			        		// Get the links
+					        var articleLinks = page.evaluate(function(sel, data) {
+								return $.map($(sel), function(e) {
+									return {
+										href: $(e).attr('href'),
+										label: $(e).text()
+									};
+								});
+							}, linkSel, data);
 
-			        	// Save the links
-			        	for(var i = 0; i < articleLinks.length; i++) {
-			        		data.push(articleLinks[i]);
-			        	}
-						fs.write(dataPath, JSON.stringify(data, null, 3), 'w');
-						console.log(articleLinks.length + ' links discovered!');
+				        	// Save the links
+				        	for(var i = 0; i < articleLinks.length; i++) {
+				        		data.push(articleLinks[i]);
+				        	}
+							fs.write(dataPath, JSON.stringify(data, null, 3), 'w');
+							console.log(articleLinks.length + ' links discovered!');
+
+				            // Continue
+				            finallyFn();
+			        	}, 1 * 1000);
+			        }, function(elapsed, finallyFn) {
+			        	// If the page cannot be loaded, pass it
+						console.log('Skipping course ' + uniqueName);
 
 			            // Continue
 			            finallyFn();
-		        	}, 1 * 1000);
-		        }, function(elapsed, finallyFn) {
-		        	// If the page cannot be loaded, pass it
-					console.log('Skipping course ' + uniqueName);
-
-		            // Continue
-		            finallyFn();
-		        }, function() {
-		            // Continue the work
-		            if((position + 1) < links.length) {
-		            	openList(links, position + 1);
-		            } else {
-		            	closeAndExit(page);
-		            }
-				}, timeoutMs, refreshMs
-		    );
+			        }, function() {
+			            // Continue the work
+			            if((position + 1) < links.length) {
+			            	openList(links, position + 1);
+			            } else {
+			            	closeAndExit(page);
+			            }
+					}, timeoutMs, refreshMs
+			    );
+		    });
 		}
 	});
 }
