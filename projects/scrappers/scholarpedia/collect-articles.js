@@ -62,6 +62,14 @@ function openLinks(position) {
         	closeAndExit(page);
         }
 	}
+	// Define count incrementer
+	function incrementCount() {
+		if(article.hasOwnProperty(countLabel)) {
+			article[countLabel] = article[countLabel] + 1;
+		} else {
+			article[countLabel] = 1;
+		}
+	}
 
 	var article = data[position];
 	var currentUrl = scholarpediaDomain + article.href;
@@ -73,153 +81,169 @@ function openLinks(position) {
 		console.log('Passing(status: ' + status + ') ' + article.href);
 		goNextIfPossible();
 	} else {
-		console.log('Loading ' + article.href);
+		var countLabel = 'count';
 
-		page.open(currentUrl, function(status) {
-			// Check for page load success
-			if(status !== 'success') {
-				console.log("Unable to access network, status: " + status + ', url: ' + currentUrl);
-			} else {
-				page.includeJs('http://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js', function() {
-					var logoSel = '#p-logo';
-					var loginSel = '#pt-login';
-					var searchSel = '#simpleSearch';
-					var contentSel = '#content';
-					var curatorSel = '.cp-curator-box';
-					var mathLoadSel = '#MathJax_Message';
-					var redirectSel = '#contentSub .mw-redirect';
+		// Was the page already stubbornly retried?
+		if(article.hasOwnProperty(countLabel) && article[countLabel] > 1) {
+			var status = article.status;
+			console.log('Passing(retried: ' + article[countLabel] + ') ' + article.href);
+			goNextIfPossible();
+		} else {
+			console.log('Loading ' + article.href);
 
-			        // Wait for page-load
-			        var undefinedValue = 'undefined-value';
-					article.status = undefinedValue; // we want article.status to be "pass by reference"
-			        waitFor(
-			        	function(elapsed) {
-			        		console.log(elapsed);
-			        		// Test if the page has loaded
-				            return page.evaluate(function(elapsed, curatorSel, mathLoadSel, redirectSel,
-				            	logoSel, loginSel, searchSel, contentSel) {
-				            	// Check if the page looks OK
-				            	var logo = $(logoSel);
-				            	var login = $(loginSel);
-				            	var search = $(searchSel);
-				            	var contentEl = $(contentSel);
-				            	var looksOK = (logo.length > 0) && (login.length > 0)
-				            		&& (search.length > 0) && (contentEl.length > 0);
+			page.open(currentUrl, function(status) {
+				// Check for page load success
+				if(status !== 'success') {
+					console.log("Unable to access network, status: " + status + ', url: ' + currentUrl);
 
-				            	var shouldHaveLoadedTimeout = 3000;
-				            	if(looksOK) {
-				            		// Only take currated articles
-					            	var isCurrated = ($(curatorSel).length > 0);
-					            	if(isCurrated) {
-					            		// Only take source articles
-					            		var hasBeenRedirected = ($(redirectSel).length > 0);
-					            		if(!hasBeenRedirected) {
-						            		console.log('source.: YES');
+					// This count as a trial
+					incrementCount();
 
-						            		// Wait until it is fully loaded
-							            	var mathLoad = $(mathLoadSel);
-							            	console.log('curator: YES');
+		        	// Write the work
+		        	fs.write(dataPath, JSON.stringify(data, null, 3), 'w');
 
-							            	if(mathLoad.length > 0) {
-							            		var finishLoading = (mathLoad.css('display') === 'none');
-							            		console.log('mathJax: ' + mathLoad.css('display'));
+		        	// Continue
+					goNextIfPossible();
+				} else {
+					page.includeJs('http://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js', function() {
+						var logoSel = '#p-logo';
+						var loginSel = '#pt-login';
+						var searchSel = '#simpleSearch';
+						var contentSel = '#content';
+						var curatorSel = '.cp-curator-box';
+						var mathLoadSel = '#MathJax_Message';
+						var redirectSel = '#contentSub .mw-redirect';
 
-							            		if(finishLoading) {
-							            			return 1; // success
-							            		} else {
-							            			return 0; // retry
-							            		}
+				        // Wait for page-load
+				        waitFor(
+				        	function(elapsed) {
+				        		console.log(elapsed);
+				        		// Test if the page has loaded
+					            return page.evaluate(function(elapsed, curatorSel, mathLoadSel, redirectSel,
+					            	logoSel, loginSel, searchSel, contentSel) {
+					            	// Check if the page looks OK
+					            	var logo = $(logoSel);
+					            	var login = $(loginSel);
+					            	var search = $(searchSel);
+					            	var contentEl = $(contentSel);
+					            	var looksOK = (logo.length > 0) && (login.length > 0)
+					            		&& (search.length > 0) && (contentEl.length > 0);
+
+					            	var shouldHaveLoadedTimeout = 3000;
+					            	if(looksOK) {
+					            		// Only take currated articles
+						            	var isCurrated = ($(curatorSel).length > 0);
+						            	if(isCurrated) {
+						            		// Only take source articles
+						            		var hasBeenRedirected = ($(redirectSel).length > 0);
+						            		if(!hasBeenRedirected) {
+							            		console.log('source.: YES');
+
+							            		// Wait until it is fully loaded
+								            	var mathLoad = $(mathLoadSel);
+								            	console.log('curator: YES');
+
+								            	if(mathLoad.length > 0) {
+								            		var finishLoading = (mathLoad.css('display') === 'none');
+								            		console.log('mathJax: ' + mathLoad.css('display'));
+
+								            		if(finishLoading) {
+								            			return 1; // success
+								            		} else {
+								            			return 0; // retry
+								            		}
+								            	} else {
+								            		return 1; // success
+								            	}
+						            		} else {
+							            		console.log('source.: NO');
+						            			return 3; // reject definitively
+						            		}
+						            	} else {
+							            	console.log('curator: NO');
+							            	if(elapsed > shouldHaveLoadedTimeout) {
+							            		return 2; // reject definitively
 							            	} else {
-							            		return 1; // success
+						            			return 0; // retry
 							            	}
-					            		} else {
-						            		console.log('source.: NO');
-					            			return 3; // reject definitively
-					            		}
+						            	}
 					            	} else {
-						            	console.log('curator: NO');
+						            	console.log('looksOK: NO');
 						            	if(elapsed > shouldHaveLoadedTimeout) {
-						            		return 2; // reject definitively
+						            		return 4; // reject definitively
 						            	} else {
 					            			return 0; // retry
 						            	}
 					            	}
-				            	} else {
-					            	console.log('looksOK: NO');
-					            	if(elapsed > shouldHaveLoadedTimeout) {
-					            		return 4; // reject definitively
-					            	} else {
-				            			return 0; // retry
-					            	}
-				            	}
-				            }, elapsed, curatorSel, mathLoadSel, redirectSel, logoSel, loginSel, searchSel, contentSel);
+					            }, elapsed, curatorSel, mathLoadSel, redirectSel, logoSel, loginSel, searchSel, contentSel);
 
-				        }, function(finallyFn) {
-				        	// When we think that the page has loaded
-				        	// ..
-				        	console.log('> OK');
+					        }, function(finallyFn) {
+					        	// When we think that the page has loaded
+					        	// ..
+					        	console.log('> OK');
 
-							// Take a screenshot
-							var screenshotPath = screenshotsFolder + '/' + uniqueName + '.png';
-							page.render(screenshotPath, {
-				            	format: 'png',
-				            	quality: '25'
-					        });
+								// Take a screenshot
+								var screenshotPath = screenshotsFolder + '/' + uniqueName + '.png';
+								page.render(screenshotPath, {
+					            	format: 'png',
+					            	quality: '25'
+						        });
 
-					        // Save the page
-							var content = page.content;
-							var localPath = pagesFolder + '/' + uniqueName + '.html';
-							fs.write(localPath, content, 'w');
-							article.page = localPath;
+						        // Save the page
+								var content = page.content;
+								var localPath = pagesFolder + '/' + uniqueName + '.html';
+								fs.write(localPath, content, 'w');
+								article.page = localPath;
 
-							// Signal that the work was done
-							article.status = 'downloaded';
+								// Signal that the work was done
+								article.status = 'downloaded';
 
-							// Continue further the work
-				        	finallyFn();
+								// Continue further the work
+					        	finallyFn();
 
-				        }, function(elapsed, finallyFn) {
-				        	// Page timeout
-				        	var cStatus = 'timeout';
-							console.log('> ' + cStatus);
-							article.status = cStatus;
-							//saveForDebugging(cStatus + '/' + article.label);
+					        }, function(elapsed, finallyFn) {
+					        	// Page timeout
+					        	var cStatus = 'timeout';
+								console.log('> ' + cStatus);
+								article.status = cStatus;
+								//saveForDebugging(cStatus + '/' + article.label);
 
-				            // Continue
-				            finallyFn();
+					            // Continue
+					            finallyFn();
 
-				        }, function(elapsed, finallyFn, rejectNb) {
-				        	// Page rejected
-				        	if(rejectNb == 2) {
-				        		article.status = 'no-curator';
-				        		var cStatus = article.status;
-				        	} else if(rejectNb == 3) {
-				        		article.status = 'redirect';
-				        		cStatus = article.status;
-				        	} else {
-				        		// We should retry later
-				        		var cStatus = 'retry-later';
-				        	}
-							console.log('> ' + cStatus);
-							//saveForDebugging(cStatus + '/' + article.label);
+					        }, function(elapsed, finallyFn, rejectNb) {
+					        	// Page rejected
+					        	if(rejectNb == 2) {
+					        		article.status = 'no-curator';
+					        		var cStatus = article.status;
+					        	} else if(rejectNb == 3) {
+					        		article.status = 'redirect';
+					        		cStatus = article.status;
+					        	} else {
+					        		// We should retry later
+					        		var cStatus = 'retry-later';
+					        	}
+								console.log('> ' + cStatus);
+								//saveForDebugging(cStatus + '/' + article.label);
 
-				            // Continue
-				            finallyFn();
+					            // Continue
+					            finallyFn();
 
-				        }, function() {
-				        	// Write the work
-				        	if(article.status === undefinedValue) {
-				        		article.status = undefined; // javascript-hook
-				        	}
-				        	fs.write(dataPath, JSON.stringify(data, null, 3), 'w');
+					        }, function() {
+					        	// This count as a trial
+					        	incrementCount();
 
-				            // Continue the work
-				            goNextIfPossible();
-						}, timeoutMs, refreshMs
-				    );
-	        	});
-			}
-		});
+					        	// Write the work
+					        	fs.write(dataPath, JSON.stringify(data, null, 3), 'w');
+
+					            // Continue the work
+					            goNextIfPossible();
+							}, timeoutMs, refreshMs
+					    );
+		        	});
+				}
+			});
+		}
 	}
 }
 
