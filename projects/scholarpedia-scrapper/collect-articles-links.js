@@ -117,7 +117,7 @@ function openList(links, position) {
 			        	}, 1 * 1000);
 			        }, function(elapsed, finallyFn) {
 			        	// If the page cannot be loaded, pass it
-						console.log('Skipping course ' + uniqueName);
+						console.log('Skipping course ' + links[position]);
 
 			            // Continue
 			            finallyFn();
