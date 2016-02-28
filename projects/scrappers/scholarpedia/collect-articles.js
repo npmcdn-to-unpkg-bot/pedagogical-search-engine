@@ -53,13 +53,18 @@ var timeoutMs = 20 * 1000;
 var refreshMs = 1 * 500;
 var scholarpediaDomain = 'http://www.scholarpedia.org';
 
+var dontTerminate = false;
 function openLinks(position) {
 	// Define iterator.next
 	function goNextIfPossible() {
         if((position + 1) < data.length) {
         	openLinks(position + 1);
         } else {
-        	closeAndExit(page);
+        	if(dontTerminate) {
+        		console.log('The script has finished but has been told not to terminate..');
+        	} else {
+        		closeAndExit(page);
+        	}
         }
 	}
 	// Define count incrementer
@@ -98,6 +103,9 @@ function openLinks(position) {
 
 					// This count as a trial
 					incrementCount();
+
+					// The script should not terminate (indicates that it is not fully successful)
+					dontTerminate = true;
 
 		        	// Write the work
 		        	fs.write(dataPath, JSON.stringify(data, null, 3), 'w');
@@ -220,6 +228,9 @@ function openLinks(position) {
 					        		article.status = 'redirect';
 					        		cStatus = article.status;
 					        	} else {
+									// The script should not terminate (indicates that it is not fully successful)
+									dontTerminate = true;
+
 					        		// We should retry later
 					        		var cStatus = 'retry-later';
 					        	}
