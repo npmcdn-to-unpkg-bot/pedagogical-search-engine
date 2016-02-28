@@ -1,0 +1,6 @@
+# Ignore files created by Development Environments
+# ..
+
+# Files produced by the program
+# ..
+output/
