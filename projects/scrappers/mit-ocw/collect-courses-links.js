@@ -49,6 +49,40 @@ function beautify(str, replaceAll) {
 	return r2.trim();
 };
 
+function getUniqueName(url) {
+	var chunks = url.split('/');
+	var chunks2 = [];
+	for(var i = 0; i < chunks.length; i++) {
+		var c = chunks[i];
+		if(c.trim() !== '') {
+			chunks2.push(c);
+		}
+	}
+	return chunks2[chunks2.length - 1].toLowerCase();
+};
+
+function deducecourseNumber(url, name) {
+	var chunks = name.split(' ');
+	var chunks2 = [];
+	for(var i = 0; i < chunks.length; i++) {
+		var c = chunks[i];
+		if(c.trim() !== '') {
+			chunks2.push(c);
+		}
+	}
+	if(chunks2.length > 0) {
+		var word1 = chunks2[0].toLowerCase().replace(new RegExp('[^\\S]'), '');
+		var chunks3 = url.split('/');
+		var endUrl = chunks3[chunks3.length - 1];
+		var index = endUrl.indexOf('-' + word1);
+		var courseNumber = endUrl.substr(0, index);
+		return courseNumber;
+	} else {
+		console.log('Cannot deduce main Id for url: ' + url);
+		return 'PROBLEM_WITH_DEDUCE_MAIN_ID_IN_SCRAPPER';
+	}
+};
+
 // Handling in/out put
 var courseFolder = 'output/courses';
 var debuggingFolder = courseFolder + '/debugging';
@@ -104,21 +138,28 @@ page.open(url, function(status) {
 	        	console.log('Page loaded');
 
 		        // Collect the links
-		        var links = page.evaluate(function(sel, beautify, doesMatch, replaceAll) {
+		        var links = page.evaluate(function(sel, beautify, doesMatch, replaceAll, deducecourseNumber,
+		        		getUniqueName) {
 					return $.map($(sel), function(e) {
 						var colLinks = $(e).find("a");
-						var mainId = beautify($(colLinks[0]).text(), replaceAll);
+						var courseNumber = beautify($(colLinks[0]).text(), replaceAll).toLowerCase();
 						// Name will be scrapped in the next steps
-						//var name = beautify($(colLinks[1]).text(), replaceAll);
 						var level = beautify($(colLinks[2]).text(), replaceAll).toLowerCase();
 						var href = $(colLinks[1]).attr('href');
+
+						// Handle "Supplemental" courses
+						if(courseNumber === 'supplemental') {
+							var name = beautify($(colLinks[1]).text(), replaceAll);
+							courseNumber = deducecourseNumber(href, name);
+						}
 						
 						// Remove redirect-links
 						// e.g. "Management in Engineering" has id "16.653" but links to course "2.96"
-						if(doesMatch(mainId, href, replaceAll)) {
+						if(doesMatch(courseNumber, href, replaceAll)) {
 							if(level === 'graduate' || level === 'undergraduate') {
 								return {
-									mainId: mainId,
+									courseNumber: courseNumber,
+									uniqueName: getUniqueName(href),
 									level: level,
 									href: href
 								};
@@ -127,7 +168,7 @@ page.open(url, function(status) {
 							}
 						}
 					});
-				}, courseLineSel, beautify, doesMatch, replaceAll);
+				}, courseLineSel, beautify, doesMatch, replaceAll, deducecourseNumber, getUniqueName);
 
 		        // Save the links
 		        data = links;
