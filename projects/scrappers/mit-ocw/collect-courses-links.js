@@ -107,20 +107,24 @@ page.open(url, function(status) {
 		        var links = page.evaluate(function(sel, beautify, doesMatch, replaceAll) {
 					return $.map($(sel), function(e) {
 						var colLinks = $(e).find("a");
-						var id = beautify($(colLinks[0]).text(), replaceAll);
-						var name = beautify($(colLinks[1]).text(), replaceAll);
-						var level = beautify($(colLinks[2]).text(), replaceAll);
+						var mainId = beautify($(colLinks[0]).text(), replaceAll);
+						// Name will be scrapped in the next steps
+						//var name = beautify($(colLinks[1]).text(), replaceAll);
+						var level = beautify($(colLinks[2]).text(), replaceAll).toLowerCase();
 						var href = $(colLinks[1]).attr('href');
 						
 						// Remove redirect-links
 						// e.g. "Management in Engineering" has id "16.653" but links to course "2.96"
-						if(doesMatch(id, href, replaceAll)) {
-							return {
-								id: id,
-								name: name,
-								level: level,
-								href: href
-							};
+						if(doesMatch(mainId, href, replaceAll)) {
+							if(level === 'graduate' || level === 'undergraduate') {
+								return {
+									mainId: mainId,
+									level: level,
+									href: href
+								};
+							} else {
+								console.log('Unrecognized level: ' + level);
+							}
 						}
 					});
 				}, courseLineSel, beautify, doesMatch, replaceAll);
