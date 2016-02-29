@@ -75,13 +75,7 @@ function openLinks(position) {
         	openLinks(position + 1);
         } else {
         	console.log('The script has finished ..');
-        	if(dontTerminate) {
-        		console.log('.. and was asked not to terminate');
-        		console.log('.. hence restarting..');
-        		restart();
-        	} else {
-        		closeAndExit();
-        	}
+        	closeAndExit();
         }
 	}
 
@@ -194,10 +188,6 @@ function openLinks(position) {
 }
 
 // Workflow handling
-function restart() {
-	openLinks(0);
-};
-
 function closeAndExit() {
 	// Finally, quitting
 	console.log('Quitting Script');
@@ -238,11 +228,8 @@ phantom.onError = function(msg, trace) {
   }
   console.error(msgStack.join('\n'));
   
-  // Restart on error
-  console.log('>>            <<');
-  console.log('>> RESTARTING <<');
-  console.log('>>            <<');
-  restart();
+  // Quit
+  closeAndExit();
 };
 
 // .. page error
@@ -259,14 +246,11 @@ page.onError = function(msg, trace) {
 
   console.error(msgStack.join('\n'));
   
-  // Restart on error
-  console.log('>>            <<');
-  console.log('>> RESTARTING <<');
-  console.log('>>            <<');
-  restart();
+  // Quit
+  closeAndExit();
 };
 
 // Initial start
-restart();
+openLinks(0);
 
 })();
