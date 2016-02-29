@@ -86,15 +86,25 @@ while [ $stay_in_loop -ne 0 ]; do
 	kill -s 0 $last_pid
 
 	if [ $? -eq 1 ]; then
-		# Leave the loop
-		stay_in_loop=0
-	else
-		# kill the process
-		kill -KILL $last_pid
-		msg="[launch-with-cyclic-kills.sh] Process killed"
-		echo $msg
-		echo $msg >> "${logPath}"
+		if [ -f "finished.info" ]; then
+			msg="[launch-with-cyclic-kills.sh] The process has published a finished.info"
+			echo $msg
+			echo $msg >> "${logPath}"
+
+			# Leave the loop
+			stay_in_loop=0
+		else
+			msg="[launch-with-cyclic-kills.sh] Process has died"
+			echo $msg
+			echo $msg >> "${logPath}"
+		fi
 	fi
+
+	# kill the process
+	kill -KILL $last_pid
+	msg="[launch-with-cyclic-kills.sh] Kill the process (even if it already died)"
+	echo $msg
+	echo $msg >> "${logPath}"
  done
 
 msg="[launch-with-cyclic-kills.sh] Successfully ended!"
