@@ -99,8 +99,8 @@ function openLinks(courseNo, linkNo) {
 				console.log("Unable to access network, status: " + status + ', url: ' + currentUrl);
 				completeSuccess = false;
 
-	        	// Continue
-				goNext();
+	        	// Quit to avoid chain-errors
+				closeAndExit();
 			} else {
 				page.includeJs('http://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js', function() {
 					var menuSel = '#course_nav li';
@@ -145,7 +145,7 @@ function openLinks(courseNo, linkNo) {
 				        }, function(elapsed, finallyFn) {
 				        	// Page timeout
 							console.log('> timeout');
-							saveForDebugging('timeout-' + courseName);
+							saveForDebugging(course.uniqueName);
 							completeSuccess = false;
 
 				            // Continue
@@ -153,7 +153,7 @@ function openLinks(courseNo, linkNo) {
 
 				        }, function(elapsed, finallyFn, rejectNb) {
 				        	// Page rejected
-				        	saveForDebugging(cStatus + '/' + course.label);
+				        	saveForDebugging(course.uniqueName);
 							completeSuccess = false;
 
 				            // Continue
