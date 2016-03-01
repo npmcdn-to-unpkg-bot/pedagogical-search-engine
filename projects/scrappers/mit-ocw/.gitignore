@@ -4,3 +4,5 @@
 # Files produced by the program
 # ..
 output/
+finished.info
+*.log
