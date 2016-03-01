@@ -1,0 +1,6 @@
+# Project files
+project/
+target/
+
+# IDE files
+.idea
