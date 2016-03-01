@@ -70,7 +70,7 @@ var mitocwDomain = 'http://ocw.mit.edu';
 var dontTerminate = false;
 function openLinks(position) {
 	// Define iterator.next
-	function goNext() {
+	function goNext() {	
         if((position + 1) < data.length) {
         	openLinks(position + 1);
         } else {
@@ -216,39 +216,6 @@ page.onConsoleMessage = function(msg) {
   console.log(msg);
 };
 // */
-
-// .. fatal error
-phantom.onError = function(msg, trace) {
-  var msgStack = ['phantom error: ' + msg];
-  if (trace && trace.length) {
-    msgStack.push('TRACE:');
-    trace.forEach(function(t) {
-      msgStack.push(' -> ' + (t.file || t.sourceURL) + ': ' + t.line + (t.function ? ' (in function ' + t.function +')' : ''));
-    });
-  }
-  console.error(msgStack.join('\n'));
-  
-  // Quit
-  closeAndExit();
-};
-
-// .. page error
-page.onError = function(msg, trace) {
-
-  var msgStack = ['Page error: ' + msg];
-
-  if (trace && trace.length) {
-    msgStack.push('TRACE:');
-    trace.forEach(function(t) {
-      msgStack.push(' -> ' + t.file + ': ' + t.line + (t.function ? ' (in function "' + t.function +'")' : ''));
-    });
-  }
-
-  console.error(msgStack.join('\n'));
-  
-  // Quit
-  closeAndExit();
-};
 
 // Initial start
 openLinks(0);
