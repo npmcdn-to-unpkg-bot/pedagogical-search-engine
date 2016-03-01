@@ -145,7 +145,7 @@ function openLinks(courseNo, linkNo) {
 				        }, function(elapsed, finallyFn) {
 				        	// Page timeout
 							console.log('> timeout');
-							saveForDebugging('timeout-' + courseName);
+							saveForDebugging(course.uniqueName);
 							completeSuccess = false;
 
 				            // Continue
@@ -153,7 +153,7 @@ function openLinks(courseNo, linkNo) {
 
 				        }, function(elapsed, finallyFn, rejectNb) {
 				        	// Page rejected
-				        	saveForDebugging(cStatus + '/' + course.label);
+				        	saveForDebugging(course.uniqueName);
 							completeSuccess = false;
 
 				            // Continue
