@@ -48,6 +48,7 @@ var debuggingFolder = courseFolder + '/debugging';
 var screenshotsFolder = courseFolder + '/screenshots';
 var homeFolder = courseFolder + '/home';
 var dataPath = courseFolder + '/data.json';
+var finishedPath = 'finished.info';
 var data = JSON.parse(fs.read(dataPath));
 
 // Collecting Job
@@ -67,7 +68,7 @@ var timeoutMs = 20 * 1000;
 var refreshMs = 1 * 500;
 var mitocwDomain = 'http://ocw.mit.edu';
 
-var dontTerminate = false;
+var completeSuccess = true;
 function openLinks(position) {
 	// Define iterator.next
 	function goNext() {	
@@ -75,6 +76,14 @@ function openLinks(position) {
         	openLinks(position + 1);
         } else {
         	console.log('The script has finished ..');
+
+        	// Signal success
+        	if(completeSuccess) {
+        		console.log('Complete success');
+        		signalSuccess();
+        	}
+
+        	// Quit
         	closeAndExit();
         }
 	}
@@ -95,7 +104,7 @@ function openLinks(position) {
 			// Check for page load success
 			if(status !== 'success') {
 				console.log("Unable to access network, status: " + status + ', url: ' + currentUrl);
-				dontTerminate = true;
+				completeSuccess = false;
 
 	        	// Continue
 				goNext();
@@ -160,7 +169,7 @@ function openLinks(position) {
 				        	// Page timeout
 							console.log('> timeout');
 							saveForDebugging('timeout-' + courseName);
-							dontTerminate = true;
+							completeSuccess = false;
 
 				            // Continue
 				            finallyFn();
@@ -168,7 +177,7 @@ function openLinks(position) {
 				        }, function(elapsed, finallyFn, rejectNb) {
 				        	// Page rejected
 				        	saveForDebugging(cStatus + '/' + course.label);
-							dontTerminate = true;
+							completeSuccess = false;
 
 				            // Continue
 				            finallyFn();
@@ -193,6 +202,11 @@ function closeAndExit() {
 	console.log('Quitting Script');
 	page.close();
 	phantom.exit();
+};
+
+function signalSuccess() {
+	console.log('create ' + finishedPath);
+	fs.write(finishedPath, 'say yes', 'w');
 };
 
 function saveForDebugging(name) {
