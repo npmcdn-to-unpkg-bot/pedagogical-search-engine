@@ -17,7 +17,7 @@ How Elements are organized
 	Each TOC node may have a (label) and (children).
 	If no (label) is specified, an empty "" string is assigned.
 	If no (children) is specified, the TOC entry is considered as a leaf.
-	If not (label) and no (children) are specified, the node is discarded.
+	If no (label) and no (children) are specified, the node is discarded.
 
 	The first object contains only a optional (metadata) object and
 	a mandatory (children) array which contains the entries from the
