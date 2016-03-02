@@ -144,7 +144,8 @@ function openLinks(position) {
 								return $.map(menuLinks, function(e) {
 									var href = $(e).attr('href');
 									var label = normalize($(e).text(), replaceAll);
-									if(label !== '') {
+									// (a) non-zero labels (b) local links
+									if(label !== '' && href.indexOf('http') === -1) {
 										return {
 											normalizedLabel: label,
 											href: href
