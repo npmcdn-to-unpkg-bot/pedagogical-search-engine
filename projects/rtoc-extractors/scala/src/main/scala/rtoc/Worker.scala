@@ -1,7 +1,5 @@
 package rtoc
 
-import java.io.File
-
 class Worker[U](data: Data[U], factory: Factory[U]) {
   def work(): Unit = {
     // (re)-Initialize the cursor
