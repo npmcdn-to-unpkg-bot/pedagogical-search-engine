@@ -3,6 +3,8 @@ package coursera
 import java.io.File
 
 import Utils.Logger
+import coursera.Types.Course
+import rtoc.Worker
 
 object agent {
   def main(args: Array[String]): Unit = {
@@ -24,10 +26,12 @@ object agent {
         // Check output-folder content
         (pages.isDirectory, dataPath.isFile) match {
           case (true, true) => {
-            // todo: Create factory, data, worker
+            val factory = new Factory(pages, output)
+            val data = new DataFile(dataPath)
+            val worker = new Worker[Course](data, factory)
 
             // Make the worker work
-            // todo: worker.work()
+            worker.work()
 
             // Exit
             System.exit(0)
