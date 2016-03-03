@@ -3,29 +3,42 @@ package rtoc
 import java.io.File
 
 abstract class Data[U](in: File) {
-  val status = "rtoc-status"
   var pos = 0
+  var flushCount = 0
 
   // Iterator aspect
   def init() = { pos = 0 }
   def next(): U = {
-    pos = pos + 1
-    get(pos) match {
+    val value = get(pos) match {
       case Some(x) => x
-      case None => ???
     }
+    pos = pos + 1
+    value
   }
-  def hasNext(): Boolean = get(pos + 1).isDefined
+  def hasNext(): Boolean = get(pos).isDefined
 
   def get(i: Int): Option[U]
 
   // Edit aspect
-  def markDone(entry: U) = mark(entry, status, "done")
-  def markNotOk(entry: U) = mark(entry, status, "not-ok")
-  def markOk(entry: U) = mark(entry, status, "ok")
-  def bindTo(entry: U, resources: List[Resource]) = mark(entry, "resources", resources.map(_.path()))
+  def markNotOk(entry: U) = lazyMark(entry, "not-ok")
+  def markOk(entry: U) = lazyMark(entry, "ok")
 
-  def mark(entry: U, name: String, s: String): Unit = mark(entry, name, s::Nil)
-  def mark(entry: U, name: String, xs: List[String]): Unit
-  def flush(): Unit
+  def lazyMark(entry: U, s: String): Unit = {
+    // Mark the entry
+    mark(entry, s)
+
+    // Flush lazily
+    flushCount = flushCount + 1
+    if(flushCount > 10) {
+      flush()
+      flushCount = 0
+    }
+  }
+  def flush(): Unit = flushCount match {
+    case 0 => {}
+    case _ => executeFlush()
+  }
+
+  def mark(entry: U, s: String): Unit
+  def executeFlush(): Unit
 }

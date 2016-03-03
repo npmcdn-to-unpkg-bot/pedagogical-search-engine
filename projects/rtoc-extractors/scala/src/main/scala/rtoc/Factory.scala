@@ -1,5 +1,7 @@
 package rtoc
 
-abstract class Factory[U] {
+import java.io.File
+
+abstract class Factory[U](outputFolder: File) {
   def produceResources(data: U): List[Resource]
 }

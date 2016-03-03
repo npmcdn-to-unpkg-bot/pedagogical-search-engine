@@ -1,5 +1,7 @@
 package rtoc
 
+import java.io.File
+
 class Worker[U](data: Data[U], factory: Factory[U]) {
   def work(): Unit = {
     // (re)-Initialize the cursor
@@ -17,14 +19,10 @@ class Worker[U](data: Data[U], factory: Factory[U]) {
               resource.write()
             })
 
-            // Bind them in the data
-            data.bindTo(entry, resources)
+            // Mark the entry as OK
             data.markOk(entry)
           }
         }
-
-        // Mark the entry as done
-        data.markDone(entry)
 
         // Continue the work
         // todo: uncomment
