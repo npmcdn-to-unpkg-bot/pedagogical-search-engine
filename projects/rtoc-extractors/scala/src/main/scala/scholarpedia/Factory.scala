@@ -30,7 +30,8 @@ class Factory(pages: File, outputFolder: File) extends rtoc.Factory[Downloaded](
         .map(_.text())
         .toList
       val metadata =
-        ("title" -> title) ~ ("authors" -> authors)
+        ("title" -> title) ~ ("authors" -> authors) ~
+          ("source" -> "scholarpedia") ~ ("level" -> "expert")
 
       // TOC structure
       val rootUl = doc.select("#toc ul").iterator().asScala.toList match {
