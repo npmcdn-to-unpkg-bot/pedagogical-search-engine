@@ -8,19 +8,19 @@ import org.jsoup.nodes.Element
 import rtoc.{Node, Resource}
 import scholarpedia.Types.Downloaded
 import scala.collection.JavaConverters._
+import scala.util.hashing.MurmurHash3
 
-class Factory(pages: File) extends rtoc.Factory[Downloaded] {
+class Factory(pages: File, outputFolder: File) extends rtoc.Factory[Downloaded](outputFolder) {
   val utf8 = "UTF-8"
   val baseURL = "http://www.scholarpedia.org/"
 
   override def produceResources(article: Downloaded): List[Resource] = {
-    // todo: remove
-    Logger.debug(article.toString)
+    Logger.info("Processing " + article.toString)
 
     // Parse the article
     val pageName = article.page.split("/").toList.reverse.head
-    val path = pages.getAbsolutePath
-    val articleFile = new File(s"$path/$pageName")
+    val inPath = pages.getAbsolutePath
+    val articleFile = new File(s"$inPath/$pageName")
     val doc = Jsoup.parse(articleFile, utf8, baseURL)
 
     // Extract the informations
@@ -51,10 +51,10 @@ class Factory(pages: File) extends rtoc.Factory[Downloaded] {
         case x::xs => x
       }
 
-      val entries = getNodes(rootUl)
-
       // Create the resource
-      val resource = new Resource(entries)
+      val entries = getNodes(rootUl)
+      val outPath = outputFolder.getAbsolutePath
+      val resource = new Resource(entries, newFile(article.href, s"$outPath/scholarpedia/"))
       resource::Nil
     } catch {
       // No resource was created
@@ -65,5 +65,21 @@ class Factory(pages: File) extends rtoc.Factory[Downloaded] {
         Nil
       }
     }
+  }
+
+  def newFile(href: String, folder: String): File = {
+    // (Re-)Create folder
+    new File(folder).mkdir()
+
+    // Create file name
+    val url = s"scholarpedia$href"
+    val hash = MurmurHash3.stringHash(url)
+    val name = hash.toString
+
+    // Create file
+    val file = new File(s"$folder/$name.json")
+    file.createNewFile()
+
+    file
   }
 }

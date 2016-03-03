@@ -1,6 +1,11 @@
 package scholarpedia
 
 object Types {
-  case class Downloaded(label: String, href: String, page: String)
-  case class Article(label: String, href: String, status: Option[String], page: Option[String])
+  case class Downloaded(label: String,
+                        href: String,
+                        page: String,
+                        status: Option[String])
+  case class Article(label: String,
+                     href: String,
+                     page: Option[String])
 }
