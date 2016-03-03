@@ -1,19 +1,19 @@
 package rtoc
 
-import java.io.{PrintWriter, File}
+import java.io.{File, PrintWriter}
 
 import Utils.Logger
-import org.json4s.JsonAST.JObject
-import org.json4s.native.JsonMethods._
+import org.json4s.JsonAST.{JObject, JValue}
 import org.json4s.JsonDSL._
+import org.json4s.native.JsonMethods._
 
-class Resource(nodes: List[Node], path: File) {
+class Resource(nodes: List[Node], metadata: JValue, path: File) {
   def write(): Unit = {
     Logger.info(s"Writing resource")
 
     // Creating the json
     val c = nodes.map(_.json())
-    val o: JObject = ("children" -> c)
+    val o: JObject = ("children" -> c) ~ ("metadata" -> metadata)
     val json = pretty(render(o))
 
     // Writing it
