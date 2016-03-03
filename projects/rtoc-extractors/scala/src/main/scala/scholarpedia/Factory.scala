@@ -31,20 +31,22 @@ class Factory(pages: File, outputFolder: File) extends rtoc.Factory[Downloaded](
         .toList
       val metadata =
         ("title" -> title) ~ ("authors" -> authors) ~
-          ("source" -> "scholarpedia") ~ ("level" -> "expert")
+          ("source" -> "scholarpedia") ~ ("level" -> "expert") ~
+          ("href" -> article.href)
 
-      // TOC structure
+      // TOC nodes
       val rootUl = doc.select("#toc ul").iterator().asScala.toList match {
         case x::xs => x
       }
+      val nodes = getNodes(rootUl)
 
       // Create the resource
-      val entries = getNodes(rootUl)
       val outPath = outputFolder.getAbsolutePath
       val resource = new Resource(
-        entries,
+        nodes,
         metadata,
-        newFile(article.href, s"$outPath/scholarpedia/")
+        s"$outPath/scholarpedia",
+        name(article.href)
       )
       resource::Nil
     } catch {
@@ -58,21 +60,8 @@ class Factory(pages: File, outputFolder: File) extends rtoc.Factory[Downloaded](
     }
   }
 
-  def newFile(href: String, folder: String): File = {
-    // (Re-)Create folder
-    new File(folder).mkdir()
-
-    // Create file name
-    val url = s"scholarpedia$href"
-    val hash = MurmurHash3.stringHash(url)
-    val name = hash.toString
-
-    // Create file
-    val file = new File(s"$folder/$name.json")
-    file.createNewFile()
-
-    file
-  }
+  def name(href: String): String =
+    MurmurHash3.stringHash(s"scholarpedia$href").toString
 
   def parse(article: Downloaded) = {
     val name = article.page.split("/").toList.reverse.head
