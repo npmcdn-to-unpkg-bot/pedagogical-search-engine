@@ -31,6 +31,23 @@ Notes
 		indications, then there are no constraints on their format.
 		e.g. "Chap 3: ..", "Chapter 3: ..", "3) ..", "[Three] ..", ..
 	(n3) There are no constraints on the content of the (metadata) object.
+	(n4) No constraints state that the root (children) entry should be the
+		title of the resource (e.g. book or course)
+
+Metadata common elements
+	(source) Identify where does the resource come from
+	(level) Level of expertise of the resource
+		(v:fundamental) Negligeable prior knowledge
+		(v:high-school) Fundamental prior knowledge
+		(v:university) High-school prior knowledge
+		(v:expert) University prior knowledge
+	(title) Title of the resource
+	(authors) Authors of the resource
+	(created) Creation date
+		format: yyyy-mm-dd
+	(update) Last update date
+		format: as in (created)
+	(keywords) Keywords associated with the resource
 
 Sample (.rtoc) file
 ================================
