@@ -25,8 +25,7 @@ class Worker[U](data: Data[U], factory: Factory[U]) {
         }
 
         // Continue the work
-        // todo: uncomment
-        //workRec()
+        workRec()
       }
       case false => {}
     }
