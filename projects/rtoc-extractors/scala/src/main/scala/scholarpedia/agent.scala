@@ -9,6 +9,11 @@ import scholarpedia.Types.Downloaded
 
 object agent {
   def main(args: Array[String]): Unit = {
+    // Load program arguments
+    if(args.length != 2) {
+      Logger.error(s"2 arguments expected: (a) input-folder (b) output-folder")
+      System.exit(1)
+    }
     val input = new File(args(0))
     val output = new File(args(1))
 
