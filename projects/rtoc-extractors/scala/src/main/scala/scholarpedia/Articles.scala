@@ -24,21 +24,21 @@ class Articles(in: File) extends Data[Downloaded](in) {
   val downloaded = mutable.Buffer[Downloaded]()
   articles.map(a => a.page match {
     case None => {}
-    case Some(page) => downloaded.+=(Downloaded(a.label, a.href, page, None))
+    case Some(page) => downloaded.+=(Downloaded(a.label, a.href, page, a.status))
   })
 
-  override def get(i: Int): Option[Downloaded] = (i < downloaded.size) match {
+  override def get(i: Int): Option[Downloaded] = (i < downloaded.size && i > -1) match {
     case false => None
     case true => Some(downloaded(i))
   }
 
-  override def mark(entry: Downloaded, s: String): Unit = {
-    downloaded.indexOf(entry) match {
-      case -1 => ???
-      case index => {
-        downloaded(index) = downloaded(index).copy(status = Some(s))
-      }
-    }
+  override def mark(entry: Downloaded, s: String): Unit = apply(entry, i => {
+    downloaded(i) = downloaded(i).copy(status = Some(s))
+  })
+
+  override def apply[V](entry: Downloaded, f: Int => V): V = downloaded.indexOf(entry) match {
+    case -1 => ???
+    case index => f(index)
   }
 
   override def executeFlush(): Unit = {
@@ -51,4 +51,6 @@ class Articles(in: File) extends Data[Downloaded](in) {
     pw.close()
     Logger.info(s"Articles flushed")
   }
+
+  override def getMark(entry: Downloaded): Option[String] = apply(entry, i => downloaded(i).status)
 }
