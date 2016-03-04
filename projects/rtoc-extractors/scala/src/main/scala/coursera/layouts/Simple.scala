@@ -13,6 +13,7 @@ object Simple extends LayoutExtractor[(List[Node], Option[JValue])] {
           // module title
           val title = l(weekEntry.select("p.module-name")) match {
             case module::Nil => module.text()
+            case modules => modules.head.text()
           }
 
           // module topics
