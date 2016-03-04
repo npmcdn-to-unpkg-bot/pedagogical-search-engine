@@ -27,7 +27,7 @@ object agent {
         (pages.isDirectory, dataPath.isFile) match {
           case (true, true) => {
             val factory = new Factory(pages, output)
-            val data = new DataFile(dataPath)
+            val data = new DataFile(dataPath, alreadyRunned = true)
             val worker = new Worker[Course](data, factory)
 
             // Make the worker work

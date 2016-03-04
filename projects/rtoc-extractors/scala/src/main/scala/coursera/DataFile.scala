@@ -11,15 +11,23 @@ import rtoc.Data
 
 import scala.collection.mutable
 
-class DataFile(in: File) extends Data[Course](in) {
+class DataFile(in: File, alreadyRunned: Boolean) extends Data[Course](in) {
 
   // Parse data
   implicit val formats = DefaultFormats
   val parsed = parse(in)
 
   // Extract each article
-  val domains = parsed.extract[List[Domain]]
-  val courses = toBuffer(domains.flatMap(flatten(_, None, None)))
+  val courses = alreadyRunned match {
+    case false => {
+      // The initial format is a bit weird
+      val domains = parsed.extract[List[Domain]]
+
+      // Convert it
+      toBuffer(domains.flatMap(flatten(_, None, None)))
+    }
+    case true => toBuffer(parsed.extract[List[Course]])
+  }
   def toBuffer(a: List[Course]): mutable.Buffer[Course] = mutable.Buffer().++(a)
 
   def flatten(domain: Domain, domStr: Option[String], subDomStr: Option[String]): List[Course] =
