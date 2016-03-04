@@ -10,8 +10,6 @@ import org.json4s.native.JsonMethods._
 class Resource(nodes: List[Node], metadata: JValue,
                folder: String, name: String) {
   def write(): Unit = {
-    Logger.info(s"Writing resource")
-
     // Creating the json
     val c = nodes.map(_.json())
     val o: JObject = ("children" -> c) ~ ("metadata" -> metadata)

@@ -17,8 +17,6 @@ class Factory(pages: File, outputFolder: File) extends rtoc.Factory[Downloaded](
   val baseURL = "http://www.scholarpedia.org/"
 
   override def produceResources(article: Downloaded): List[Resource] = {
-    Logger.info("Processing " + article.toString)
-
     // Parse the article
     val doc = parse(article)
 

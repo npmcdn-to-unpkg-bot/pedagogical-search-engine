@@ -64,7 +64,6 @@ class DataFile(in: File, alreadyRunned: Boolean) extends Data[Course](in) {
     // Write
     pw.write(c)
     pw.close()
-    Logger.info(s"Courses flushed")
   }
 
   override def getMark(entry: Course): Option[String] = apply(entry, i => courses(i).status)
