@@ -7,8 +7,6 @@ import org.json4s.JsonAST.{JObject, JValue}
 import org.json4s.JsonDSL._
 import org.json4s.native.JsonMethods._
 
-import scala.util.hashing.MurmurHash3
-
 class Resource(nodes: List[Node], metadata: JValue,
                folder: String, name: String) {
   def write(): Unit = {
