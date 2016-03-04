@@ -43,6 +43,7 @@ Metadata common elements
 		(v:expert) University prior knowledge
 	(title) Title of the resource
 	(authors) Authors of the resource
+	(partners) Partners of the resource
 	(created) Creation date
 		format: yyyy-mm-dd
 	(update) Last update date
@@ -50,6 +51,10 @@ Metadata common elements
 	(keywords) Keywords associated with the resource
 	(href) relative url to the resource
 		note: Then the source must be well known!
+	(miniature) path to a miniature img
+	(screenshot) path to a screenshot of the course
+	(domain) label stating the domain
+	(subdomain) label describing a subdomain
 
 Sample (.rtoc) file
 ================================
