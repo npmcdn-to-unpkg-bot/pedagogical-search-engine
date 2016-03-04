@@ -33,8 +33,8 @@ class DataFile(in: File, alreadyRunned: Boolean) extends Data[Course](in) {
   def flatten(domain: Domain, domStr: Option[String], subDomStr: Option[String]): List[Course] =
     domain.subdomain match {
       case Some(subdomains) => subdomains.flatMap(subdomain => domStr match {
-        case Some(_) => flatten(subdomain, domStr, Some(domain.label))
-        case None => flatten(subdomain, Some(domain.label), None)
+        case Some(_) => flatten(subdomain, domStr, Some(subdomain.label))
+        case None => flatten(subdomain, Some(subdomain.label), None)
       })
       case None => domain.courses match {
         case Some(courses) => courses.map(_.copy(domain = domStr, subdomain = subDomStr))
