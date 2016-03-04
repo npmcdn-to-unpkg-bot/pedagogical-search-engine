@@ -2,8 +2,6 @@ package rtoc
 
 import java.io.File
 
-import Utils.Logger
-
 abstract class Data[U](in: File) {
   var pos = 0
   var flushCount = 0
@@ -12,7 +10,7 @@ abstract class Data[U](in: File) {
   val ok = "ok"
 
   object Marked {
-    def unapply(s: String): Boolean = (s.equals(notOk) || s.equals(ok))
+    def unapply(s: String): Boolean = passEntry(s)
   }
 
   // Iterator aspect
@@ -70,4 +68,5 @@ abstract class Data[U](in: File) {
   def mark(entry: U, s: String): Unit
   def getMark(entry: U): Option[String]
   def executeFlush(): Unit
+  def passEntry(label: String): Boolean
 }

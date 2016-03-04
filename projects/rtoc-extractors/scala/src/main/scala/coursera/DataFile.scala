@@ -68,4 +68,6 @@ class DataFile(in: File, alreadyRunned: Boolean) extends Data[Course](in) {
   }
 
   override def getMark(entry: Course): Option[String] = apply(entry, i => courses(i).status)
+
+  override def passEntry(label: String): Boolean = label.equals(ok)
 }

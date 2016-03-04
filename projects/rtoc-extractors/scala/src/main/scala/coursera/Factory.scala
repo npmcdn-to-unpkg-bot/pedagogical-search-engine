@@ -34,7 +34,10 @@ class Factory(pages: File, outputFolder: File) extends rtoc.Factory[Course](outp
         s"$outPath/coursera",
         name(course.href)
       )
-      resource::Nil
+      // todo: Produce a more complete resource
+      // resource::Nil
+
+      Nil
     } catch {
       // No resource was created
       case e => {

@@ -53,4 +53,6 @@ class Articles(in: File) extends Data[Downloaded](in) {
   }
 
   override def getMark(entry: Downloaded): Option[String] = apply(entry, i => downloaded(i).status)
+
+  override def passEntry(label: String): Boolean = (label.equals(notOk) || label.equals(ok))
 }
