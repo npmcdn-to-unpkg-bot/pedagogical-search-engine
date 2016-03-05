@@ -8,7 +8,8 @@ import coursera.layouts.{Inline, Simple}
 import org.json4s.JsonAST.JValue
 import org.json4s.JsonDSL._
 import org.jsoup.Jsoup
-import rtoc.{Node, Resource}
+import rtoc.Types.{Resources, Nodes}
+import rtoc.{Syllabus, Node, Resource}
 
 import scala.util.hashing.MurmurHash3
 
@@ -16,7 +17,7 @@ class Factory(pages: File, outputFolder: File) extends rtoc.Factory[Course](outp
   val utf8 = "UTF-8"
   val baseURL = "http://www.coursera.com/"
 
-  override def produceResources(course: Course): List[Resource] = {
+  override def produceResources(course: Course): Resources = {
     // Parse
     val doc = parse(course)
 
@@ -46,7 +47,7 @@ class Factory(pages: File, outputFolder: File) extends rtoc.Factory[Course](outp
     }
   }
 
-  def produceResource(course: Course, pair: (List[Node], Option[JValue])): List[Resource] = {
+  def produceResource(course: Course, pair: (Nodes, Option[JValue])): Resources = {
     // Create the metadata
     val partners = course.partner match {
       case Some(partner) => partner::Nil
@@ -66,24 +67,24 @@ class Factory(pages: File, outputFolder: File) extends rtoc.Factory[Course](outp
     }
 
     // Extend toc with domain, subdomain
-    def addDomain(nodes: List[Node]): List[Node] = course.domain match {
+    def addDomain(nodes: Nodes): Nodes = course.domain match {
       case Some(domain) => new Node(domain, nodes)::Nil
       case None => nodes
     }
 
-    def addSubdomain(nodes: List[Node]): List[Node] = course.subdomain match {
+    def addSubdomain(nodes: Nodes): Nodes = course.subdomain match {
       case Some(subdomain) => new Node(subdomain, nodes)::Nil
       case None => nodes
     }
 
-    def completeNodes(nodes: List[Node]): List[Node] = addDomain(addSubdomain(nodes))
+    def completeNodes(nodes: Nodes): Nodes = addDomain(addSubdomain(nodes))
 
-    val toc = completeNodes(pair._1)
+    val syllabus = Syllabus(pair._1)
 
     // Create the resource
     val outPath = outputFolder.getAbsolutePath
     val resource = new Resource(
-      toc,
+      List(syllabus),
       metadata,
       s"$outPath/coursera",
       name(course.href)

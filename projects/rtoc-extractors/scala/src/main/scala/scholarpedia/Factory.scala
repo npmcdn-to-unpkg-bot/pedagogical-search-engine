@@ -6,7 +6,8 @@ import Utils.Logger
 import org.json4s.JsonDSL._
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
-import rtoc.{Node, Resource}
+import rtoc.Types.{Nodes, Resources}
+import rtoc.{Syllabus, Node, Resource}
 import scholarpedia.Types.Downloaded
 
 import scala.collection.JavaConverters._
@@ -16,7 +17,7 @@ class Factory(pages: File, outputFolder: File) extends rtoc.Factory[Downloaded](
   val utf8 = "UTF-8"
   val baseURL = "http://www.scholarpedia.org/"
 
-  override def produceResources(article: Downloaded): List[Resource] = {
+  override def produceResources(article: Downloaded): Resources = {
     // Parse the article
     val doc = parse(article)
 
@@ -36,12 +37,12 @@ class Factory(pages: File, outputFolder: File) extends rtoc.Factory[Downloaded](
       val rootUl = doc.select("#toc ul").iterator().asScala.toList match {
         case x::xs => x
       }
-      val nodes = getNodes(rootUl)
+      val syllabus = Syllabus(getNodes(rootUl))
 
       // Create the resource
       val outPath = outputFolder.getAbsolutePath
       val resource = new Resource(
-        nodes,
+        List(syllabus),
         metadata,
         s"$outPath/scholarpedia",
         name(article.href)
@@ -68,7 +69,7 @@ class Factory(pages: File, outputFolder: File) extends rtoc.Factory[Downloaded](
     Jsoup.parse(file, utf8, baseURL)
   }
 
-  def getNodes(ul: Element): List[Node] = {
+  def getNodes(ul: Element): Nodes = {
     val ulChildren = ul.children().iterator().asScala.toList
     val lis = ulChildren.filter(_.tag().getName == "li")
 

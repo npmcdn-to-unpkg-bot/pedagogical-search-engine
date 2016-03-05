@@ -9,4 +9,5 @@ object Types {
                      href: String,
                      page: Option[String],
                      status: Option[String])
+  type Articles = List[Article]
 }

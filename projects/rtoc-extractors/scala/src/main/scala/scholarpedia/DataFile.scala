@@ -7,18 +7,18 @@ import org.json4s.DefaultFormats
 import org.json4s.native.JsonMethods._
 import org.json4s.native.Serialization.writePretty
 import rtoc.Data
-import scholarpedia.Types.{Article, Downloaded}
+import scholarpedia.Types.{Articles, Article, Downloaded}
 
 import scala.collection.mutable
 
-class Articles(in: File) extends Data[Downloaded](in) {
+class DataFile(in: File) extends Data[Downloaded](in) {
 
   // Parse data
   implicit val formats = DefaultFormats
   val parsed = parse(in)
 
   // Extract each article
-  val articles = parsed.extract[List[Article]]
+  val articles = parsed.extract[Articles]
 
   // Filter downloaded articles
   val downloaded = mutable.Buffer[Downloaded]()

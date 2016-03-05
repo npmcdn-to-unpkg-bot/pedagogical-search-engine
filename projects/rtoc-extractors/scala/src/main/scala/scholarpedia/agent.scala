@@ -30,7 +30,7 @@ object agent {
           case (true, true, true) => {
             // Create the worker
             val factory = new Factory(pages, output)
-            val data = new Articles(dataPath)
+            val data = new DataFile(dataPath)
             val worker = new Worker[Downloaded](data, factory)
 
             // Make the worker work
@@ -45,11 +45,11 @@ object agent {
               Logger.error(s"No 'pages' folder found: $path")
             }
             if(!screenshots.isDirectory) {
-              val path = pages.getPath
+              val path = screenshots.getPath
               Logger.error(s"No 'screenshots' folder found: $path")
             }
             if(!dataPath.isFile) {
-              val path = pages.getPath
+              val path = dataPath.getPath
               Logger.error(s"No 'data.json' file found: $path")
             }
             System.exit(1)

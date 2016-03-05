@@ -3,7 +3,7 @@ package coursera
 import java.io.{File, PrintWriter}
 
 import Utils.Logger
-import coursera.Types.{Course, Domain}
+import coursera.Types.{Courses, Domains, Course, Domain}
 import org.json4s.DefaultFormats
 import org.json4s.native.JsonMethods._
 import org.json4s.native.Serialization.writePretty
@@ -21,16 +21,16 @@ class DataFile(in: File, alreadyRunned: Boolean) extends Data[Course](in) {
   val courses = alreadyRunned match {
     case false => {
       // The initial format is a bit weird
-      val domains = parsed.extract[List[Domain]]
+      val domains = parsed.extract[Domains]
 
       // Convert it
       toBuffer(domains.flatMap(flatten(_, None, None)))
     }
-    case true => toBuffer(parsed.extract[List[Course]])
+    case true => toBuffer(parsed.extract[Courses])
   }
-  def toBuffer(a: List[Course]): mutable.Buffer[Course] = mutable.Buffer().++(a)
+  def toBuffer(a: Courses): mutable.Buffer[Course] = mutable.Buffer().++(a)
 
-  def flatten(domain: Domain, domStr: Option[String], subDomStr: Option[String]): List[Course] =
+  def flatten(domain: Domain, domStr: Option[String], subDomStr: Option[String]): Courses =
     domain.subdomain match {
       case Some(subdomains) => subdomains.flatMap(subdomain => domStr match {
         case Some(_) => flatten(subdomain, domStr, Some(subdomain.label))
