@@ -1,40 +1,32 @@
 
-Format Specifications Of [Raw Table Of Content] (.rtoc)
+Format specifications of a pedagogical [ReSourCe] (.rsc)
 ================================
 The following data is handled
-	(d1) TOC metadata. e.g. Title, Publisher, Date, version, Authors, ..
-	(d2) TOC structure
+	(d1) metadata. e.g. Title, Publisher, Date, version, Authors, ..
+	(d2) syllabuses
+	(d3) descriptions
 
-Format type
-	JSON
+Format type: JSON
+Structure
+{
+	() [optional] (metadata) object (d1)
+	() [optional] (syllabuses) list (d2)
+		() [optional] (label)
+		() [optional] (children)
+	() [optional] (descriptions) list (d3)
+}
 
-JSON Elements
-	(metadata) Contains the TOC metadata .. type: (d1)
-	(label) Contains the text of the TOC entry .. type: (d2)
-	(children) Contains the nested entries .. type: (d2)
-
-How Elements are organized
-	Each TOC node may have a (label) and (children).
-	If no (label) is specified, an empty "" string is assigned.
-	If no (children) is specified, the TOC entry is considered as a leaf.
-	If no (label) and no (children) are specified, the node is discarded.
-
-	The first object contains only a optional (metadata) object and
-	a mandatory (children) array which contains the entries from the
-	table of content.
-
-Notes
-	(n1) There are no constraints on the (label)s.
-		They may or may not contain an indication about the Structure.
+Notes about (syllabuses)
+	() (label)s may or may not contain an indication about the Structure.
 		e.g. "Chap 3: Advanced concept", or simply "Advanced concept"
-	(n2) In the case that the (label)s may contain some structure
-		indications, then there are no constraints on their format.
-		e.g. "Chap 3: ..", "Chapter 3: ..", "3) ..", "[Three] ..", ..
-	(n3) There are no constraints on the content of the (metadata) object.
-	(n4) No constraints state that the root (children) entry should be the
-		title of the resource (e.g. book or course)
 
-Metadata common elements
+	() (label)s structure indications have no constraints
+		e.g. "Chap 3: ..", "Chapter 3: ..", "3) ..", "[Three] ..", ..
+
+	() root (children) entry is not necessarily the resource title
+		e.g. book or course
+
+Common elements of (metadata)
 	(source) Identify where does the resource come from
 	(level) Level of expertise of the resource
 		(v:fundamental) Negligeable prior knowledge
@@ -56,7 +48,7 @@ Metadata common elements
 	(domain) label stating the domain
 	(subdomain) label describing a subdomain
 
-Sample (.rtoc) file
+Sample (.rsc) file
 ================================
 {
 	"metadata": {
@@ -64,24 +56,27 @@ Sample (.rtoc) file
 		"authors": [],
 		..
 	},
-	"children": [{
-			"label": "Chapter 1: Introduction",
-			"children": [..]
-		}, {
-			"label": "Basic concepts",
-			"children": [..]
-		}, {
-			"label": "Chap 3: Advanced concepts",
-			"children": [..]
-		}, {
-			"label": "A note about ..",
+	"syllabuses": [
+		{
 			"children": [{
-					"label": ".."
-				},{
-					"label": ".."
-				},{
-					"label": ".."
-				},
+					"label": "Chapter 1: Introduction",
+					"children": [..]
+				}, {
+					"label": "Basic concepts",
+					"children": [..]
+				}, {
+					"children": [..]
+				}, {
+					"label": "A note about ..",
+					"children": [{
+							"label": ".."
+						},{
+							"label": ".."
+						},{
+							"label": ".."
+						},
+					]
+				}
 			]
 		}
 	]
