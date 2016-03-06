@@ -8,16 +8,16 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import rtoc.Types.{Nodes, Resources}
 import rtoc.{Syllabus, Node, Resource}
-import scholarpedia.Types.Downloaded
+import scholarpedia.Types.Article
 
 import scala.collection.JavaConverters._
 import scala.util.hashing.MurmurHash3
 
-class Factory(pages: File, outputFolder: File) extends rtoc.Factory[Downloaded](outputFolder) {
+class Factory(pages: File, outputFolder: File) extends rtoc.Factory[Article](outputFolder) {
   val utf8 = "UTF-8"
   val baseURL = "http://www.scholarpedia.org/"
 
-  override def produceResources(article: Downloaded): Resources = {
+  override def produceResources(article: Article): Resources = {
     // Parse the article
     val doc = parse(article)
 
@@ -62,7 +62,7 @@ class Factory(pages: File, outputFolder: File) extends rtoc.Factory[Downloaded](
   def name(href: String): String =
     MurmurHash3.stringHash(s"scholarpedia$href").toString
 
-  def parse(article: Downloaded) = {
+  def parse(article: Article) = {
     val name = article.page.split("/").toList.reverse.head
     val path = pages.getAbsolutePath
     val file = new File(s"$path/$name")

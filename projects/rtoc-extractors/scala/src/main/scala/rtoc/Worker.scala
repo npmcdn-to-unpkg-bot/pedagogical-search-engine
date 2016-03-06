@@ -1,6 +1,6 @@
 package rtoc
 
-class Worker[U](data: Data[U], factory: Factory[U]) {
+class Worker[U <: HasStatus](data: Data[U], factory: Factory[U]) {
   def work(): Unit = {
     // (re)-Initialize the cursor
     data.init()

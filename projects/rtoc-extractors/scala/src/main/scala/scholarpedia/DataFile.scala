@@ -1,56 +1,29 @@
 package scholarpedia
 
-import java.io.{File, PrintWriter}
+import java.io.File
 
-import utils.Conversions.toBuffer
-import utils.Logger
-import org.json4s.DefaultFormats
-import org.json4s.native.JsonMethods._
-import org.json4s.native.Serialization.writePretty
 import rtoc.Data
-import scholarpedia.Types.{Articles, Downloaded}
+import scholarpedia.Types.{ArticlesEntries, Article}
+import utils.Conversions.toBuffer
 
-class DataFile(in: File) extends Data[Downloaded](in) {
+import scala.collection.mutable
 
-  // Parse data
-  implicit val formats = DefaultFormats
-  val parsed = parse(in)
+class DataFile(in: File) extends Data[Article](in) {
 
   // Extract each article
-  val articles = parsed.extract[Articles]
+  val articleEntries = parsed.extract[ArticlesEntries]
 
   // Filter downloaded articles
-  val downloaded = toBuffer(articles.flatMap(a => a.page match {
+  val articles = toBuffer(articleEntries.flatMap(a => a.page match {
     case None => Nil
-    case Some(page) => Downloaded(a.label, a.href, page, a.status)::Nil
+    case Some(page) => Article(a.label, a.href, page, a.status)::Nil
   }))
 
-  override def get(i: Int): Option[Downloaded] = (i < downloaded.size && i > -1) match {
-    case false => None
-    case true => Some(downloaded(i))
-  }
-
-  override def mark(entry: Downloaded, s: String): Unit = apply(entry, i => {
-    downloaded(i) = downloaded(i).copy(status = Some(s))
-  })
-
-  override def apply[V](entry: Downloaded, f: Int => V): V = downloaded.indexOf(entry) match {
-    case -1 => ???
-    case index => f(index)
-  }
-
-  override def executeFlush(): Unit = {
-    // Serialize data
-    val c = writePretty(downloaded)
-    val pw = new PrintWriter(in)
-
-    // Write
-    pw.write(c)
-    pw.close()
-    Logger.info(s"Articles flushed")
-  }
-
-  override def getMark(entry: Downloaded): Option[String] = apply(entry, i => downloaded(i).status)
-
+  // Do no retry entries that previously failed
   override def passEntry(label: String): Boolean = (label.equals(notOk) || label.equals(ok))
+
+  // Methods to implement
+  override def data: mutable.Buffer[Article] = articles
+
+  override def copy(o: Article, newStatus: String): Article = o.copy(status = Some(newStatus))
 }

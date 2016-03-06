@@ -4,7 +4,7 @@ import java.io.File
 
 import utils.Logger
 import rtoc.Worker
-import scholarpedia.Types.Downloaded
+import scholarpedia.Types.Article
 
 
 object agent {
@@ -31,7 +31,7 @@ object agent {
             // Create the worker
             val factory = new Factory(pages, output)
             val data = new DataFile(dataPath)
-            val worker = new Worker[Downloaded](data, factory)
+            val worker = new Worker[Article](data, factory)
 
             // Make the worker work
             worker.work()

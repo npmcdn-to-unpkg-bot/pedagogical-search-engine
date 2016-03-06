@@ -1,8 +1,11 @@
 package rtoc
 
-import java.io.File
+import java.io.{PrintWriter, File}
+import org.json4s.DefaultFormats
+import org.json4s.native.JsonMethods._
+import org.json4s.native.Serialization.writePretty
 
-abstract class Data[U](in: File) {
+abstract class Data[U <: HasStatus](in: File) {
   var pos = 0
   var flushCount = 0
 
@@ -12,6 +15,10 @@ abstract class Data[U](in: File) {
   object Marked {
     def unapply(s: String): Boolean = passEntry(s)
   }
+
+  // Parse aspect
+  implicit val formats = DefaultFormats
+  val parsed = parse(in)
 
   // Iterator aspect
   def init() = { pos = 0 }
@@ -41,8 +48,6 @@ abstract class Data[U](in: File) {
     case _ => true
   }
 
-  def get(i: Int): Option[U]
-
   // Edit aspect
   def markNotOk(entry: U) = lazyMark(entry, notOk)
   def markOk(entry: U) = lazyMark(entry, ok)
@@ -63,10 +68,37 @@ abstract class Data[U](in: File) {
     case _ => executeFlush()
   }
 
-  // Abstract methods
-  def apply[V](entry: U, f: Int => V): V
-  def mark(entry: U, s: String): Unit
-  def getMark(entry: U): Option[String]
-  def executeFlush(): Unit
-  def passEntry(label: String): Boolean
+  // Methods that may be overriden
+  def get(i: Int): Option[U] = (i < data.size && i > -1) match {
+    case false => None
+    case true => Some(data(i))
+  }
+
+  def executeFlush(): Unit = {
+    // Serialize data
+    val c = writePretty(data)
+    val pw = new PrintWriter(in)
+
+    // Write
+    pw.write(c)
+    pw.close()
+  }
+
+  def mark(entry: U, s: String): Unit = apply(entry, i => {
+    data(i) = copy(data(i), s)
+  })
+
+  def getMark(entry: U): Option[String] = apply(entry, i => data(i).status)
+
+  def passEntry(label: String): Boolean = label.equals(ok)
+
+  // other methods
+  def apply[V](entry: U, f: Int => V): V = data.indexOf(entry) match {
+    case index if index > -1 => f(index)
+  }
+
+  // Methods to implement
+  def data: scala.collection.mutable.Buffer[U]
+
+  def copy(o: U, newStatus: String): U
 }

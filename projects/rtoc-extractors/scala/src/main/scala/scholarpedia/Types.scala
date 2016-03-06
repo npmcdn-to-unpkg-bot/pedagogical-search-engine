@@ -1,13 +1,15 @@
 package scholarpedia
 
+import rtoc.HasStatus
+
 object Types {
-  case class Downloaded(label: String,
-                        href: String,
-                        page: String,
-                        status: Option[String])
   case class Article(label: String,
                      href: String,
-                     page: Option[String],
-                     status: Option[String])
-  type Articles = List[Article]
+                     page: String,
+                     status: Option[String]) extends HasStatus
+  case class ArticleEntry(label: String,
+                          href: String,
+                          page: Option[String],
+                          status: Option[String])
+  type ArticlesEntries = List[ArticleEntry]
 }

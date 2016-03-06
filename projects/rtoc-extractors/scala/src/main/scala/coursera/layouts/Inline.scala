@@ -10,8 +10,7 @@ object Inline extends LayoutExtractor[(List[Node], Option[JValue])] {
     try {
       // Extract syllabus
       val syllabus = l(doc.select("div.rc-CdpDetails > div.c-cd-section > h2")) match {
-        case Nil => ???
-        case headers => headers.map(e => (e, e.text().toLowerCase.trim)).
+        case headers if !headers.isEmpty => headers.map(e => (e, e.text().toLowerCase.trim)).
           filter(p => p._2 match {
             case "course syllabus" => true
             case _ => false
