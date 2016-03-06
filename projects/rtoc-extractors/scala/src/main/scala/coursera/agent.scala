@@ -39,11 +39,11 @@ object agent {
           case _ => {
             if(!pages.isDirectory) {
               val path = pages.getPath
-              Logger.error(s"No 'pages' folder found: $path")
+              Logger.error(s"No folder found: $path")
             }
             if(!dataPath.isFile) {
-              val path = pages.getPath
-              Logger.error(s"No 'course-links.txt' file found: $path")
+              val path = dataPath.getPath
+              Logger.error(s"No file found: $path")
             }
             System.exit(1)
           }
