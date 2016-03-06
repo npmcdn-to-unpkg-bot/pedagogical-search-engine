@@ -2,8 +2,8 @@ package scholarpedia
 
 import java.io.{File, PrintWriter}
 
-import Utils.Conversions.toBuffer
-import Utils.Logger
+import utils.Conversions.toBuffer
+import utils.Logger
 import org.json4s.DefaultFormats
 import org.json4s.native.JsonMethods._
 import org.json4s.native.Serialization.writePretty

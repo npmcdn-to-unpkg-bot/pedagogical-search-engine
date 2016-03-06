@@ -3,7 +3,7 @@ package coursera.layouts
 import org.json4s.JsonAST.JValue
 import org.jsoup.nodes.Document
 import rtoc.{LayoutExtractor, Node}
-import Utils.Conversions.l
+import utils.Conversions.l
 
 object Inline extends LayoutExtractor[(List[Node], Option[JValue])] {
   def unapply(doc: Document) = {

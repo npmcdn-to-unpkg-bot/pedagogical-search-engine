@@ -2,7 +2,7 @@ package coursera
 
 import java.io.File
 
-import Utils.Logger
+import utils.Logger
 
 object agent {
   def main(args: Array[String]): Unit = {

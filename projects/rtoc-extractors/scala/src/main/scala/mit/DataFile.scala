@@ -1,33 +1,25 @@
-package coursera
+package mit
 
 import java.io.{File, PrintWriter}
 
-import utils.Conversions.toBuffer
-import coursera.Types.{Course, Courses, Domain, Domains}
+import mit.Types.{Courses, Course}
 import org.json4s.DefaultFormats
 import org.json4s.native.JsonMethods._
 import org.json4s.native.Serialization.writePretty
 import rtoc.Data
 
-class DataFile(in: File, alreadyRunned: Boolean) extends Data[Course](in) {
+import utils.Conversions.toBuffer
+
+class DataFile(in: File) extends Data[Course](in) {
 
   // Parse data
   implicit val formats = DefaultFormats
   val parsed = parse(in)
 
   // Extract each article
-  val courses = alreadyRunned match {
-    case false => {
-      // The initial format is a bit weird
-      val domains = parsed.extract[Domains]
+  val courses = toBuffer(parsed.extract[Courses])
 
-      // Convert it
-      toBuffer(domains.flatMap(flatten(_, None, None)))
-    }
-    case true => toBuffer(parsed.extract[Courses])
-  }
-
-  def flatten(domain: Domain, domStr: Option[String], subDomStr: Option[String]): Courses =
+  def flatten(domain: , domStr: Option[String], subDomStr: Option[String]): Courses =
     domain.subdomain match {
       case Some(subdomains) => subdomains.flatMap(subdomain => domStr match {
         case Some(_) => flatten(subdomain, domStr, Some(subdomain.label))

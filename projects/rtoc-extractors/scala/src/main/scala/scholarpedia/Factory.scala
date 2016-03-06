@@ -2,7 +2,7 @@ package scholarpedia
 
 import java.io.File
 
-import Utils.Logger
+import utils.Logger
 import org.json4s.JsonDSL._
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element

@@ -1,4 +1,4 @@
-package Utils
+package utils
 
 object Logger {
   def info(msg: String) = log("Info", msg)

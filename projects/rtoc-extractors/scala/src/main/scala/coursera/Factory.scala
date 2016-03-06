@@ -2,7 +2,7 @@ package coursera
 
 import java.io.File
 
-import Utils.Logger
+import utils.Logger
 import coursera.Types.Course
 import coursera.layouts.{Inline, Simple}
 import org.json4s.JsonAST.JValue

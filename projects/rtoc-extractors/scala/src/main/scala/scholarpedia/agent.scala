@@ -2,7 +2,7 @@ package scholarpedia
 
 import java.io.File
 
-import Utils.Logger
+import utils.Logger
 import rtoc.Worker
 import scholarpedia.Types.Downloaded
 
