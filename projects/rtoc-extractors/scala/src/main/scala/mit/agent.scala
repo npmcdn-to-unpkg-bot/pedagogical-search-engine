@@ -2,6 +2,8 @@ package mit
 
 import java.io.File
 
+import mit.Types.Course
+import rtoc.Worker
 import utils.Logger
 
 object agent {
@@ -24,13 +26,12 @@ object agent {
         // Check output-folder content
         (courseFolder.isDirectory, dataPath.isFile) match {
           case (true, true) => {
-            // todo: Create worker
-//            val factory = new Factory(courseFolder, output)
-//            val data = new DataFile(dataPath)
-//            val worker = new Worker[Course](data, factory)
-//
-//            // Make the worker work
-//            worker.work()
+            val factory = new Factory(courseFolder, output)
+            val data = new DataFile(dataPath)
+            val worker = new Worker[Course](data, factory)
+
+            // Make the worker work
+            worker.work()
 
             // Exit
             System.exit(0)
