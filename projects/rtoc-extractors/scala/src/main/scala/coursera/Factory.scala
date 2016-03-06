@@ -8,8 +8,8 @@ import coursera.layouts.{Inline, Simple}
 import org.json4s.JsonAST.JValue
 import org.json4s.JsonDSL._
 import org.jsoup.Jsoup
-import rtoc.Types.{Resources, Nodes}
-import rtoc.{Syllabus, Node, Resource}
+import rtoc.Types.{Nodes, Resources}
+import rtoc.{Node, Resource, Syllabus}
 
 import scala.util.hashing.MurmurHash3
 

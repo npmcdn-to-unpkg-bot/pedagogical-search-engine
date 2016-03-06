@@ -3,8 +3,6 @@ package coursera
 import java.io.File
 
 import Utils.Logger
-import coursera.Types.Course
-import rtoc.Worker
 
 object agent {
   def main(args: Array[String]): Unit = {

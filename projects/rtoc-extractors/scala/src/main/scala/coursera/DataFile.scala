@@ -2,14 +2,12 @@ package coursera
 
 import java.io.{File, PrintWriter}
 
-import Utils.Logger
-import coursera.Types.{Courses, Domains, Course, Domain}
+import Utils.Conversions.toBuffer
+import coursera.Types.{Course, Courses, Domain, Domains}
 import org.json4s.DefaultFormats
 import org.json4s.native.JsonMethods._
 import org.json4s.native.Serialization.writePretty
 import rtoc.Data
-
-import scala.collection.mutable
 
 class DataFile(in: File, alreadyRunned: Boolean) extends Data[Course](in) {
 
@@ -28,7 +26,6 @@ class DataFile(in: File, alreadyRunned: Boolean) extends Data[Course](in) {
     }
     case true => toBuffer(parsed.extract[Courses])
   }
-  def toBuffer(a: Courses): mutable.Buffer[Course] = mutable.Buffer().++(a)
 
   def flatten(domain: Domain, domStr: Option[String], subDomStr: Option[String]): Courses =
     domain.subdomain match {

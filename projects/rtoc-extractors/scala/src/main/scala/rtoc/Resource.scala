@@ -2,7 +2,6 @@ package rtoc
 
 import java.io.{File, PrintWriter}
 
-import Utils.Logger
 import org.json4s.JsonDSL._
 import org.json4s.JsonAST.{JObject, JValue}
 import org.json4s.native.JsonMethods._

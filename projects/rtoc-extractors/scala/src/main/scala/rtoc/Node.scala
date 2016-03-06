@@ -1,6 +1,6 @@
 package rtoc
 
-import org.json4s.JsonAST.{JObject, JValue}
+import org.json4s.JsonAST.JObject
 import org.json4s.JsonDSL._
 
 class Node(label: String, children: List[Node]) {

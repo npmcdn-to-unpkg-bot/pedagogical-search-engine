@@ -2,14 +2,13 @@ package scholarpedia
 
 import java.io.{File, PrintWriter}
 
+import Utils.Conversions.toBuffer
 import Utils.Logger
 import org.json4s.DefaultFormats
 import org.json4s.native.JsonMethods._
 import org.json4s.native.Serialization.writePretty
 import rtoc.Data
-import scholarpedia.Types.{Articles, Article, Downloaded}
-
-import scala.collection.mutable
+import scholarpedia.Types.{Articles, Downloaded}
 
 class DataFile(in: File) extends Data[Downloaded](in) {
 
@@ -21,11 +20,10 @@ class DataFile(in: File) extends Data[Downloaded](in) {
   val articles = parsed.extract[Articles]
 
   // Filter downloaded articles
-  val downloaded = mutable.Buffer[Downloaded]()
-  articles.map(a => a.page match {
-    case None => {}
-    case Some(page) => downloaded.+=(Downloaded(a.label, a.href, page, a.status))
-  })
+  val downloaded = toBuffer(articles.flatMap(a => a.page match {
+    case None => Nil
+    case Some(page) => Downloaded(a.label, a.href, page, a.status)::Nil
+  }))
 
   override def get(i: Int): Option[Downloaded] = (i < downloaded.size && i > -1) match {
     case false => None
