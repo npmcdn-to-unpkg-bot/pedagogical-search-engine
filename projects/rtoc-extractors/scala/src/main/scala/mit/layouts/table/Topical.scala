@@ -3,10 +3,10 @@ package mit.layouts.table
 import org.jsoup.nodes.Document
 import rsc.{TOC, ResourceElement, Node, LayoutExtractor}
 import utils.Conversions._
+import utils.Logger
 
 object Topical extends LayoutExtractor {
-  override def unapply(doc: Document): Option[ResourceElement] = {
-    try {
+  override def getOrFail(doc: Document): ResourceElement = {
       val table = l(doc.select(".maintabletemplate > table")) match {
         case x::Nil => x
       }
@@ -39,9 +39,6 @@ object Topical extends LayoutExtractor {
         new Node(topic, Nil)
       })
 
-      Some(new ResourceElement(None, Some(List(new TOC(nodes))), None))
-    } catch {
-      case e => None
-    }
+      new ResourceElement(None, Some(List(new TOC(nodes))), None)
   }
 }
