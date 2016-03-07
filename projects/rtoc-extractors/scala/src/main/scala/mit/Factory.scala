@@ -32,7 +32,8 @@ class Factory(coursesFolder: File, outputFolder: File) extends rsc.Factory[Cours
     }
 
     // Additional metadata
-    val metadata = ("level" -> "university") ~ ("href" -> course.href)
+    val metadata = ("level" -> "university") ~ ("href" -> course.href) ~
+      ("source" -> "mit-ocw")
     val metaEl = ResourceElement(Some(metadata), None, None)
 
     // Merge elements
