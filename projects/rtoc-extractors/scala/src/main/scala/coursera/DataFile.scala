@@ -37,4 +37,6 @@ class DataFile(in: File, alreadyRunned: Boolean) extends Data[Course](in) {
   override def data: mutable.Buffer[Course] = courses
 
   override def copy(o: Course, newStatus: String): Course = o.copy(status = Some(newStatus))
+
+  override def flushAfter: Int = 10
 }
