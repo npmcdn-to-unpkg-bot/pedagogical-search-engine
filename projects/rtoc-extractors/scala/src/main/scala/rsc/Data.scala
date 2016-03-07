@@ -58,7 +58,7 @@ abstract class Data[U <: HasStatus](in: File) {
 
     // Flush lazily
     flushCount = flushCount + 1
-    if(flushCount > 10) {
+    if(flushCount > (flushAfter - 1)) {
       flush()
       flushCount = 0
     }
@@ -101,4 +101,6 @@ abstract class Data[U <: HasStatus](in: File) {
   def data: scala.collection.mutable.Buffer[U]
 
   def copy(o: U, newStatus: String): U
+
+  def flushAfter: Int = 10
 }
