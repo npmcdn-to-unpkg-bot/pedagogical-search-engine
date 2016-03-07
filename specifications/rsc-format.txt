@@ -3,20 +3,20 @@ Format specifications of a pedagogical [ReSourCe] (.rsc)
 ================================
 The following data is handled
 	(d1) metadata. e.g. Title, Publisher, Date, version, Authors, ..
-	(d2) syllabuses
+	(d2) tocs
 	(d3) descriptions
 
 Format type: JSON
 Structure
 {
 	() [optional] (metadata) object (d1)
-	() [optional] (syllabuses) list (d2)
+	() [optional] (tocs) list (d2)
 		() [optional] (label)
 		() [optional] (children)
 	() [optional] (descriptions) list (d3)
 }
 
-Notes about (syllabuses)
+Notes about (tocs)
 	() (label)s may or may not contain an indication about the Structure.
 		e.g. "Chap 3: Advanced concept", or simply "Advanced concept"
 
@@ -56,7 +56,7 @@ Sample (.rsc) file
 		"authors": [],
 		..
 	},
-	"syllabuses": [
+	"tocs": [
 		{
 			"children": [{
 					"label": "Chapter 1: Introduction",
