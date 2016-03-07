@@ -9,7 +9,7 @@ object Conversions {
 
   def toBuffer[U](a: List[U]): mutable.Buffer[U] = mutable.Buffer().++(a)
 
-  def normalize(s: String): String = s.replaceAll("[^a-zA-Z1-9 ]", "").toLowerCase.trim
+  def normalize(s: String): String = s.replaceAll("[^a-zA-Z0-9 ]", "").toLowerCase.trim
 
   def hash(s: String): String = MurmurHash3.stringHash(s).toString
 }
