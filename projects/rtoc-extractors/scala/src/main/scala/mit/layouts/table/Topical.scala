@@ -1,6 +1,6 @@
 package mit.layouts.table
 
-import org.jsoup.nodes.Document
+import org.jsoup.nodes.{Element, Document}
 import rsc.{TOC, ResourceElement, Node, LayoutExtractor}
 import utils.Conversions._
 import utils.Logger
@@ -29,16 +29,48 @@ object Topical extends LayoutExtractor {
       // Regular rows
       val rows = l(table.select("tbody > tr"))
         .map(row => l(row.select("td")))
-          .filter(cells => cells.size == headers.size) match {
+          .filter(cells => (cells.size == headers.size || cells.size == 1)) match {
         case xs if xs.length > 0 => xs
       }
 
-      // Nodes
-      val nodes = rows.map(row => {
-        val topic = row(columnIndex).text()
-        new Node(topic, Nil)
-      })
+      // Construct the toc
+      val toc = constructToc(rows, columnIndex)
 
-      new ResourceElement(None, Some(List(new TOC(nodes))), None)
+      new ResourceElement(None, Some(List(toc)), None)
+  }
+
+  def constructToc(rows: List[List[Element]], index: Int): TOC = {
+    def subNodes(rows: List[List[Element]],
+                 acc: List[Node]): (List[Node], List[List[Element]]) = rows match {
+      // No more rows
+      case Nil => (acc, Nil)
+      // At least one more row
+      case _ => rows.head match {
+        // .. it's a header
+        case _::Nil => (acc, rows)
+        // .. or not
+        case _ => {
+          val label = rows.head(index).text()
+          subNodes(rows.tail, acc:::List(new Node(label, Nil)))
+        }
+      }
+    }
+    def constructRec(rows: List[List[Element]], chapter: Option[String], acc: List[Node]):
+    List[Node] = subNodes(rows, Nil) match {
+      // No remaining rows
+      case (nodes, Nil) => chapter match {
+        case None => acc:::nodes
+        case Some(c) => acc:::List(new Node(c, nodes))
+      }
+      // Some remaining rows
+      case (nodes, remainingRows) => {
+        val label = remainingRows.head(0).text()
+        chapter match {
+          case None => constructRec(remainingRows.tail, Some(label), acc:::nodes)
+          case Some(c) => constructRec(remainingRows.tail, Some(label), acc:::List(new Node(c, nodes)))
+        }
+      }
+    }
+    new TOC(constructRec(rows, None, Nil))
   }
 }
