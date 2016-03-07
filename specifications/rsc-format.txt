@@ -41,6 +41,7 @@ Common elements of (metadata)
 	(update) Last update date
 		format: as in (created)
 	(keywords) Keywords associated with the resource
+	(categories) Category labels associated with the resource
 	(href) relative url to the resource
 		note: Then the source must be well known!
 	(miniature) path to a miniature img
