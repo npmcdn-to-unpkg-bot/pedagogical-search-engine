@@ -3,7 +3,7 @@ package scholarpedia
 import java.io.File
 
 import utils.Logger
-import rtoc.Worker
+import rsc.Worker
 import scholarpedia.Types.Article
 
 

@@ -1,12 +1,11 @@
 package coursera.layouts
 
-import org.json4s.JsonAST.JValue
 import org.jsoup.nodes.Document
-import rtoc.{LayoutExtractor, Node}
+import rsc.{TOC, ResourceElement, LayoutExtractor, Node}
 import utils.Conversions.l
 
-object Simple extends LayoutExtractor[(List[Node], Option[JValue])] {
-  def unapply(doc: Document) = {
+object Simple extends LayoutExtractor {
+  def unapply(doc: Document): Option[ResourceElement] = {
     try {
       // For each Weekly-module
       val nodes = l(doc.select("div.rc-Syllabus > div.week-entry")) match {
@@ -27,10 +26,7 @@ object Simple extends LayoutExtractor[(List[Node], Option[JValue])] {
         })
       }
 
-      // Create the extracted pairs
-      val pairs = (nodes, None)
-
-      Some(pairs)
+      Some(new ResourceElement(None, Some(List(new TOC(nodes))), None))
     } catch {
       case e => None
     }

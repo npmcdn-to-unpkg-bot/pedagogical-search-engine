@@ -3,7 +3,7 @@ package coursera
 import java.io.File
 
 import coursera.Types.{Course, Courses, Domain, Domains}
-import rtoc.Data
+import rsc.Data
 import utils.Conversions.toBuffer
 
 import scala.collection.mutable

@@ -4,7 +4,7 @@ import java.io.File
 
 import utils.Logger
 import coursera.Types.Course
-import rtoc.Worker
+import rsc.Worker
 
 object agent {
   def main(args: Array[String]): Unit = {

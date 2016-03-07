@@ -7,46 +7,38 @@ import mit.layouts.table.Topical
 import org.json4s.JsonDSL._
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import rtoc.Types.{Nodes, Resources}
-import rtoc.{Node, Resource, Syllabus}
-import utils.Logger
+import rsc.{Resource}
+import utils.Conversions._
 
-import scala.util.hashing.MurmurHash3
-
-class Factory(coursesFolder: File, outputFolder: File) extends rtoc.Factory[Course](outputFolder) {
+class Factory(coursesFolder: File, outputFolder: File) extends rsc.Factory[Course](outputFolder) {
   val utf8 = "UTF-8"
   val baseURL = "http://ocw.mit.edu/"
 
-  override def produceResources(course: Course): Resources = {
-    try {
-      course.pages.filter(_.isCalendar) match {
-        case calendar::Nil => {
-          // parse
-          val doc = openPage(calendar)
+  override def getOrFail(course: Course): Resource = {
+    course.pages.filter(_.isCalendar) match {
+      case calendar::Nil => {
+        // parse
+        val doc = openPage(calendar)
 
-          doc match {
-            case Topical(nodes, metadata) => {
-              val syllabuses = List(Syllabus(nodes))
+        doc match {
+          case Topical(rElement) => {
+            // metadata
+            val metadata = ("level" -> "university") ~ ("href" -> course.href)
 
-              // metadata
-              val metadata = ("level" -> "university") ~ ("href" -> course.href)
-
-              val resource = new Resource(syllabuses,
-                metadata,
-                outputFolder.getAbsolutePath + "/mit",
-                name(course.href))
-              List(resource)
-            }
+            // Create the resource
+            new Resource(
+              Some(metadata),
+              rElement.oTocs,
+              None,
+              outputFolder.getAbsolutePath + "/mit",
+              name(course.href))
           }
         }
       }
-    } catch {
-      case e => Nil
     }
   }
 
-  def name(href: String): String =
-    MurmurHash3.stringHash(s"mit$href").toString
+  def name(href: String): String = hash(s"mit$href")
 
   def openPage(page: Page): Document = {
     val path = coursesFolder.getAbsolutePath + page.localPath.replaceFirst("output/courses", "")

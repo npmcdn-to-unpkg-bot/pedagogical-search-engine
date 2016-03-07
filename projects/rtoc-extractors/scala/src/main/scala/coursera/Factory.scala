@@ -2,56 +2,42 @@ package coursera
 
 import java.io.File
 
-import utils.Logger
+import utils.{Logger}
+import utils.Conversions._
 import coursera.Types.Course
 import coursera.layouts.{Inline, Simple}
-import org.json4s.JsonAST.JValue
 import org.json4s.JsonDSL._
 import org.jsoup.Jsoup
-import rtoc.Types.{Nodes, Resources}
-import rtoc.{Node, Resource, Syllabus}
+import rsc.Types.{Nodes}
+import rsc.{ResourceElement, Node, Resource}
 
-import scala.util.hashing.MurmurHash3
-
-class Factory(pages: File, outputFolder: File) extends rtoc.Factory[Course](outputFolder) {
+class Factory(pages: File, outputFolder: File) extends rsc.Factory[Course](outputFolder) {
   val utf8 = "UTF-8"
   val baseURL = "http://www.coursera.com/"
 
-  override def produceResources(course: Course): Resources = {
+  override def getOrFail(course: Course): Resource = {
     // Parse
-    val doc = parse(course)
+    val doc = getPage(course)
 
-    // Extract the informations
-    try {
-      // Match the page layout
-      val href = course.href
-      doc match {
-        case Simple(p) => {
-          Logger.info(s"Simple-layout: $href")
-          produceResource(course, p)
-        }
-        case Inline(p) => {
-          Logger.info(s"Inline-layout: $href")
-          produceResource(course, p)
-        }
-        case _ => Nil
+    // Match the page layout
+    val href = course.href
+    doc match {
+      case Simple(p) => {
+        Logger.info(s"Simple-layout: $href")
+        process(course, p)
       }
-    } catch {
-      // No resource was created
-      case e => {
-        e.printStackTrace()
-        val name = course.label
-        Logger.error(s"Cannot create resource: '$name'")
-        Nil
+      case Inline(p) => {
+        Logger.info(s"Inline-layout: $href")
+        process(course, p)
       }
     }
   }
 
-  def produceResource(course: Course, pair: (Nodes, Option[JValue])): Resources = {
+  def process(course: Course, element: ResourceElement): Resource = {
     // Create the metadata
     val partners = course.partner match {
-      case Some(partner) => partner::Nil
-      case None => Nil
+      case Some(partner) => Some(partner::Nil)
+      case None => None
     }
     val metadata1 =
       ("source" -> "coursera") ~ ("level" -> "university") ~
@@ -61,7 +47,7 @@ class Factory(pages: File, outputFolder: File) extends rtoc.Factory[Course](outp
         ("subdomain" -> course.subdomain)
 
     // Merge metadata
-    val metadata = pair._2 match {
+    val metadata = element.oMetadata match {
       case None => metadata1
       case Some(metadata2) => metadata2.merge(metadata1)
     }
@@ -79,23 +65,21 @@ class Factory(pages: File, outputFolder: File) extends rtoc.Factory[Course](outp
 
     def completeNodes(nodes: Nodes): Nodes = addDomain(addSubdomain(nodes))
 
-    val syllabus = Syllabus(pair._1)
-
     // Create the resource
     val outPath = outputFolder.getAbsolutePath
-    val resource = new Resource(
-      List(syllabus),
-      metadata,
+
+    new Resource(
+      Some(metadata),
+      element.oTocs,
+      None,
       s"$outPath/coursera",
       name(course.href)
     )
-    resource::Nil
   }
 
-  def name(href: String): String =
-    MurmurHash3.stringHash(s"coursera$href").toString
+  def name(href: String): String = hash(s"coursera$href")
 
-  def parse(course: Course) = {
+  def getPage(course: Course) = {
     val name = course.localPath.split("/").toList.reverse.head
     val path = pages.getAbsolutePath
     val file = new File(s"$path/$name")

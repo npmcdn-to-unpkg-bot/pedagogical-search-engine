@@ -1,6 +1,6 @@
 package coursera
 
-import rtoc.HasStatus
+import rsc.HasStatus
 
 object Types {
   case class Domain(href: String, label: String, subdomain: Option[Domains],

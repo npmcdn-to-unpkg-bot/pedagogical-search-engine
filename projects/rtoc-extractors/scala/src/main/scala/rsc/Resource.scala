@@ -1,18 +1,24 @@
-package rtoc
+package rsc
 
 import java.io.{File, PrintWriter}
 
 import org.json4s.JsonDSL._
 import org.json4s.JsonAST.{JObject, JValue}
 import org.json4s.native.JsonMethods._
-import rtoc.Types.{Syllabuses, Nodes}
+import rsc.Types.{Metadata, TOCs}
 
-class Resource(syllabuses: Syllabuses, metadata: JValue,
+class Resource(oMetadata: Option[Metadata],
+               oTocs: Option[TOCs],
+               oDescriptions: Option[List[String]],
                folder: String, name: String) {
   def write(): Unit = {
-    // Creating the json
-    val c = syllabuses.map(syllabus => syllabus.nodes.map(_.json()))
-    val o: JObject = ("children" -> c) ~ ("metadata" -> metadata)
+    // (tocs) element
+    val tcoJSON = oTocs match {
+      case None => None
+      case Some(xs) => Some(xs.map(toc => toc.nodes.map(node => node.json())))
+    }
+
+    val o: JObject = ("metadata" -> oMetadata) ~ ("tocs" -> tcoJSON) ~ ("descriptions" -> oDescriptions)
     val json = pretty(render(o))
 
     // (Re)-Create folder

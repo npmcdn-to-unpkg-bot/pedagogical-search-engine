@@ -2,67 +2,54 @@ package scholarpedia
 
 import java.io.File
 
-import utils.Logger
+import utils.Conversions._
 import org.json4s.JsonDSL._
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
-import rtoc.Types.{Nodes, Resources}
-import rtoc.{Syllabus, Node, Resource}
+import rsc.Types.{Metadata, Nodes}
+import rsc.{TOC, Node, Resource}
 import scholarpedia.Types.Article
 
 import scala.collection.JavaConverters._
-import scala.util.hashing.MurmurHash3
 
-class Factory(pages: File, outputFolder: File) extends rtoc.Factory[Article](outputFolder) {
+class Factory(pages: File, outputFolder: File) extends rsc.Factory[Article](outputFolder) {
   val utf8 = "UTF-8"
   val baseURL = "http://www.scholarpedia.org/"
 
-  override def produceResources(article: Article): Resources = {
-    // Parse the article
-    val doc = parse(article)
+  override def getOrFail(article: Article): Resource = {
+      // Parse the article
+      val doc = getPage(article)
 
-    // Extract the informations
-    try {
       // Metadata
-      val title = doc.select("#firstHeading").text()
-      val authors = doc.select("#sp_authors .bold").iterator().asScala
-        .map(_.text())
-        .toList
-      val metadata =
+      val title = l(doc.select("#firstHeading")) match {
+        case e::Nil => e.text()
+      }
+      val authors = l(doc.select("#sp_authors .bold")).map(_.text())
+      val metadata: Metadata =
         ("title" -> title) ~ ("authors" -> authors) ~
           ("source" -> "scholarpedia") ~ ("level" -> "expert") ~
           ("href" -> article.href)
 
-      // TOC nodes
-      val rootUl = doc.select("#toc ul").iterator().asScala.toList match {
-        case x::xs => x
+      // TOC
+      val rootUl = l(doc.select("#toc ul")) match {
+        case uls if uls.length > 0 => uls.head
       }
-      val syllabus = Syllabus(getNodes(rootUl))
+      val toc = TOC(getNodes(rootUl))
 
       // Create the resource
       val outPath = outputFolder.getAbsolutePath
-      val resource = new Resource(
-        List(syllabus),
-        metadata,
+      new Resource(
+        Some(metadata),
+        Some(List(toc)),
+        None,
         s"$outPath/scholarpedia",
         name(article.href)
       )
-      resource::Nil
-    } catch {
-      // No resource was created
-      case e => {
-        e.printStackTrace()
-        val name = article.label
-        Logger.error(s"Cannot create resource: '$name'")
-        Nil
-      }
-    }
   }
 
-  def name(href: String): String =
-    MurmurHash3.stringHash(s"scholarpedia$href").toString
+  def name(href: String): String = hash(s"scholarpedia$href")
 
-  def parse(article: Article) = {
+  def getPage(article: Article) = {
     val name = article.page.split("/").toList.reverse.head
     val path = pages.getAbsolutePath
     val file = new File(s"$path/$name")
@@ -70,21 +57,26 @@ class Factory(pages: File, outputFolder: File) extends rtoc.Factory[Article](out
   }
 
   def getNodes(ul: Element): Nodes = {
-    val ulChildren = ul.children().iterator().asScala.toList
-    val lis = ulChildren.filter(_.tag().getName == "li")
+    val ulChildren = l(ul.children())
+    ulChildren.filter(_.tag().getName == "li") match {
+        // Get <li> entries
+      case lis if lis.size > 0 => lis.map(li => {
+        // Get its label
+        val label: String = l(li.children()).filter(_.tag().getName == "a") match {
+          case link::Nil => l(link.select("span.toctext")) match {
+            case label::Nil => label.text()
+          }
+        }
 
-    lis.map(li => {
-      val liChildren = li.children().iterator().asScala.toList
-      val label: String = liChildren.filter(_.tag().getName == "a") match {
-        case x::Nil => x.select("span.toctext").first().text()
-      }
+        // Get its sub-entries
+        val children = l(li.children()).filter(_.tag().getName == "ul") match {
+          case Nil => Nil
+          case x::Nil => getNodes(x)
+        }
 
-      val children = liChildren.filter(_.tag().getName == "ul") match {
-        case Nil => Nil
-        case x::Nil => getNodes(x)
-      }
-
-      new Node(label, children)
-    })
+        // Create toc-node
+        new Node(label, children)
+      })
+    }
   }
 }

@@ -1,12 +1,11 @@
 package mit.layouts.table
 
-import org.json4s.JValue
 import org.jsoup.nodes.Document
-import rtoc.{Node, LayoutExtractor}
+import rsc.{TOC, ResourceElement, Node, LayoutExtractor}
 import utils.Conversions._
 
-object Topical extends LayoutExtractor[(List[Node], Option[JValue])] {
-  override def unapply(doc: Document): Option[(List[Node], Option[JValue])] = {
+object Topical extends LayoutExtractor {
+  override def unapply(doc: Document): Option[ResourceElement] = {
     try {
       val table = l(doc.select(".maintabletemplate > table")) match {
         case x::Nil => x
@@ -40,7 +39,7 @@ object Topical extends LayoutExtractor[(List[Node], Option[JValue])] {
         new Node(topic, Nil)
       })
 
-      Some((nodes, None))
+      Some(new ResourceElement(None, Some(List(new TOC(nodes))), None))
     } catch {
       case e => None
     }

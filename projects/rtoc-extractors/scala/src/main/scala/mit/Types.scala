@@ -1,6 +1,6 @@
 package mit
 
-import rtoc.HasStatus
+import rsc.HasStatus
 
 object Types {
   case class Course(courseNumber: String,

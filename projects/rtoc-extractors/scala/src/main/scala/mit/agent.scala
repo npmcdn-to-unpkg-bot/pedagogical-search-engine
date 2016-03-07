@@ -3,7 +3,7 @@ package mit
 import java.io.File
 
 import mit.Types.Course
-import rtoc.Worker
+import rsc.Worker
 import utils.Logger
 
 object agent {

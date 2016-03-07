@@ -2,7 +2,7 @@ package scholarpedia
 
 import java.io.File
 
-import rtoc.Data
+import rsc.Data
 import scholarpedia.Types.{ArticlesEntries, Article}
 import utils.Conversions.toBuffer
 

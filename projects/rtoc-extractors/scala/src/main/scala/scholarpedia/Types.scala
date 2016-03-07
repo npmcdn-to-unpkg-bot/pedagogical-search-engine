@@ -1,6 +1,6 @@
 package scholarpedia
 
-import rtoc.HasStatus
+import rsc.HasStatus
 
 object Types {
   case class Article(label: String,

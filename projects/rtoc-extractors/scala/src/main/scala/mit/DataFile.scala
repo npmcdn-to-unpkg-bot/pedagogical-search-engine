@@ -3,7 +3,7 @@ package mit
 import java.io.File
 
 import mit.Types.{Course, Courses}
-import rtoc.Data
+import rsc.Data
 import utils.Conversions.toBuffer
 
 import scala.collection.mutable
