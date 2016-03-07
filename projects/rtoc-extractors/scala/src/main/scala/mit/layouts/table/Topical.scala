@@ -16,7 +16,7 @@ object Topical extends LayoutExtractor {
         case xs if xs.length > 0 =>
           // Only leaf elements
           xs.filter(x => x.children().size() == 0) match {
-            case ys if ys.length > 0 => ys.map(e => normalize(e.text()))
+            case ys if ys.length > 0 => ys.map(e => normalize(text(e)))
         }
       }
 
@@ -50,7 +50,7 @@ object Topical extends LayoutExtractor {
         case _::Nil => (acc, rows)
         // .. or not
         case _ => {
-          val label = rows.head(index).text()
+          val label = text(rows.head(index))
           subNodes(rows.tail, acc:::List(new Node(label, Nil)))
         }
       }
@@ -64,7 +64,7 @@ object Topical extends LayoutExtractor {
       }
       // Some remaining rows
       case (nodes, remainingRows) => {
-        val label = remainingRows.head(0).text()
+        val label = text(remainingRows.head(0))
         chapter match {
           case None => constructRec(remainingRows.tail, Some(label), acc:::nodes)
           case Some(c) => constructRec(remainingRows.tail, Some(label), acc:::List(new Node(c, nodes)))
