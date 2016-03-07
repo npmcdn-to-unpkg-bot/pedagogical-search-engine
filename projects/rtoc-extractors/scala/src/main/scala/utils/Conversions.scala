@@ -1,5 +1,7 @@
 package utils
 
+import org.jsoup.nodes.Element
+
 import scala.collection.mutable
 import scala.collection.JavaConverters._
 import scala.util.hashing.MurmurHash3
@@ -10,6 +12,10 @@ object Conversions {
   def toBuffer[U](a: List[U]): mutable.Buffer[U] = mutable.Buffer().++(a)
 
   def normalize(s: String): String = s.replaceAll("[^a-zA-Z0-9 ]", "").toLowerCase.trim
+
+  def textualize(s: String): String = s.replaceAll("\\u00a0", " ")
+
+  def text(e: Element): String = textualize(e.text())
 
   def hash(s: String): String = MurmurHash3.stringHash(s).toString
 }
