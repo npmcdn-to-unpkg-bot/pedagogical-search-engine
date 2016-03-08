@@ -38,7 +38,7 @@ class Factory(coursesFolder: File, outputFolder: File) extends rsc.Factory[Cours
 
     // Merge elements
     val mergedEl = tocEl.mergeWith(titleEl, metaEl)
-Logger.info("ok")
+
     // Create resource
     mergedEl.resource(outputFolder.getAbsolutePath + "/mit", name(course))
   }
