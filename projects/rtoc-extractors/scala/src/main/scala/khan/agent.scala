@@ -2,6 +2,7 @@ package khan
 
 import java.io.File
 
+import khan.Types.Course
 import rsc.Worker
 import utils.Logger
 
@@ -28,13 +29,13 @@ object agent {
           dataPath.createNewFile()
         }
 
-        // todo
-//            val factory = new Factory(courseFolder, output)
-            val data = new DataFile(dataPath, courseFolder)
-//            val worker = new Worker[Course](data, factory)
-//
-//            // Make the worker work
-//            worker.work()
+        // Create the worker
+        val factory = new Factory(output)
+        val data = new DataFile(dataPath, courseFolder)
+        val worker = new Worker[Course](data, factory)
+
+        // Make the worker work
+        worker.work()
 
         // Exit
         System.exit(0)
