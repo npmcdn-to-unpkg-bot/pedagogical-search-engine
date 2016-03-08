@@ -17,5 +17,8 @@ object Conversions {
 
   def text(e: Element): String = textualize(e.text())
 
-  def hash(s: String): String = MurmurHash3.stringHash(s).toString
+  def hash(s: String): String = MurmurHash3.stringHash(s) match {
+    case n if n < 0 => "0" + n
+    case p => "1" + p
+  }
 }
