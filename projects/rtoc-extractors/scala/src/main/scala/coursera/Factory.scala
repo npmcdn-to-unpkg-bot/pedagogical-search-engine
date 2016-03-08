@@ -11,7 +11,7 @@ import org.jsoup.Jsoup
 import rsc.Types.{Nodes}
 import rsc.{ResourceElement, Node, Resource}
 
-class Factory(pages: File, outputFolder: File) extends rsc.Factory[Course](outputFolder) {
+class Factory(pages: File, outputFolder: File) extends rsc.Factory[Course] {
   val utf8 = "UTF-8"
   val baseURL = "http://www.coursera.com/"
 

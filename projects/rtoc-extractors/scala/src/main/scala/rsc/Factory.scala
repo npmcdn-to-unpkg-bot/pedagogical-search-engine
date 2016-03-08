@@ -1,8 +1,6 @@
 package rsc
 
-import java.io.File
-
-abstract class Factory[U <: HasStatus](outputFolder: File) {
+abstract class Factory[U <: HasStatus] {
 
   // Either override this method, or use the
   // default implementation

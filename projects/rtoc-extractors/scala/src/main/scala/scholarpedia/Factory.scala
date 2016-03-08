@@ -12,7 +12,7 @@ import scholarpedia.Types.Article
 
 import scala.collection.JavaConverters._
 
-class Factory(pages: File, outputFolder: File) extends rsc.Factory[Article](outputFolder) {
+class Factory(pages: File, outputFolder: File) extends rsc.Factory[Article] {
   val utf8 = "UTF-8"
   val baseURL = "http://www.scholarpedia.org/"
 

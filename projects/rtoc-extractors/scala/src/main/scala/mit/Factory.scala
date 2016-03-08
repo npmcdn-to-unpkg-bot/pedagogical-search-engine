@@ -12,7 +12,7 @@ import rsc.{ResourceElement, Resource}
 import utils.Conversions._
 import utils.{Conversions, Logger}
 
-class Factory(coursesFolder: File, outputFolder: File) extends rsc.Factory[Course](outputFolder) {
+class Factory(coursesFolder: File, outputFolder: File) extends rsc.Factory[Course] {
   val utf8 = "UTF-8"
   val baseURL = "http://ocw.mit.edu/"
 
