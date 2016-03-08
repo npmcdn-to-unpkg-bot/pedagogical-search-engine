@@ -73,11 +73,11 @@ class Factory(pages: File, outputFolder: File) extends rsc.Factory[Course](outpu
       element.oTocs,
       None,
       s"$outPath/coursera",
-      name(course.href)
+      name(course)
     )
   }
 
-  def name(href: String): String = hash(s"coursera$href")
+  def name(course: Course): String = normalize(course.label) + "-" + hash(course.localPath)
 
   def getPage(course: Course) = {
     val name = course.localPath.split("/").toList.reverse.head

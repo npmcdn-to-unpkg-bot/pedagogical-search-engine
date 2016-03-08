@@ -43,11 +43,11 @@ class Factory(pages: File, outputFolder: File) extends rsc.Factory[Article](outp
         Some(List(toc)),
         None,
         s"$outPath/scholarpedia",
-        name(article.href)
+        name(article)
       )
   }
 
-  def name(href: String): String = hash(s"scholarpedia$href")
+  def name(article: Article): String = normalize(article.label) + "-" + hash(article.href)
 
   def getPage(article: Article) = {
     val name = article.page.split("/").toList.reverse.head

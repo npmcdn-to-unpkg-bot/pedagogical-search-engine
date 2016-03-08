@@ -10,7 +10,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import rsc.{ResourceElement, Resource}
 import utils.Conversions._
-import utils.Logger
+import utils.{Conversions, Logger}
 
 class Factory(coursesFolder: File, outputFolder: File) extends rsc.Factory[Course](outputFolder) {
   val utf8 = "UTF-8"
@@ -40,10 +40,10 @@ class Factory(coursesFolder: File, outputFolder: File) extends rsc.Factory[Cours
     val mergedEl = tocEl.mergeWith(titleEl, metaEl)
 Logger.info("ok")
     // Create resource
-    mergedEl.resource(outputFolder.getAbsolutePath + "/mit", name(course.href))
+    mergedEl.resource(outputFolder.getAbsolutePath + "/mit", name(course))
   }
 
-  def name(href: String): String = hash(s"mit$href")
+  def name(course: Course): String = normalize(course.courseNumber) + "-" + hash(course.uniqueName)
 
   def openPage(page: Page): Document = {
     val path = coursesFolder.getAbsolutePath + page.localPath.replaceFirst("output/courses", "")
