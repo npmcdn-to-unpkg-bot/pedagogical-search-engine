@@ -1,0 +1,51 @@
+
+Format specifications of an Annotated Resource (.rsc): (.arsc)
+================================
+The following data is handled:
+	(d1) Annotations of the phrases (aka. word n-grams "spots")
+	(d2) Candidates for the annotation of each "spot"
+	(d3) Scores for each candidate
+
+Format: Json
+Elements:
+	(spots) [array] (d1)
+		(position) [object] Position of the phrase (d1)
+			(start) [value] Start position (i.e. cursor before first letter)
+			(end) [value] End position (i.e. cursor after last letter)
+		(candidates) [array] (d2)
+			(id) [value] Identifier of the candidate (d2)
+			(scores) [object] (d3)
+
+Where to put the elements
+	() Next to a (.rsc)
+		() toc-(label)
+		() metadata-(title), (categories), ..
+		() (description)s
+
+
+Sample annotation
+----------------------------------------
+{
+	"text": "The south of Germany"
+	"spots": [{
+		"position": {
+			"start": 5,
+			"end": 10
+		},
+		"candidates": [{
+			"id": "South"
+			scores: {
+				"commonness": 0.25
+				..
+			}
+		}, {
+			"id": "Southern_France"
+			scores: {
+				"commonness": 0.1
+				..
+			}
+		}]
+	}, {
+		..
+	}]
+}
