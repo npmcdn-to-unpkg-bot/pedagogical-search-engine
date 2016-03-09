@@ -5,16 +5,11 @@ import java.io.File
 import khan.Types.Course
 import org.json4s.JsonAST.JString
 import org.json4s.JsonDSL._
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
-import rsc.{ResourceElement, Resource}
-import utils.Logger
+import rsc.{Resource, ResourceElement}
 import utils.Conversions._
+import utils.Logger
 
 class Factory(outputFolder: File) extends rsc.Factory[Course] {
-  val utf8 = "UTF-8"
-  val baseURL = "http://www.coursera.com/"
-
   override def getOrFail(course: Course): Resource = {
     // Open course
     val doc = open(course.path)
@@ -47,6 +42,4 @@ class Factory(outputFolder: File) extends rsc.Factory[Course] {
     val outputPath = outputFolder.getAbsolutePath + "/khan"
     mergedEl.resource(outputPath, name)
   }
-
-  def open(path: String): Document = Jsoup.parse(new File(path), utf8, baseURL)
 }

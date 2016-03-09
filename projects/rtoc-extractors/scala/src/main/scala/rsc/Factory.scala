@@ -1,5 +1,10 @@
 package rsc
 
+import java.io.File
+
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
+
 abstract class Factory[U <: HasStatus] {
 
   // Either override this method, or use the
@@ -18,4 +23,7 @@ abstract class Factory[U <: HasStatus] {
       case e => None
     }
   }
+
+  // other methods
+  def open(path: String): Document = Jsoup.parse(new File(path), "UTF-8")
 }
