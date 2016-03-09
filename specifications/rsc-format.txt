@@ -35,6 +35,7 @@ Common elements of (metadata)
 		(v:expert) University prior knowledge
 	(title) Title of the resource
 	(authors) Authors of the resource
+	(publisher) Publisher of the resource
 	(partners) Partners of the resource
 	(created) Creation date
 		format: yyyy-mm-dd
