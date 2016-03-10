@@ -1,3 +1,0 @@
-# use
-# grep -lir "regression" $(grep -lr "level4" crawled)
-# unencode urls: http://meyerweb.com/eric/tools/dencoder/
