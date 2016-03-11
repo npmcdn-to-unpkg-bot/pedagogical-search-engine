@@ -1,0 +1,8 @@
+wikichimp {
+  spotlight {
+    server {
+      host = "???"
+      port = ???
+    }
+  }
+}
