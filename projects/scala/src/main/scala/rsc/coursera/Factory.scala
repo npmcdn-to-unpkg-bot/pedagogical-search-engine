@@ -6,7 +6,6 @@ import rsc.coursera.layouts.{Simple, Inline}
 import utils.{Logger}
 import utils.Conversions._
 import Types.Course
-import coursera.layouts.Simple
 import org.json4s.JsonDSL._
 import org.jsoup.Jsoup
 import rsc.Types.{Nodes}
@@ -23,7 +22,7 @@ class Factory(pages: File, outputFolder: File) extends rsc.Factory[Course] {
     // Match the page layout
     val href = course.href
     doc match {
-      case Simple(p) => {
+      case layouts.Simple(p) => {
         Logger.info(s"Simple-layout: $href")
         process(course, p)
       }
