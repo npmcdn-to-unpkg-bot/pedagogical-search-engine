@@ -1,5 +1,7 @@
 package spotlight
 
+import java.util.concurrent.TimeoutException
+
 import dispatch.Defaults._
 import dispatch._
 
@@ -63,15 +65,23 @@ class WebService(wsHost: String, wsPort: Int) {
     merged
   }
 
-  def textsToSpots(texts: List[String]): List[Spots] = {
+  def textsToSpots(texts: List[String]): Option[List[Spots]] = {
     val future = launchAnnotations(texts)
     // Estimate waiting time
-    val time = (10 * texts.size) seconds
-    val spots: List[Spots] = Await.result(future, time)
-    spots
+    val time = (30 * texts.size) seconds
+
+    try {
+      val spots: List[Spots] = Await.result(future, time)
+      Some(spots)
+    } catch {
+      case e: TimeoutException => None
+    }
   }
 
-  def textToSpots(text: String): Spots = textsToSpots(text::Nil).head
+  def textToSpots(text: String): Option[Spots] = textsToSpots(text::Nil) match {
+    case None => None
+    case Some(l) => Some(l.head)
+  }
 
   // todo: Keep an eye on https://github.com/dispatch/reboot/issues/59
   def shutdown = Http.shutdown()
