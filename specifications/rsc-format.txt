@@ -1,20 +1,40 @@
 
 Format specifications of a pedagogical [ReSourCe] (.rsc)
 ================================
-The following data is handled
-	(d1) metadata. e.g. Title, Publisher, Date, version, Authors, ..
-	(d2) tocs
-	(d3) descriptions
 
-Format type: JSON
-Structure
-{
-	() [optional] (metadata) object (d1)
-	() [optional] (tocs) list (d2)
-		() [optional] (label)
-		() [optional] (children)
-	() [optional] (descriptions) list (d3)
-}
+Structure [o: Optional, v: Value]
+(metadata)
+	(source) Identify where does the resource come from
+		(v:coursera)
+		(v:khan) khan-academy
+		(v:mit) MIT Open CourseWare
+		(v:safari) SafariBooks Online
+		(v:scholarpedia)
+	(title)
+	(o:level) Level of expertise of the resource
+		(v:fundamental) Negligeable prior knowledge
+		(v:high-school) Fundamental prior knowledge
+		(v:university) High-school prior knowledge
+		(v:expert) University prior knowledge
+	(o:authors)
+	(o:publishers)
+	(o:partners) The resource might be produced with "partners" (affiliated universities..)
+	(o:creation)
+		format: yyyy-mm-dd
+	(o:updated) Last update date (e.g. correction from the author)
+		format: as in (created)
+	(o:keywords)
+	(o:categories)
+	(o:href) relative part of the resource-url
+	(o:miniature) path to a miniature img
+	(o:screenshot) path to a screenshot of the course
+	(o:domain) aka. "field" of the resource
+	(o:subdomain) more specific (domain), e.g. Linear Algebra (for the Math domain)
+(o:tocs) Table of Contents of the resource
+	(o:label) Label of the TOC entry
+	(o:children) Entries below this one
+(o:descriptions) Textual descriptions of the resource
+
 
 Notes about (tocs)
 	() (label)s may or may not contain an indication about the Structure.
@@ -25,128 +45,3 @@ Notes about (tocs)
 
 	() root (children) entry is not necessarily the resource title
 		e.g. book or course
-
-Common elements of (metadata)
-	(source) Identify where does the resource come from
-	(level) Level of expertise of the resource
-		(v:fundamental) Negligeable prior knowledge
-		(v:high-school) Fundamental prior knowledge
-		(v:university) High-school prior knowledge
-		(v:expert) University prior knowledge
-	(title) Title of the resource
-	(authors) Authors of the resource
-	(publisher) Publisher of the resource
-	(partners) Partners of the resource
-	(created) Creation date
-		format: yyyy-mm-dd
-	(update) Last update date
-		format: as in (created)
-	(keywords) Keywords associated with the resource
-	(categories) Category labels associated with the resource
-	(href) relative url to the resource
-		note: Then the source must be well known!
-	(miniature) path to a miniature img
-	(screenshot) path to a screenshot of the course
-	(domain) label stating the domain
-	(subdomain) label describing a subdomain
-
-Sample (.rsc) file
-================================
-{
-	"metadata": {
-		"Title": "..",
-		"authors": [],
-		..
-	},
-	"tocs": [
-		{
-			"children": [{
-					"label": "Chapter 1: Introduction",
-					"children": [..]
-				}, {
-					"label": "Basic concepts",
-					"children": [..]
-				}, {
-					"children": [..]
-				}, {
-					"label": "A note about ..",
-					"children": [{
-							"label": ".."
-						},{
-							"label": ".."
-						},{
-							"label": ".."
-						},
-					]
-				}
-			]
-		}
-	]
-}
-
-Sample Tables of Content
-================================
-
-Machine Learning with Spark
-http://proquest.safaribooksonline.com/book/programming/machine-learning/9781783288519
------------------------------------------
-Machine Learning with Spark
-	Table of Contents
-	Machine Learning with Spark
-	Credits
-Preface
-	What this book covers
-	What you need for this book
-1. Getting Up and Running with Spark
-	Installing and setting up Spark locally
-	Spark clusters
-	The Spark programming model
-		SparkContext and SparkConf
-		The Spark shell
-2. Designing a Machine Learning System
-	...
-Index
-
-
-How Video Works, 3rd Edition
-http://proquest.safaribooksonline.com/book/video/9781317661801
------------------------------------------
-Cover
-Title
-Copyright
-Dedication
-Contents
-Acknowledgments
-1 Introduction
-2 Creating a Video Image
-3 Video Scanning
-...
-Glossary
-Index
-Plates
-
-
-Unix® and Linux® System Administration Handbook, Fourth Edition, Video Enhanced Edition
-http://proquest.safaribooksonline.com/book/operating-systems-and-server-administration/linux/9780132117371
------------------------------------------
-Title Page
-Copyright Page
-Table of Contents
-Foreword
-Preface
-	The Organization of this Book
-Section One: Basic Administration
-	1. Where to Start
-		Essential duties of the system administrator
-	2. Scripting and the Shell
-		..
-Section Two: Networking
-	..
-Index
-A Brief History of System Administration
-	The Dawn of Computing: System Operators (1952–1960)
-Footnotes
-	Chapter 1
-	Chapter 2
-	Chapter 3
-	...
