@@ -1,6 +1,6 @@
 package rsc.mit
 
-import rsc.HasStatus
+import rsc.extraction.HasStatus
 
 object Types {
   case class Course(courseNumber: String,
@@ -28,17 +28,19 @@ object Types {
 
     def isIn(l: List[String]): Boolean = l.contains(normalizedLabel)
   }
+
   type Courses = List[Course]
   type Pages = List[Page]
+
+  object Labels {
+    val home = List("course home")
+    val syllabus = List("syllabus")
+    val calendar = List("calendar")
+    val readings = List("readings")
+    val assignments = List("assignments")
+    val projects = List("projects")
+    val relatedResources = List("related resources")
+    val downloads = List("download course materials")
+  }
 }
 
-object Labels {
-  val home = List("course home")
-  val syllabus = List("syllabus")
-  val calendar = List("calendar")
-  val readings = List("readings")
-  val assignments = List("assignments")
-  val projects = List("projects")
-  val relatedResources = List("related resources")
-  val downloads = List("download course materials")
-}

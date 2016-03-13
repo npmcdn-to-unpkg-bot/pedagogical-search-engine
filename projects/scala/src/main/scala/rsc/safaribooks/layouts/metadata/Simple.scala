@@ -1,12 +1,12 @@
 package rsc.safaribooks.layouts.metadata
 
 import org.jsoup.nodes.Document
-import rsc.{ResourceElement, LayoutExtractor}
+import rsc.extraction.LayoutExtractor
+import rsc.safaribooks.Types.Metadata
 import utils.Conversions.{l, text}
-import org.json4s.JsonDSL._
 
-object Simple extends LayoutExtractor {
-  override def getOrFail(doc: Document): ResourceElement = {
+object Simple extends LayoutExtractor[Metadata] {
+  override def getOrFail(doc: Document): Metadata = {
     // Meta-box
     val metaEls = l(doc.select("ul.metadatalist > li")) match {
       case lis if !lis.isEmpty => lis
@@ -23,9 +23,6 @@ object Simple extends LayoutExtractor {
     }
 
     // Create the metadata
-    val metadata = ("title" -> title) ~ ("publisher" -> publisher)
-
-    // Create the resource-element
-    new ResourceElement(Some(metadata), None, None)
+    Metadata(title, publisher)
   }
 }

@@ -1,11 +1,12 @@
 package rsc.khan.layouts.toc
 
 import org.jsoup.nodes.Document
-import rsc.{TOC, Node, LayoutExtractor, ResourceElement}
+import rsc.extraction.LayoutExtractor
+import rsc.toc.{Toc, Node}
 import utils.Conversions._
 
-object Normal extends LayoutExtractor {
-  override def getOrFail(doc: Document): ResourceElement = {
+object Normal extends LayoutExtractor[Toc] {
+  override def getOrFail(doc: Document): Toc = {
     // Get nodes
     val blockSel = "div.tutorial-overview-block div.tutorial-container"
     val nodes = l(doc.select(blockSel)) match {
@@ -28,6 +29,6 @@ object Normal extends LayoutExtractor {
     }
 
     // Create resource element
-    new ResourceElement(None, Some(List(new TOC(nodes))), None)
+    new Toc(nodes)
   }
 }

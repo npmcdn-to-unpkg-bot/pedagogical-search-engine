@@ -1,11 +1,12 @@
 package rsc.coursera.layouts
 
 import org.jsoup.nodes.Document
-import rsc.{TOC, ResourceElement, LayoutExtractor, Node}
+import rsc.extraction.LayoutExtractor
+import rsc.toc.{Toc, Node}
 import utils.Conversions.l
 
-object Simple extends LayoutExtractor {
-  override def getOrFail(doc: Document): ResourceElement = {
+object Simple extends LayoutExtractor[Toc] {
+  override def getOrFail(doc: Document): Toc = {
     // For each Weekly-module
     val nodes = l(doc.select("div.rc-Syllabus > div.week-entry")) match {
       case weekEntries @ (xs::x) => weekEntries.map(weekEntry => {
@@ -25,6 +26,6 @@ object Simple extends LayoutExtractor {
       })
     }
 
-    new ResourceElement(None, Some(List(new TOC(nodes))), None)
+    new Toc(nodes)
   }
 }

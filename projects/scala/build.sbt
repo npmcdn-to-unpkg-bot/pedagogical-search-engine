@@ -5,6 +5,8 @@ version := "1.0"
 scalaVersion := "2.11.7"
 
 val json4sNative = "org.json4s" %% "json4s-native" % "3.2.11"
+val json4sExt = "org.json4s" % "json4s-ext_2.11" % "3.3.0"
+
 
 val jsoup = "org.jsoup" % "jsoup" % "1.8.3"
 
@@ -17,4 +19,4 @@ libraryDependencies += jsoup
 libraryDependencies += dispatch
 libraryDependencies += dispatchJson
 libraryDependencies += configFile
-    
+libraryDependencies += json4sExt

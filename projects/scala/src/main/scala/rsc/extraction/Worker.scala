@@ -1,6 +1,8 @@
-package rsc
+package rsc.extraction
 
-class Worker[U <: HasStatus](data: Data[U], factory: Factory[U]) {
+import rsc.writers.Writer
+
+class Worker[U <: HasStatus](data: Data[U], factory: Factory[U], writer: Writer) {
   def work(): Unit = {
     // (re)-Initialize the cursor
     data.init()
@@ -12,7 +14,7 @@ class Worker[U <: HasStatus](data: Data[U], factory: Factory[U]) {
         factory.getResource(entry) match {
           case None => data.markNotOk(entry)
           case Some(resource) => {
-            resource.write()
+            writer.write(resource)
             data.markOk(entry)
           }
         }

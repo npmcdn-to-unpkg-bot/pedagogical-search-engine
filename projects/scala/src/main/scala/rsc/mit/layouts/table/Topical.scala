@@ -1,45 +1,43 @@
 package rsc.mit.layouts.table
 
 import org.jsoup.nodes.{Element, Document}
-import rsc.{TOC, ResourceElement, Node, LayoutExtractor}
+import rsc.extraction.LayoutExtractor
+import rsc.toc.{Toc, Node}
 import utils.Conversions._
-import utils.Logger
 
-object Topical extends LayoutExtractor {
-  override def getOrFail(doc: Document): ResourceElement = {
-      val table = l(doc.select(".maintabletemplate > table")) match {
-        case x::Nil => x
+object Topical extends LayoutExtractor[Toc] {
+  override def getOrFail(doc: Document): Toc = {
+    val table = l(doc.select(".maintabletemplate > table")) match {
+      case x::Nil => x
+    }
+
+    // Table headers
+    val headers = l(table.select("thead > tr > th")) match {
+      case xs if xs.length > 0 =>
+        // Only leaf elements
+        xs.filter(x => x.children().size() == 0) match {
+          case ys if ys.length > 0 => ys.map(e => normalize(text(e)))
       }
+    }
 
-      // Table headers
-      val headers = l(table.select("thead > tr > th")) match {
-        case xs if xs.length > 0 =>
-          // Only leaf elements
-          xs.filter(x => x.children().size() == 0) match {
-            case ys if ys.length > 0 => ys.map(e => normalize(text(e)))
-        }
-      }
+    // Header with a "topics" label
+    val topicLabels = List("topics")
+    val columnIndex = headers.zipWithIndex.filter(p => topicLabels.contains(p._1)) match {
+      case p::Nil => p._2
+    }
 
-      // Header with a "topics" label
-      val topicLabels = List("topics")
-      val columnIndex = headers.zipWithIndex.filter(p => topicLabels.contains(p._1)) match {
-        case p::Nil => p._2
-      }
+    // Regular rows
+    val rows = l(table.select("tbody > tr"))
+      .map(row => l(row.select("td")))
+        .filter(cells => (cells.size == headers.size || cells.size == 1)) match {
+      case xs if xs.length > 0 => xs
+    }
 
-      // Regular rows
-      val rows = l(table.select("tbody > tr"))
-        .map(row => l(row.select("td")))
-          .filter(cells => (cells.size == headers.size || cells.size == 1)) match {
-        case xs if xs.length > 0 => xs
-      }
-
-      // Construct the toc
-      val toc = constructToc(rows, columnIndex)
-
-      new ResourceElement(None, Some(List(toc)), None)
+    // Create the Toc
+    constructToc(rows, columnIndex)
   }
 
-  def constructToc(rows: List[List[Element]], index: Int): TOC = {
+  def constructToc(rows: List[List[Element]], index: Int): Toc = {
     def subNodes(rows: List[List[Element]],
                  acc: List[Node]): (List[Node], List[List[Element]]) = rows match {
       // No more rows
@@ -71,6 +69,6 @@ object Topical extends LayoutExtractor {
         }
       }
     }
-    new TOC(constructRec(rows, None, Nil))
+    Toc(constructRec(rows, None, Nil))
   }
 }

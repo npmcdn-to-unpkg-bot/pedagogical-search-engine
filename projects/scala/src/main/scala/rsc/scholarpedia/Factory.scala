@@ -1,59 +1,39 @@
 package rsc.scholarpedia
 
-import java.io.File
-
-import utils.Conversions._
-import org.json4s.JsonDSL._
-import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
-import rsc.Types.{Metadata, Nodes}
-import rsc.{TOC, Node, Resource}
-import Types.Article
+import rsc.Resource
+import rsc.Types.Nodes
+import rsc.attributes.{Level, Source}
+import rsc.scholarpedia.Types.Article
+import rsc.toc.{Node, Toc}
+import utils.Conversions._
 
-import scala.collection.JavaConverters._
-
-class Factory(pages: File, outputFolder: File) extends rsc.Factory[Article] {
-  val utf8 = "UTF-8"
-  val baseURL = "http://www.scholarpedia.org/"
+class Factory extends rsc.extraction.Factory[Article] {
 
   override def getOrFail(article: Article): Resource = {
-      // Parse the article
-      val doc = getPage(article)
+    // Parse the article
+    val doc = openWeird(settings.Resources.Scholarpedia.pages, article.page)
 
-      // Metadata
-      val title = l(doc.select("#firstHeading")) match {
-        case e::Nil => e.text()
-      }
-      val authors = l(doc.select("#sp_authors .bold")).map(_.text())
-      val metadata: Metadata =
-        ("title" -> title) ~ ("authors" -> authors) ~
-          ("source" -> "scholarpedia") ~ ("level" -> "expert") ~
-          ("href" -> article.href)
+    // Metadata
+    val source = Source.Scholarpedia
+    val title = l(doc.select("#firstHeading")) match {
+      case e::Nil => e.text()
+    }
 
-      // TOC
-      val rootUl = l(doc.select("#toc ul")) match {
-        case uls if uls.length > 0 => uls.head
-      }
-      val toc = TOC(getNodes(rootUl))
+    val level = Level.Expert
+    val authors = l(doc.select("#sp_authors .bold")).map(_.text())
+    val href = article.href
 
-      // Create the resource
-      val outPath = outputFolder.getAbsolutePath
-      new Resource(
-        Some(metadata),
-        Some(List(toc)),
-        None,
-        s"$outPath/scholarpedia",
-        name(article)
-      )
-  }
+    // Toc
+    val rootUl = l(doc.select("#toc ul")) match {
+      case uls if uls.length > 0 => uls.head
+    }
+    val toc = Toc(getNodes(rootUl))
 
-  def name(article: Article): String = normalize(article.label) + "-" + hash(article.href)
-
-  def getPage(article: Article) = {
-    val name = article.page.split("/").toList.reverse.head
-    val path = pages.getAbsolutePath
-    val file = new File(s"$path/$name")
-    Jsoup.parse(file, utf8, baseURL)
+    Resource(source, title,
+      oLevel = Some(level),
+      oAuthors = Some(authors),
+      oHref = Some(href))
   }
 
   def getNodes(ul: Element): Nodes = {

@@ -1,88 +1,72 @@
 package rsc.coursera
 
-import java.io.File
+import rsc.Resource
+import rsc.Types.Nodes
+import rsc.attributes.{Level, Source}
+import rsc.coursera.Types.Course
+import rsc.coursera.layouts.Inline
+import rsc.toc.{Node, Toc}
+import utils.Logger
 
-import rsc.coursera.layouts.{Simple, Inline}
-import utils.{Logger}
-import utils.Conversions._
-import Types.Course
-import org.json4s.JsonDSL._
-import org.jsoup.Jsoup
-import rsc.Types.{Nodes}
-import rsc.{ResourceElement, Node, Resource}
-
-class Factory(pages: File, outputFolder: File) extends rsc.Factory[Course] {
-  val utf8 = "UTF-8"
-  val baseURL = "http://www.coursera.com/"
+class Factory extends rsc.extraction.Factory[Course]() {
 
   override def getOrFail(course: Course): Resource = {
     // Parse
-    val doc = getPage(course)
+    val doc = openWeird(settings.Resources.Coursera.pages, course.localPath)
 
     // Match the page layout
     val href = course.href
     doc match {
       case layouts.Simple(p) => {
-        Logger.info(s"Simple-layout: $href")
+        Logger.debug(s"Simple-layout: $href")
         process(course, p)
       }
       case Inline(p) => {
-        Logger.info(s"Inline-layout: $href")
+        Logger.debug(s"Inline-layout: $href")
         process(course, p)
       }
     }
   }
 
-  def process(course: Course, element: ResourceElement): Resource = {
+  def process(course: Course, toc: Toc): Resource = {
     // Create the metadata
-    val partners = course.partner match {
+    val partnersV = course.partner match {
       case Some(partner) => Some(partner::Nil)
       case None => None
     }
-    val metadata1 =
-      ("source" -> "coursera") ~ ("level" -> "university") ~
-        ("title" -> course.label) ~ ("href" -> course.href) ~
-        ("partners" -> partners) ~ ("miniature" -> course.localImg) ~
-        ("screenshot" -> course.screenshot) ~ ("domain" -> course.domain) ~
-        ("subdomain" -> course.subdomain)
+    val source = Source.Coursera
+    val title = course.label
 
-    // Merge metadata
-    val metadata = element.oMetadata match {
-      case None => metadata1
-      case Some(metadata2) => metadata2.merge(metadata1)
-    }
+    val level = Level.University
+    val href = course.href
+    val miniature = course.localImg
+    val screenshot = course.screenshot
+    val oDomain = course.domain
+    val oSubdomain = course.subdomain
 
     // Extend toc with domain, subdomain
-    def addDomain(nodes: Nodes): Nodes = course.domain match {
+    def addDomain(nodes: Nodes): Nodes = oDomain match {
       case Some(domain) => new Node(domain, nodes)::Nil
       case None => nodes
     }
 
-    def addSubdomain(nodes: Nodes): Nodes = course.subdomain match {
+    def addSubdomain(nodes: Nodes): Nodes = oSubdomain match {
       case Some(subdomain) => new Node(subdomain, nodes)::Nil
       case None => nodes
     }
 
     def completeNodes(nodes: Nodes): Nodes = addDomain(addSubdomain(nodes))
 
+    val extendedToc = Toc(completeNodes(toc.nodes))
+
     // Create the resource
-    val outPath = outputFolder.getAbsolutePath
-
-    new Resource(
-      Some(metadata),
-      element.oTocs,
-      None,
-      s"$outPath/coursera",
-      name(course)
-    )
-  }
-
-  def name(course: Course): String = normalize(course.label) + "-" + hash(course.localPath)
-
-  def getPage(course: Course) = {
-    val name = course.localPath.split("/").toList.reverse.head
-    val path = pages.getAbsolutePath
-    val file = new File(s"$path/$name")
-    Jsoup.parse(file, utf8, baseURL)
+    Resource(source, title,
+      oLevel = Some(level),
+      oHref = Some(href),
+      oMiniature = Some(miniature),
+      oScreenshot = Some(screenshot),
+      oDomain = oDomain,
+      oSubdomain = oSubdomain,
+      oTocs = Some(extendedToc::Nil))
   }
 }

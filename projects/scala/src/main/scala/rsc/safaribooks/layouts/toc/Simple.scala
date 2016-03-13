@@ -1,11 +1,12 @@
 package rsc.safaribooks.layouts.toc
 
-import org.jsoup.nodes.{Element, Document}
-import rsc.{Node, TOC, ResourceElement, LayoutExtractor}
+import org.jsoup.nodes.{Document, Element}
+import rsc.extraction.LayoutExtractor
+import rsc.toc.{Node, Toc}
 import utils.Conversions.{l, text}
 
-object Simple extends LayoutExtractor {
-  override def getOrFail(doc: Document): ResourceElement = {
+object Simple extends LayoutExtractor[Toc] {
+  override def getOrFail(doc: Document): Toc = {
     // TOC entries
     val entryEls = l(doc.select("div.toc_book > div")) match {
       case es if !es.isEmpty => es
@@ -42,6 +43,6 @@ object Simple extends LayoutExtractor {
     val nodes = getSubNodes(tuples, 0, Nil)._1
 
     // Create the resource-element
-    new ResourceElement(None, Some(List(new TOC(nodes))), None)
+    Toc(nodes)
   }
 }

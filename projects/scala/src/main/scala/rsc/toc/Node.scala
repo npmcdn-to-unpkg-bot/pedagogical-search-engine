@@ -1,14 +1,8 @@
-package rsc
+package rsc.toc
 
-import org.json4s.JsonAST.JObject
-import org.json4s.JsonDSL._
+import rsc.Types.Nodes
 
-class Node(label: String, children: List[Node]) {
-
-  def json(): JObject = {
-    val cs = children.map(c => c.json())
-    ("label" -> label) ~ ("children" -> cs)
-  }
+case class Node(label: String, children: Nodes) {
 
   def prettyPrint(spaces: String): String = {
     val affix = children match {

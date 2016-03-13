@@ -1,11 +1,20 @@
-package rsc
+package rsc.extraction
 
-import java.io.{PrintWriter, File}
+import java.io.{File, PrintWriter}
+
 import org.json4s.DefaultFormats
 import org.json4s.native.JsonMethods._
 import org.json4s.native.Serialization.writePretty
+import utils.Settings
 
-abstract class Data[U <: HasStatus](in: File) {
+abstract class Data[U <: HasStatus](_settings: Settings) {
+
+  def this() = this(new Settings())
+
+  def in: File
+
+  val settings = _settings
+
   var pos = 0
   var flushCount = 0
 
@@ -18,7 +27,7 @@ abstract class Data[U <: HasStatus](in: File) {
 
   // Parse aspect
   implicit val formats = DefaultFormats
-  val parsed = parse(in)
+  lazy val parsed = parse(in)
 
   // Iterator aspect
   def init() = { pos = 0 }

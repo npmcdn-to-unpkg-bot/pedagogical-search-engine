@@ -1,6 +1,6 @@
 package rsc.scholarpedia
 
-import rsc.HasStatus
+import rsc.extraction.HasStatus
 
 object Types {
   case class Article(label: String,

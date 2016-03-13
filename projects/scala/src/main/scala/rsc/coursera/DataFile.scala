@@ -2,17 +2,18 @@ package rsc.coursera
 
 import java.io.File
 
-import Types.{Course, Courses, Domain, Domains}
-import rsc.Data
-import rsc.coursera.Types.{Domain, Course}
+import rsc.coursera.Types.{Course, Courses, Domain, Domains}
+import rsc.extraction.Data
 import utils.Conversions.toBuffer
 
 import scala.collection.mutable
 
-class DataFile(in: File, alreadyRunned: Boolean) extends Data[Course](in) {
+class DataFile(alreadyRan: Boolean) extends Data[Course] {
+
+  val in = new File(settings.Resources.Coursera.data)
 
   // Extract each article
-  val courses = alreadyRunned match {
+  val courses = alreadyRan match {
     case false => {
       // The initial format is a bit weird
       val domains = parsed.extract[Domains]

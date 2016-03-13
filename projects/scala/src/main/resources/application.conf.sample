@@ -1,8 +1,31 @@
 wikichimp {
+  workingDir = "???"
   spotlight {
     server {
       host = "???"
       port = ???
+    }
+  }
+  resources {
+    folder = "???"
+    coursera {
+      pages = "???"
+      data = "???"
+    }
+    khan {
+      pages = "???"
+    }
+    mit {
+      pages = "???"
+      data = "???"
+    }
+    safari {
+      pages = "???"
+      data = "???"
+    }
+    scholarpedia {
+      pages = "???"
+      data = "???"
     }
   }
 }

@@ -1,8 +1,10 @@
 package utils
 
-import java.io.File
+import java.io.{PrintWriter, File}
 
 object Files {
+  case class RelativeFile(file: File, parents: List[String], rootFolder: File)
+
   def explore(rootFolder: File): List[RelativeFile] = {
     def rec(folder: File, parents: List[String]): List[RelativeFile] = {
       // Add current folder to parents
@@ -26,6 +28,21 @@ object Files {
     // Remove the top folder from the "parents" field
     rec(rootFolder, Nil).map(file => file.copy(parents = file.parents.tail))
   }
-}
 
-case class RelativeFile(file: File, parents: List[String], rootFolder: File)
+  def touch(file: File): File = {
+    file.getParentFile.mkdirs()
+    file.createNewFile()
+    file
+  }
+
+  def touch(path: String): File = touch(new File(path))
+
+  def write(content: String, file: File): Unit = {
+    touch(file)
+    val pw = new PrintWriter(file)
+    pw.write(content)
+    pw.close()
+  }
+
+  def write(content: String, path: String): Unit = write(content, new File(path))
+}

@@ -1,6 +1,6 @@
 package rsc.coursera
 
-import rsc.HasStatus
+import rsc.extraction.HasStatus
 
 object Types {
   case class Domain(href: String, label: String, subdomain: Option[Domains],

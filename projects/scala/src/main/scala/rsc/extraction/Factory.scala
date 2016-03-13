@@ -1,11 +1,16 @@
-package rsc
+package rsc.extraction
 
 import java.io.File
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import rsc.Resource
+import utils.Settings
 
-abstract class Factory[U <: HasStatus] {
+abstract class Factory[U <: HasStatus](_settings: Settings) {
+
+  def this() = this(new Settings())
+  val settings = _settings
 
   // Either override this method, or use the
   // default implementation
@@ -26,4 +31,9 @@ abstract class Factory[U <: HasStatus] {
 
   // other methods
   def open(path: String): Document = Jsoup.parse(new File(path), "UTF-8")
+
+  def openWeird(folder: String, filePath: String): Document = {
+    val fileName = new File(filePath).getName
+    open(s"$folder/$fileName")
+  }
 }

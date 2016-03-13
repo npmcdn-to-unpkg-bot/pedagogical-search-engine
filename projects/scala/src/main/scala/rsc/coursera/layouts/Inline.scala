@@ -1,11 +1,12 @@
 package rsc.coursera.layouts
 
 import org.jsoup.nodes.Document
-import rsc.{TOC, ResourceElement, LayoutExtractor, Node}
+import rsc.extraction.LayoutExtractor
+import rsc.toc.{Toc, Node}
 import utils.Conversions._
 
-object Inline extends LayoutExtractor {
-  override def getOrFail(doc: Document): ResourceElement = {
+object Inline extends LayoutExtractor[Toc] {
+  override def getOrFail(doc: Document): Toc = {
     // Extract toc
     val tocEl = l(doc.select("div.rc-CdpDetails > div.c-cd-section > h2")) match {
       case headers if !headers.isEmpty =>
@@ -21,6 +22,6 @@ object Inline extends LayoutExtractor {
       })
     }
 
-    new ResourceElement(None, Some(List(new TOC(nodes))), None)
+    new Toc(nodes)
   }
 }
