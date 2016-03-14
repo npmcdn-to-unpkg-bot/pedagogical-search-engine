@@ -62,6 +62,12 @@ class WebService(wsHost: String, wsPort: Int) {
     merged
   }
 
+  def launchAnnotationsByGroup(textGroups: List[List[String]]): Future[List[List[Spots]]] = {
+    val futuresByGroup: List[Future[List[Spots]]] = textGroups.map(launchAnnotations(_))
+    val merged: Future[List[List[Spots]]] = Future.sequence(futuresByGroup)
+    merged
+  }
+
   def textsToSpots(texts: List[String]): Option[List[Spots]] = {
     val future = launchAnnotations(texts)
     // Estimate waiting time
@@ -69,6 +75,19 @@ class WebService(wsHost: String, wsPort: Int) {
 
     try {
       val spots: List[Spots] = Await.result(future, time)
+      Some(spots)
+    } catch {
+      case e: TimeoutException => None
+    }
+  }
+
+  def textsToSpotsByGroup(textsByGroup: List[List[String]]): Option[List[List[Spots]]] = {
+    val future = launchAnnotationsByGroup(textsByGroup)
+    // Estimate waiting time
+    val time = (30 * textsByGroup.map(_.size).sum) seconds
+
+    try {
+      val spots: List[List[Spots]] = Await.result(future, time)
       Some(spots)
     } catch {
       case e: TimeoutException => None
