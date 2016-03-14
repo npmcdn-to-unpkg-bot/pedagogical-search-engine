@@ -2,6 +2,7 @@ package rsc.scholarpedia
 
 import org.jsoup.nodes.Element
 import rsc.Resource
+import rsc.Resource._
 import rsc.Types.Nodes
 import rsc.attributes.{Level, Source}
 import rsc.scholarpedia.Types.Article
@@ -33,7 +34,9 @@ class Factory extends rsc.extraction.Factory[Article] {
     Resource(source, title,
       oLevel = Some(level),
       oAuthors = Some(authors),
-      oHref = Some(href))
+      oHref = Some(href),
+      oTocs = Some(toc::Nil)
+    )
   }
 
   def getNodes(ul: Element): Nodes = {
