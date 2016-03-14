@@ -41,7 +41,8 @@ Structure [o: Optional, v: Value]
 		(o:spots)
 			[spot]
 (o:tocs) Table of Contents of the resource
-	[toc]
+	(nodes)
+		[toc]
 (o:descriptions) Textual descriptions of the resource
 	(o:spots)
 		[spot]
