@@ -1,9 +1,10 @@
 package rsc.coursera
 
 import rsc.Resource
+import rsc.Resource._
 import rsc.Types.Nodes
 import rsc.attributes.{Level, Source}
-import rsc.coursera.Types.Course
+import rsc.coursera.Types.{Domain, Course}
 import rsc.coursera.layouts.Inline
 import rsc.toc.{Node, Toc}
 import utils.Logger
@@ -60,13 +61,15 @@ class Factory extends rsc.extraction.Factory[Course]() {
     val extendedToc = Toc(completeNodes(toc.nodes))
 
     // Create the resource
+    val oDomains = oDomain.map(rsc.attributes.Domain(_)::Nil)
+    val oSubdomains = oSubdomain.map(rsc.attributes.Subdomain(_)::Nil)
     Resource(source, title,
       oLevel = Some(level),
       oHref = Some(href),
       oMiniature = Some(miniature),
       oScreenshot = Some(screenshot),
-      oDomain = oDomain,
-      oSubdomain = oSubdomain,
+      oDomains = oDomains,
+      oSubdomains = oSubdomains,
       oTocs = Some(extendedToc::Nil))
   }
 }

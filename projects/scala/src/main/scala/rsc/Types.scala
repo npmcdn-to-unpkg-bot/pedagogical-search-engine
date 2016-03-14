@@ -1,13 +1,22 @@
 package rsc
 
-import org.json4s.JsonAST.JValue
-import rsc.toc.{Toc, Node}
+import rsc.attributes.Candidate.Candidate
+import rsc.attributes._
+import rsc.toc.{Node, Toc}
 
 object Types {
   // rsc types
-  type Metadata = JValue
+  type Keywords = List[Keyword]
+  type Categories = List[Category]
+  type Domains = List[Domain]
+  type Subdomains = List[Subdomain]
+
+  type Candidates = List[Candidate]
+  type Spots = List[Spot]
+
+
   type Tocs = List[Toc]
-  type Descriptions = List[String]
+  type Descriptions = List[Description]
 
   // other
   type Nodes = List[Node]

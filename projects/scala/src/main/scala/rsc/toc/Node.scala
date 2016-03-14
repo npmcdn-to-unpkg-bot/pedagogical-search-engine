@@ -1,8 +1,8 @@
 package rsc.toc
 
-import rsc.Types.Nodes
+import rsc.Types.{Spots, Nodes}
 
-case class Node(label: String, children: Nodes) {
+case class Node(label: String, children: Nodes = Nil, oSpots: Option[Spots] = None) {
 
   def prettyPrint(spaces: String): String = {
     val affix = children match {

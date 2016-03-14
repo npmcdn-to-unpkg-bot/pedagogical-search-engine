@@ -2,6 +2,7 @@ package rsc.mit
 
 import org.jsoup.nodes.Document
 import rsc.Resource
+import rsc.Resource._
 import rsc.attributes.{Level, Source}
 import rsc.mit.Types.{Course, Page}
 import rsc.mit.layouts.table.Topical

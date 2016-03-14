@@ -1,8 +1,10 @@
 package rsc.khan
 
 import rsc.Resource
-import rsc.attributes.{Level, Source}
+import rsc.Resource._
+import rsc.attributes.{Category, Level, Source}
 import rsc.khan.Types.Course
+import utils.Conversions.list2Option
 
 class Factory extends rsc.extraction.Factory[Course] {
   override def getOrFail(course: Course): Resource = {
@@ -26,10 +28,11 @@ class Factory extends rsc.extraction.Factory[Course] {
     val categories = course.parents
 
     // Create resource
+    val oCategories = list2Option(categories.map(Category(_)))
     Resource(source, title,
       oHref = Some(href),
       oLevel = Some(level),
-      oCategories = Some(categories),
+      oCategories = oCategories,
       oTocs = Some(toc::Nil))
   }
 }

@@ -4,13 +4,10 @@ import java.util.concurrent.TimeoutException
 
 import dispatch.Defaults._
 import dispatch._
-
 import org.json4s.DefaultFormats
 import org.json4s.JsonAST._
-import org.json4s.native.JsonMethods._
-
-import spotlight.Types.Spots
-import spotlight.Types.WebService.Annotation
+import rsc.Types.Spots
+import spotlight.Types.Annotation
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -35,7 +32,7 @@ class WebService(wsHost: String, wsPort: Int) {
     // Produce the spots
     response.map(json => {
       // Rename fields with problematic identifiers
-      val renamed = Types.WebService.transformFields(json \ "annotation")
+      val renamed = Types.transformFields(json \ "annotation")
 
       // Normalize the json
       val normalized = renamed transformField {

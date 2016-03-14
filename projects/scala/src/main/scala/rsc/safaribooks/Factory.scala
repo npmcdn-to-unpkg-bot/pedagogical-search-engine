@@ -1,6 +1,7 @@
 package rsc.safaribooks
 
 import rsc.Resource
+import rsc.Resource._
 import rsc.attributes.Source
 import rsc.safaribooks.Types.Book
 

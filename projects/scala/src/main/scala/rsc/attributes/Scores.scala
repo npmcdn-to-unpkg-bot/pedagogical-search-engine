@@ -1,4 +1,4 @@
-package spotlight
+package rsc.attributes
 
 case class Scores(contextualScore: Double,
                   percentageOfSecondRank: Double,

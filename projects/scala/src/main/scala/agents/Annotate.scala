@@ -1,7 +1,8 @@
 package agents
 
 import rsc.Formatters
-import spotlight.{Printer, WebService}
+import rsc.printers.Spots
+import spotlight.WebService
 import utils.Settings
 
 object Annotate extends Formatters {
@@ -21,7 +22,7 @@ object Annotate extends Formatters {
       case Some(ls) => ls.zip(texts).map(p => {
         val text = p._2
         val spots = p._1
-        spots.map(spot => println(Printer.printSpot(spot, text)))
+        println(Spots.printSpots(spots, text))
       })
     }
 

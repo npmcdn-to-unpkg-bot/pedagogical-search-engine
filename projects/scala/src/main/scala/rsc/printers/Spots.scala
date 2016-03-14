@@ -1,6 +1,8 @@
-package spotlight
+package rsc.printers
 
-object Printer {
+import rsc.attributes.Spot
+
+object Spots {
   def printSpot(spot: Spot, text: String): String = {
     // Generate text snippet
     val start = spot.start
@@ -25,4 +27,6 @@ object Printer {
     val candStr = spot.candidates.map("  " + _.toString).mkString("\n")
     s"Spot: $snippet\n$candStr"
   }
+
+  def printSpots(spots: Seq[Spot], text: String): String = spots.map(spot => printSpot(spot, text)).mkString("\n")
 }

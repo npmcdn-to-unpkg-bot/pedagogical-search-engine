@@ -9,6 +9,11 @@ import scala.util.hashing.MurmurHash3
 object Conversions {
   def l[U](javaList: java.lang.Iterable[U]): List[U] = javaList.iterator().asScala.toList
 
+  def list2Option[A](xs: List[A]): Option[List[A]] = xs match {
+    case Nil => None
+    case _ => Some(xs)
+  }
+
   def toBuffer[U](a: List[U]): mutable.Buffer[U] = mutable.Buffer().++(a)
 
   def normalize(s: String): String = s.replaceAll("[^a-zA-Z0-9 ]", "").toLowerCase.trim
