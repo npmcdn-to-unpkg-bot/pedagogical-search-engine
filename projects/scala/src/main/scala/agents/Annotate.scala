@@ -15,130 +15,99 @@ object Annotate extends Formatters {
     val settings = new Settings()
     val webService = new WebService(settings.Spotlight.host, settings.Spotlight.port)
 
-    trait Actor
-    case class SingleActor(text: String,
-                           fn: (Resource, Spots) => Resource) extends Actor
-    case class GroupActor(texts: List[String],
-                          fn: (Resource, List[Spots]) => Resource) extends Actor
-
-    case class Work(spotsByGroup: List[Spots], actor: Actor)
-
-    def annotate(resource: Resource, actors: List[Actor]): Option[Resource] = {
-      // Annotate each text
-      val textsByGroups: List[List[String]] = actors.map(actor => actor match {
-        case SingleActor(text, fn) => List(text)
-        case GroupActor(texts, fn) => texts
-      })
-      val oSpots: Option[List[List[Spots]]] = webService.textsToSpotsByGroup(textsByGroups)
-
-      // Let the actors work on the results
-      oSpots match {
-        case None => None
-        case Some(lss) => {
-          val work = lss.zip(actors).map(p => Work(p._1, p._2))
-          val newResource = work.foldLeft(resource)((rsc, w) => w.actor match {
-            case SingleActor(text, fn) => fn(rsc, w.spotsByGroup.head)
-            case GroupActor(texts, fn) => fn(rsc, w.spotsByGroup)
-          })
-
-          Some(newResource)
-        }
-      }
-    }
-
-    // Create the actors
-    def newTitle(resource: Resource, spots: Spots): Resource =
-      resource.copy(title = resource.title.copy(oSpots = Some(spots)))
-
-    def newKeywords(resource: Resource, spotsGroups: List[Spots]): Resource = {
-      resource.copy(oKeywords = resource.oKeywords match {
-        case None => None
-        case Some(keywords) => Some(
-          keywords.zip(spotsGroups).map(p => {
-            val keyword = p._1
-            val spots = p._2
-            keyword.copy(oSpots = Some(spots))
-          })
-        )
-      })
-    }
-
-    def newCategories(resource: Resource, spotsGroups: List[Spots]): Resource = {
-      resource.copy(oCategories = resource.oCategories match {
-        case None => None
-        case Some(categories) => Some(
-          categories.zip(spotsGroups).map(p => {
-            val category = p._1
-            val spots = p._2
-            category.copy(oSpots = Some(spots))
-          })
-        )
-      })
-    }
-
-    def newDomains(resource: Resource, spots: List[Spots]): Resource =
-      resource.copy(oDomains = resource.oDomains match {
-        case None => None
-        case Some(domains) => Some(
-          domains.zip(spots).map(p => {
-            val domain = p._1
-            val spots = p._2
-            domain.copy(oSpots = Some(spots))
-          })
-        )
-    })
-
-    def newSubdomains(resource: Resource, spots: List[Spots]): Resource =
-      resource.copy(oSubdomains = resource.oSubdomains match {
-        case None => None
-        case Some(subdomains) => Some(
-          subdomains.zip(spots).map(p => {
-            val subdomain = p._1
-            val spots = p._2
-            subdomain.copy(oSpots = Some(spots))
-          })
-        )
-      })
-
     // Annotate each resource-file
     Files.explore(new File(settings.Resources.folder)).map(file => {
       val json = parse(file.file)
-      val resource = json.extract[Resource]
+      val r = json.extract[Resource]
 
-      // Create the actors
-      val oTitleActor = Some(SingleActor(resource.title.label, newTitle))
-
-      val oKeywordLabels = resource.oKeywords.map(keywords => keywords.map(_.label))
-      val oKeywordsActor = oKeywordLabels.map(GroupActor(_, newKeywords))
-
-      val oCatergoryLabels = resource.oCategories.map(categories => categories.map(_.label))
-      val oCategoriesActor = oCatergoryLabels.map(GroupActor(_, newCategories))
-
-      val oDomainLabels = resource.oDomains.map(domains => domains.map(_.label))
-      val oDomainsActor = oDomainLabels.map(GroupActor(_, newDomains))
-
-      val oSubdomainLabels = resource.oSubdomains.map(subdomains => subdomains.map(_.label))
-      val oSubdomainsActor = oSubdomainLabels.map(GroupActor(_, newSubdomains))
-
-      val emptyList: List[Actor] = Nil
-      val actors: List[Actor] = List(
-        oTitleActor,
-        oKeywordsActor,
-        oCategoriesActor,
-        oDomainsActor,
-        oSubdomainsActor
-      ).foldLeft(emptyList)((l, oActor) => oActor match {
-        case None => l
-        case Some(actor) => actor::l
+      // Construct new elements
+      val newTitle = webService.textToSpots(r.title.label) match {
+        case Some(spots) => r.title.copy(oSpots = Some(spots))
+      }
+      val newOKeywords = r.oKeywords.map(keywords => {
+        val labels = keywords.map(_.label)
+        webService.textsToSpots(labels) match {
+          case Some(l) => l.zip(keywords).map(p => {
+            val keyword = p._2
+            val spots = p._1
+            keyword.copy(oSpots = Some(spots))
+          })
+        }
+      })
+      val newOCategories = r.oCategories.map(categories => {
+        val labels = categories.map(_.label)
+        webService.textsToSpots(labels) match {
+          case Some(l) => l.zip(categories).map(p => {
+            val category = p._2
+            val spots = p._1
+            category.copy(oSpots = Some(spots))
+          })
+        }
+      })
+      val newODomains = r.oDomains.map(domains => {
+        val labels = domains.map(_.label)
+        webService.textsToSpots(labels) match {
+          case Some(l) => l.zip(domains).map(p => {
+            val domain = p._2
+            val spots = p._1
+            domain.copy(oSpots = Some(spots))
+          })
+        }
+      })
+      val newOSubdomains = r.oSubdomains.map(subdomains => {
+        val labels = subdomains.map(_.label)
+        webService.textsToSpots(labels) match {
+          case Some(l) => l.zip(subdomains).map(p => {
+            val subdomain = p._2
+            val spots = p._1
+            subdomain.copy(oSpots = Some(spots))
+          })
+        }
       })
 
-      // Let each actor annotate
-      annotate(resource, actors) match {
-        case None => {} // Something failed
-        case Some(newResource) => {
-          Json.write(newResource, Some(file.file.getAbsolutePath))
+      def annotateNodes(nodes: Nodes): Nodes = nodes match {
+        case Nil => Nil
+        case _ => {
+          val labels = nodes.map(_.label)
+          webService.textsToSpots(labels) match {
+            case Some(l) => l.zip(nodes).map(p => {
+              val node = p._2
+              val spots = p._1
+              val newChildren = annotateNodes(node.children)
+              node.copy(oSpots = Some(spots), children = newChildren)
+            })
+          }
         }
       }
+
+      val newOTocs = r.oTocs.map(tocs => tocs.map(toc => {
+        val newNodes = annotateNodes(toc.nodes)
+        toc.copy(nodes = newNodes)
+      }))
+
+      val newODescriptions = r.oDescriptions.map(descriptions =>
+        webService.textsToSpots(descriptions.map(_.text)) match {
+          case Some(l) => l.zip(descriptions).map(p => {
+            val description = p._2
+            val spots = p._1
+            description.copy(oSpots = Some(spots))
+          })
+        }
+      )
+
+      // Create the new resource
+      val newResource = r.copy(
+        title = newTitle,
+        oKeywords = newOKeywords,
+        oCategories = newOCategories,
+        oDomains = newODomains,
+        oSubdomains = newOSubdomains,
+        oTocs = newOTocs,
+        oDescriptions = newODescriptions
+      )
+
+      // Write it
+      Json.write(newResource, Some(file.file.getAbsolutePath))
     })
 
     // Create the web-service
