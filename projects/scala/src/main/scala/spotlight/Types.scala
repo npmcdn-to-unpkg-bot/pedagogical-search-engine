@@ -1,7 +1,7 @@
 package spotlight
 
 import org.json4s.JValue
-import spotlight.Candidate.{Scores, Spotlight, Candidate}
+import spotlight.Candidate.{Spotlight, Candidate}
 
 object Types {
   type Candidates = List[Candidate]
@@ -44,7 +44,7 @@ object Types {
           case true => {
             val candidates = surfaceForm.allCandidates()
             // 1 surface-form = 1 spot
-            List(Spot(text, (begin, end), candidates))
+            List(Spot(begin, end, candidates))
           }
         }
       })
