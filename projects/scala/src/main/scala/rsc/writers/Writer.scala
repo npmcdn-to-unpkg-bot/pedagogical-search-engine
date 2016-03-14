@@ -17,5 +17,5 @@ abstract class Writer(_settings: Settings) {
     Logger.info(s"Written: $source, $title")
   }
 
-  def executeWrite(resource: Resource)
+  protected def executeWrite(resource: Resource)
 }
