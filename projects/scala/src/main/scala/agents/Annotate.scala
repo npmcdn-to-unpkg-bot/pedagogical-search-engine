@@ -52,6 +52,7 @@ object Annotate extends Formatters {
 
     def newKeywords(resource: Resource, spotsGroups: List[Spots]): Resource = {
       resource.copy(oKeywords = resource.oKeywords match {
+        case None => None
         case Some(keywords) => Some(
           keywords.zip(spotsGroups).map(p => {
             val keyword = p._1
@@ -64,6 +65,7 @@ object Annotate extends Formatters {
 
     def newCategories(resource: Resource, spotsGroups: List[Spots]): Resource = {
       resource.copy(oCategories = resource.oCategories match {
+        case None => None
         case Some(categories) => Some(
           categories.zip(spotsGroups).map(p => {
             val category = p._1
@@ -73,6 +75,30 @@ object Annotate extends Formatters {
         )
       })
     }
+
+    def newDomains(resource: Resource, spots: List[Spots]): Resource =
+      resource.copy(oDomains = resource.oDomains match {
+        case None => None
+        case Some(domains) => Some(
+          domains.zip(spots).map(p => {
+            val domain = p._1
+            val spots = p._2
+            domain.copy(oSpots = Some(spots))
+          })
+        )
+    })
+
+    def newSubdomains(resource: Resource, spots: List[Spots]): Resource =
+      resource.copy(oSubdomains = resource.oSubdomains match {
+        case None => None
+        case Some(subdomains) => Some(
+          subdomains.zip(spots).map(p => {
+            val subdomain = p._1
+            val spots = p._2
+            subdomain.copy(oSpots = Some(spots))
+          })
+        )
+      })
 
     // Annotate each resource-file
     Files.explore(new File(settings.Resources.folder)).map(file => {
@@ -88,11 +114,19 @@ object Annotate extends Formatters {
       val oCatergoryLabels = resource.oCategories.map(categories => categories.map(_.label))
       val oCategoriesActor = oCatergoryLabels.map(GroupActor(_, newCategories))
 
+      val oDomainLabels = resource.oDomains.map(domains => domains.map(_.label))
+      val oDomainsActor = oDomainLabels.map(GroupActor(_, newDomains))
+
+      val oSubdomainLabels = resource.oSubdomains.map(subdomains => subdomains.map(_.label))
+      val oSubdomainsActor = oSubdomainLabels.map(GroupActor(_, newSubdomains))
+
       val emptyList: List[Actor] = Nil
       val actors: List[Actor] = List(
         oTitleActor,
         oKeywordsActor,
-        oCategoriesActor
+        oCategoriesActor,
+        oDomainsActor,
+        oSubdomainsActor
       ).foldLeft(emptyList)((l, oActor) => oActor match {
         case None => l
         case Some(actor) => actor::l
@@ -102,7 +136,7 @@ object Annotate extends Formatters {
       annotate(resource, actors) match {
         case None => {} // Something failed
         case Some(newResource) => {
-          Json.write(newResource)
+          Json.write(newResource, Some(file.file.getAbsolutePath))
         }
       }
     })
