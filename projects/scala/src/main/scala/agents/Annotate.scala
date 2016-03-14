@@ -2,15 +2,12 @@ package agents
 
 import java.io.File
 
-import rsc.Types.Spots
-import rsc.attributes.Title
-import rsc.printers.Spots
+import org.json4s.native.JsonMethods._
+import rsc.Types._
 import rsc.writers.Json
 import rsc.{Resource, Formatters}
-import rsc.printers.Spots
 import spotlight.WebService
 import utils.{Files, Settings}
-import org.json4s.native.JsonMethods._
 
 object Annotate extends Formatters {
   def main(args: Array[String]): Unit = {
@@ -18,22 +15,30 @@ object Annotate extends Formatters {
     val settings = new Settings()
     val webService = new WebService(settings.Spotlight.host, settings.Spotlight.port)
 
-    case class Actor(text: String, fn: (Resource, Spots) => Resource)
-    case class Work(spots: Spots, actor: Actor)
+    trait Actor
+    case class SingleActor(text: String,
+                           fn: (Resource, Spots) => Resource) extends Actor
+    case class GroupActor(texts: List[String],
+                          fn: (Resource, List[Spots]) => Resource) extends Actor
+
+    case class Work(spotsByGroup: List[Spots], actor: Actor)
 
     def annotate(resource: Resource, actors: List[Actor]): Option[Resource] = {
       // Annotate each text
-      val texts = actors.map(_.text)
-      val oSpots = webService.textsToSpots(texts)
+      val textsByGroups: List[List[String]] = actors.map(actor => actor match {
+        case SingleActor(text, fn) => List(text)
+        case GroupActor(texts, fn) => texts
+      })
+      val oSpots: Option[List[List[Spots]]] = webService.textsToSpotsByGroup(textsByGroups)
 
       // Let the actors work on the results
       oSpots match {
         case None => None
-        case Some(ls) => {
-          val work = ls.zip(actors).map(p => Work(p._1, p._2))
-          val newResource = work.foldLeft(resource)((rsc, w) => w.spots match {
-            case Nil => rsc // No spots = No work
-            case _ => w.actor.fn(rsc, w.spots)
+        case Some(lss) => {
+          val work = lss.zip(actors).map(p => Work(p._1, p._2))
+          val newResource = work.foldLeft(resource)((rsc, w) => w.actor match {
+            case SingleActor(text, fn) => fn(rsc, w.spotsByGroup.head)
+            case GroupActor(texts, fn) => fn(rsc, w.spotsByGroup)
           })
 
           Some(newResource)
@@ -45,15 +50,53 @@ object Annotate extends Formatters {
     def newTitle(resource: Resource, spots: Spots): Resource =
       resource.copy(title = resource.title.copy(oSpots = Some(spots)))
 
+    def newKeywords(resource: Resource, spotsGroups: List[Spots]): Resource = {
+      resource.copy(oKeywords = resource.oKeywords match {
+        case Some(keywords) => Some(
+          keywords.zip(spotsGroups).map(p => {
+            val keyword = p._1
+            val spots = p._2
+            keyword.copy(oSpots = Some(spots))
+          })
+        )
+      })
+    }
+
+    def newCategories(resource: Resource, spotsGroups: List[Spots]): Resource = {
+      resource.copy(oCategories = resource.oCategories match {
+        case Some(categories) => Some(
+          categories.zip(spotsGroups).map(p => {
+            val category = p._1
+            val spots = p._2
+            category.copy(oSpots = Some(spots))
+          })
+        )
+      })
+    }
+
     // Annotate each resource-file
     Files.explore(new File(settings.Resources.folder)).map(file => {
       val json = parse(file.file)
       val resource = json.extract[Resource]
 
       // Create the actors
+      val oTitleActor = Some(SingleActor(resource.title.label, newTitle))
+
+      val oKeywordLabels = resource.oKeywords.map(keywords => keywords.map(_.label))
+      val oKeywordsActor = oKeywordLabels.map(GroupActor(_, newKeywords))
+
+      val oCatergoryLabels = resource.oCategories.map(categories => categories.map(_.label))
+      val oCategoriesActor = oCatergoryLabels.map(GroupActor(_, newCategories))
+
+      val emptyList: List[Actor] = Nil
       val actors: List[Actor] = List(
-        Actor(resource.title.label, newTitle)
-      )
+        oTitleActor,
+        oKeywordsActor,
+        oCategoriesActor
+      ).foldLeft(emptyList)((l, oActor) => oActor match {
+        case None => l
+        case Some(actor) => actor::l
+      })
 
       // Let each actor annotate
       annotate(resource, actors) match {
