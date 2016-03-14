@@ -11,6 +11,8 @@ Structure [o: Optional, v: Value]
 		(v:safari) SafariBooks Online
 		(v:scholarpedia)
 	(title)
+		(o:spots)
+			[spot]
 	(o:level) Level of expertise of the resource
 		(v:fundamental) Negligeable prior knowledge
 		(v:high-school) Fundamental prior knowledge
@@ -24,18 +26,49 @@ Structure [o: Optional, v: Value]
 	(o:updated) Last update date (e.g. correction from the author)
 		format: as in (created)
 	(o:keywords)
+		(o:spots)
+			[spot]
 	(o:categories)
+		(o:spots)
+			[spot]
 	(o:href) relative part of the resource-url
 	(o:miniature) path to a miniature img
 	(o:screenshot) path to a screenshot of the course
 	(o:domain) aka. "field" of the resource
+		(o:spots)
+			[spot]
 	(o:subdomain) more specific (domain), e.g. Linear Algebra (for the Math domain)
+		(o:spots)
+			[spot]
 (o:tocs) Table of Contents of the resource
-	(o:label) Label of the TOC entry
-	(o:children) Entries below this one
+	[toc]
 (o:descriptions) Textual descriptions of the resource
+	(o:spots)
+		[spot]
 
+Brackets-References
+----------------------------
+[toc]
+	(o:label) Label of the TOC entry
+	(o:spots)
+		[spot]
+	(o:children) Entries below this one
+		{array:[toc]}
 
+[spot]
+	(start) cursor-position before the first letter of the spot
+	(end) cursor-position after the last letter of the spot
+	(candidates) Candidate senses
+		(label) sense label
+		(uri) sense Wikipedia URI
+		(scores) dbPedia spotlight scores
+			(contextualScore)
+			(percentageOfSecondRank)
+			(support)
+			(priorScore)
+			(finalScore)
+
+----------------------------
 Notes about (tocs)
 	() (label)s may or may not contain an indication about the Structure.
 		e.g. "Chap 3: Advanced concept", or simply "Advanced concept"
