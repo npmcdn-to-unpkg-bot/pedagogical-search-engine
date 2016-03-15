@@ -2,6 +2,7 @@ package rsc
 
 import rsc.attributes.Candidate.Candidate
 import rsc.attributes._
+import rsc.indexers.Index
 import rsc.toc.{Node, Toc}
 
 object Types {
@@ -14,6 +15,7 @@ object Types {
   type Candidates = List[Candidate]
   type Spots = List[Spot]
 
+  type Indices = List[Index]
 
   type Tocs = List[Toc]
   type Descriptions = List[Description]

@@ -8,11 +8,13 @@ import rsc.annotators.Annotator.Annotator
 import rsc.attributes.Level.Level
 import rsc.attributes.Source.Source
 import rsc.attributes._
+import rsc.indexers.Indexer.Indexer
 import utils.Conversions.{hash, normalize}
 
 case class Resource(
                      // Metadata
                      oAnnotator: Option[Annotator] = None,
+                     oIndexer: Option[Indexer] = None,
                      source: Source,
                      title: Title,
                      oLevel: Option[Level] = None,
