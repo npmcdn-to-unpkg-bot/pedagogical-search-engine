@@ -1,9 +1,8 @@
 package rsc.indexers
 
 import rsc.Resource
-import rsc.Types.{Indices, Spots, Nodes}
+import rsc.Types.{Indices, Nodes, Spots}
 import rsc.attributes.Candidate.Spotlight
-import utils.Logger
 
 class Spotlight(threshold: Double) {
   def index(r: Resource): Option[Resource] = {
@@ -46,12 +45,6 @@ class Spotlight(threshold: Double) {
       })
     }
 
-    // tocs
-    val tocsSpots = r.oTocs match {
-      case None => Nil
-      case Some(tocs) => tocs.flatMap(toc => nodesSpots(toc.nodes))
-    }
-
     // descriptions
     val descsSpots = r.oDescriptions match {
       case None => Nil
@@ -75,18 +68,24 @@ class Spotlight(threshold: Double) {
     }
 
     // Produce Tocs indices
-    // todo
+    val newOTocs = r.oTocs.map(tocs =>
+      tocs.map(toc => {
+        // Index the nodes
+        val newNodes = indexNodes(toc.nodes)
+
+        // Create the new toc
+        toc.copy(nodes = newNodes)
+     })
+    )
 
     // Create the new Resource
-    oTitleIndices match {
-      case None => None
-      case _ => {
-        Some(r.copy(
-          oIndexer = Some(Indexer.StandardSpotlight),
-          title = r.title.copy(oIndices = oTitleIndices)
-        ))
-      }
-    }
+    Some((oTitleIndices match {
+      case None => r
+      case _ => r.copy(
+        oIndexer = Some(Indexer.StandardSpotlight),
+        title = r.title.copy(oIndices = oTitleIndices)
+      )
+    }).copy(oTocs = newOTocs))
   }
 
   def produceIndices(spots: Spots): Indices = spots.flatMap(spot => {
@@ -103,15 +102,36 @@ class Spotlight(threshold: Double) {
     })
   })
 
-  def nodesSpots(nodes: Nodes): Spots = nodes match {
+  def indexNodes(nodes: Nodes): Nodes = nodes match {
     case Nil => Nil
-    case _ => nodes.flatMap(node => {
-      val spots = node.oSpots match {
+    case _ => nodes.map(node => {
+      // Index children
+      val children = indexNodes(node.children)
+
+      // Analyse each spot of the current node
+      val indices = node.oSpots match {
         case None => Nil
-        case Some(l) => l
+        case Some(spots) => spots.flatMap(spot => {
+          // take only good candidates
+          spot.candidates.flatMap(candidate => candidate match {
+            case Spotlight(label, uri, scores, _) => {
+              val score = scores.finalScore
+              if(score >= threshold) {
+                // Create an index
+                List(Index(uri, score))
+              } else {
+                Nil
+              }
+            }
+          })
+        })
       }
-      val childrenSpots = nodesSpots(node.children)
-      spots:::childrenSpots
+
+      // Create the new node
+      indices match {
+        case Nil => node
+        case _ => node.copy(oIndices = Some(indices), children = children)
+      }
     })
   }
 }
