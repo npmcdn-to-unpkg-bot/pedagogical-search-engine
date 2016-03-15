@@ -37,10 +37,10 @@ Structure [o: Optional, v: Value]
 	(o:href) relative part of the resource-url
 	(o:miniature) path to a miniature img
 	(o:screenshot) path to a screenshot of the course
-	(o:domain) aka. "field" of the resource
+	(o:domains) aka. "field" of the resource
 		(o:spots)
 			[spot]
-	(o:subdomain) more specific (domain), e.g. Linear Algebra (for the Math domain)
+	(o:subdomains) more specific (domain), e.g. Linear Algebra (for the Math domain)
 		(o:spots)
 			[spot]
 	(o:tocs) Table of Contents of the resource
