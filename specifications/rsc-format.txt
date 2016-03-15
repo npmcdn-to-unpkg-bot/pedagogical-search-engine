@@ -5,6 +5,8 @@ Format specifications of a pedagogical [ReSourCe] (.rsc)
 Structure [o: Optional, v: Value]
 	(o:annotator)
 		(v:spotlight-0.7.2-wiki-20160113)
+	(o:indexer)
+		(v:spotlight-0.7.2-wiki-20160113)
 	(source) Identify where does the resource come from
 		(v:coursera)
 		(v:khan) khan-academy
