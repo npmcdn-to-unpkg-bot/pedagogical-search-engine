@@ -14,6 +14,8 @@ Structure [o: Optional, v: Value]
 	(title)
 		(o:spots)
 			[spot]
+		(o:indices) Indices that are relevant for the entire resource
+			[index]
 	(o:level) Level of expertise of the resource
 		(v:fundamental) Negligeable prior knowledge
 		(v:high-school) Fundamental prior knowledge
@@ -54,6 +56,8 @@ Brackets-References
 	(o:label) Label of the TOC entry
 	(o:spots)
 		[spot]
+	(o:indices) Indices that are relevant for the current toc-entry
+		[index]
 	(o:children) Entries below this one
 		{array:[toc]}
 
@@ -69,6 +73,10 @@ Brackets-References
 			(support)
 			(priorScore)
 			(finalScore)
+
+[index]
+	(uri) sense Wikipedia URI
+	(score) double precision
 
 ----------------------------
 Notes about (tocs)
