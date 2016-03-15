@@ -2,7 +2,7 @@ package rsc.safaribooks
 
 import rsc.Resource
 import rsc.Resource._
-import rsc.attributes.Source
+import rsc.attributes.{Title, Source}
 import rsc.safaribooks.Types.Book
 
 class Factory extends rsc.extraction.Factory[Book] {
@@ -24,7 +24,9 @@ class Factory extends rsc.extraction.Factory[Book] {
 
     val publishers = meta.publisher::Nil
 
-    Resource(source, title,
+    Resource(
+      source = source,
+      title = Title(title),
       oPublishers = Some(publishers))
   }
 }

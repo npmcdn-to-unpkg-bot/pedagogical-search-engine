@@ -3,7 +3,7 @@ package rsc.coursera
 import rsc.Resource
 import rsc.Resource._
 import rsc.Types.Nodes
-import rsc.attributes.{Level, Source}
+import rsc.attributes.{Title, Level, Source}
 import rsc.coursera.Types.{Domain, Course}
 import rsc.coursera.layouts.Inline
 import rsc.toc.{Node, Toc}
@@ -63,7 +63,9 @@ class Factory extends rsc.extraction.Factory[Course]() {
     // Create the resource
     val oDomains = oDomain.map(rsc.attributes.Domain(_)::Nil)
     val oSubdomains = oSubdomain.map(rsc.attributes.Subdomain(_)::Nil)
-    Resource(source, title,
+    Resource(
+      source = source,
+      title = Title(title),
       oLevel = Some(level),
       oHref = Some(href),
       oMiniature = Some(miniature),

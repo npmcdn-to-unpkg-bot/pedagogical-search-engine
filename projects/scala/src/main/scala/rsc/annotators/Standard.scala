@@ -5,11 +5,11 @@ import rsc.Types._
 import spotlight.WebService
 
 object Standard {
-  def annotate(r: Resource, webService: WebService): Resource = {
+  def annotate(r: Resource, webService: WebService): Option[Resource] = {
     try {
-      newResource(r, webService)
+      Some(newResource(r, webService))
     } catch {
-      case e => ??? // todo
+      case e => None
     }
   }
 
@@ -93,6 +93,7 @@ object Standard {
 
     // Create the new resource
     r.copy(
+      oAnnotator = Some(Annotator.Standard),
       title = newTitle,
       oKeywords = newOKeywords,
       oCategories = newOCategories,

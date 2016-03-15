@@ -3,7 +3,7 @@ package rsc.mit
 import org.jsoup.nodes.Document
 import rsc.Resource
 import rsc.Resource._
-import rsc.attributes.{Level, Source}
+import rsc.attributes.{Title, Level, Source}
 import rsc.mit.Types.{Course, Page}
 import rsc.mit.layouts.table.Topical
 import rsc.mit.layouts.title.Basic
@@ -29,7 +29,9 @@ class Factory extends rsc.extraction.Factory[Course] {
     val level = Level.University
     val href = course.href
 
-    Resource(source, title,
+    Resource(
+      source = source,
+      title = Title(title),
       oLevel = Some(level),
       oHref = Some(href),
       oTocs = Some(toc::Nil))

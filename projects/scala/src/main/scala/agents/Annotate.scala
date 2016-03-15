@@ -3,11 +3,11 @@ package agents
 import java.io.File
 
 import org.json4s.native.JsonMethods._
-import rsc.annotators.Standard
+import rsc.annotators.{Annotator, Standard}
 import rsc.writers.Json
 import rsc.{Formatters, Resource}
 import spotlight.WebService
-import utils.{Files, Settings}
+import utils.{Logger, Files, Settings}
 
 object Annotate extends Formatters {
   def main(args: Array[String]): Unit = {
@@ -21,13 +21,33 @@ object Annotate extends Formatters {
       val json = parse(file.file)
       val r = json.extract[Resource]
 
-      // todo: test that the resource has not yet been annotated
+      // Has the resource been annotated already?
+      val annotate = r.oAnnotator match {
+        case Some(annotator) => annotator match {
+          case Annotator.Standard => false
+        }
+        case None => true
+      }
 
-      // Annotate it
-      val newR = Standard.annotate(r, webService)
-
-      // Write it
-      Json.write(newR, Some(file.file.getAbsolutePath))
+      val friendlyName = file.file.getAbsolutePath
+      annotate match {
+        case false => {
+          Logger.info("Skipping: " + friendlyName)
+        }
+        case true => {
+          // Annotate it
+          Standard.annotate(r, webService) match {
+            case None => {
+              Logger.error("Failed: " + friendlyName)
+            }
+            case Some(newR) => {
+              // Write it
+              Json.write(newR, Some(file.file.getAbsolutePath))
+              Logger.info("OK: " + friendlyName)
+            }
+          }
+        }
+      }
     })
 
     // Create the web-service

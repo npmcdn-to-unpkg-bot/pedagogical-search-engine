@@ -1,7 +1,7 @@
 package rsc.writers
 
 import rsc.Resource
-import utils.{Logger, Settings}
+import utils.Settings
 
 abstract class Writer(_settings: Settings) {
 
@@ -14,7 +14,6 @@ abstract class Writer(_settings: Settings) {
     val title = resource.title
 
     executeWrite(resource, oAbsolutePath)
-    Logger.info(s"Written: $source, $title")
   }
 
   protected def executeWrite(resource: Resource, oAbsolutePath: Option[String])

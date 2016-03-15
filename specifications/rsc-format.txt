@@ -3,7 +3,8 @@ Format specifications of a pedagogical [ReSourCe] (.rsc)
 ================================
 
 Structure [o: Optional, v: Value]
-(metadata)
+	(o:annotator)
+		(v:spotlight-0.7.2-wiki-20160113)
 	(source) Identify where does the resource come from
 		(v:coursera)
 		(v:khan) khan-academy
@@ -40,12 +41,12 @@ Structure [o: Optional, v: Value]
 	(o:subdomain) more specific (domain), e.g. Linear Algebra (for the Math domain)
 		(o:spots)
 			[spot]
-(o:tocs) Table of Contents of the resource
-	(nodes)
-		[toc]
-(o:descriptions) Textual descriptions of the resource
-	(o:spots)
-		[spot]
+	(o:tocs) Table of Contents of the resource
+		(nodes)
+			[toc]
+	(o:descriptions) Textual descriptions of the resource
+		(o:spots)
+			[spot]
 
 Brackets-References
 ----------------------------

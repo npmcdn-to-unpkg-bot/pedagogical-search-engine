@@ -4,6 +4,7 @@ import java.io.File
 import java.util.Date
 
 import rsc.Types._
+import rsc.annotators.Annotator.Annotator
 import rsc.attributes.Level.Level
 import rsc.attributes.Source.Source
 import rsc.attributes._
@@ -11,6 +12,7 @@ import utils.Conversions.{hash, normalize}
 
 case class Resource(
                      // Metadata
+                     oAnnotator: Option[Annotator] = None,
                      source: Source,
                      title: Title,
                      oLevel: Option[Level] = None,
@@ -48,9 +50,4 @@ case class Resource(
 
     new File(s"$folder/$name")
   }
-}
-
-object Resource {
-  // Some "implicit" conversions for ease of use of the case-class
-  implicit def string2Title(label: String): Title =Title(label)
 }

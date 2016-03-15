@@ -4,7 +4,7 @@ import org.jsoup.nodes.Element
 import rsc.Resource
 import rsc.Resource._
 import rsc.Types.Nodes
-import rsc.attributes.{Level, Source}
+import rsc.attributes.{Title, Level, Source}
 import rsc.scholarpedia.Types.Article
 import rsc.toc.{Node, Toc}
 import utils.Conversions._
@@ -31,7 +31,9 @@ class Factory extends rsc.extraction.Factory[Article] {
     }
     val toc = Toc(getNodes(rootUl))
 
-    Resource(source, title,
+    Resource(
+      source = source,
+      title = Title(title),
       oLevel = Some(level),
       oAuthors = Some(authors),
       oHref = Some(href),
