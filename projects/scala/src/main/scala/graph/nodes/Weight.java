@@ -1,7 +1,6 @@
 package graph.nodes;
 
 import graph.DirectedGraph;
-import graph.Node;
 
 import java.util.Comparator;
 

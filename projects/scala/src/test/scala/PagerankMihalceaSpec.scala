@@ -1,7 +1,8 @@
 import java.util.Arrays
 
 import graph.edges.unbiased.AttachedWeight
-import graph.{Pagerank, Node, DirectedGraph}
+import graph.nodes.Node
+import graph.{Pagerank, DirectedGraph}
 import scala.math.abs
 
 import org.scalatest._

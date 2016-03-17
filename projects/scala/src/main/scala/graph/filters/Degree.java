@@ -1,6 +1,6 @@
 package graph.filters;
 
-import graph.Node;
+import graph.nodes.Node;
 
 import java.util.Collection;
 

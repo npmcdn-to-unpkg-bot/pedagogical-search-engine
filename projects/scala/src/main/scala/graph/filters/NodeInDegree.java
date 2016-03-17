@@ -1,6 +1,6 @@
 package graph.filters;
 
-import graph.Node;
+import graph.nodes.Node;
 
 public class NodeInDegree extends NodeFilter {
     int m_degree;

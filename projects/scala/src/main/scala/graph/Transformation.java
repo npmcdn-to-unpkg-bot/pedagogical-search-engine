@@ -1,6 +1,7 @@
 package graph;
 
 import graph.filters.NodeFilter;
+import graph.nodes.Node;
 import utils.Constants;
 
 import java.util.*;

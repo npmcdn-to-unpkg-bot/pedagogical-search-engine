@@ -3,7 +3,7 @@ package graph.edges.unbiased;
 import graph.DirectedGraph;
 import graph.Transformation;
 import graph.edges.Weight;
-import graph.Node;
+import graph.nodes.Node;
 
 
 public class AttachedWeight extends Weight {

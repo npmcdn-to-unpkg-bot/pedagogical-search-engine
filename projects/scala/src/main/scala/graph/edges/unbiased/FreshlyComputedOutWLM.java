@@ -2,7 +2,7 @@ package graph.edges.unbiased;
 
 import graph.DirectedGraph;
 import graph.edges.Weight;
-import graph.Node;
+import graph.nodes.Node;
 import wlm.Compute;
 
 import java.util.*;
