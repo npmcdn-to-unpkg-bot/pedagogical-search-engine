@@ -2,9 +2,9 @@ package utils
 
 import org.jsoup.nodes.Element
 
-import scala.collection.mutable
-import scala.collection.JavaConverters._
-import scala.util.hashing.MurmurHash3
+import _root_.scala.collection.JavaConverters._
+import _root_.scala.collection.mutable
+import _root_.scala.util.hashing.MurmurHash3
 
 object Conversions {
   def l[U](javaList: java.lang.Iterable[U]): List[U] = javaList.iterator().asScala.toList
@@ -23,7 +23,7 @@ object Conversions {
   def text(e: Element): String = textualize(e.text())
 
   def hash(s: String): String = MurmurHash3.stringHash(s) match {
-    case n if n < 0 => "0" + Math.abs(n)
+    case n if n < 0 => "0" + java.lang.Math.abs(n)
     case p => "1" + p
   }
 }
