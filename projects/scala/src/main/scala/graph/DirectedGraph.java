@@ -224,9 +224,8 @@ public class DirectedGraph {
         return top;
     }
 
-    public String toJSONGraph(Collection<String> specialNodes, String attr) {
+    public String toJSONGraph(Collection<String> specialNodes, String attr, int limit) {
         GraphVisualizer visual = new GraphVisualizer();
-        int limit = 100;
 
         Collection<Node> oNodes = new ArrayList<>();
         for(utils.java.Pair<Node, Double> p: getTopNodes(limit)) {
@@ -286,7 +285,12 @@ public class DirectedGraph {
         return visual.toJSON();
     }
 
+    public void toJSONFile(Collection<String> whitelist, String fn, String attr,
+                           int limit) throws FileNotFoundException {
+        Files.write(toJSONGraph(whitelist, attr, limit), fn);
+    }
+
     public void toJSONFile(Collection<String> whitelist, String fn, String attr) throws FileNotFoundException {
-        Files.write(toJSONGraph(whitelist, attr), fn);
+        Files.write(toJSONGraph(whitelist, attr, 300), fn);
     }
 }

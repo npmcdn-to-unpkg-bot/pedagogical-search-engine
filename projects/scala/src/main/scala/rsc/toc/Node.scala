@@ -7,6 +7,8 @@ case class Node(label: String,
                 oSpots: Option[Spots] = None,
                 oIndices: Option[Indices] = None) {
 
+  def childrenRec(): Nodes = children:::children.flatMap(child => child.childrenRec())
+
   def prettyPrint(spaces: String): String = {
     val affix = children match {
       case Nil => ""

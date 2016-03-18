@@ -7,67 +7,111 @@ import utils.Constants;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.logging.Logger;
 
 public class GraphFactory {
     public static Double normalizeWlm(Double score) {
         return Math.min(score, 16.d);
     }
-    public static DirectedGraph noDangling(
+    public static DirectedGraph connect(
             Collection<String> URIs) {
         DirectedGraph digraph = new DirectedGraph();
 
+        Set<String> URIsSet = new HashSet<>();
         for(String uri: URIs) {
+            URIsSet.add(uri.toLowerCase());
+        }
+        for(String uri: URIsSet) {
             // create initial nodes
             Node node = new Node(uri);
             digraph.addNode(node);
         }
 
         try {
-            Set<String> nodesSet = new HashSet<String>();
-
-            // follow out-links
+            // follow out-links to existing nodes
             String queryFn = Constants.Mysql.QueriesPath.queryOutLinks;
             String query = QueriesUtils.read(queryFn,
                     Arrays.asList(
-                            QueriesUtils.escapeAndJoin(URIs)
+                            QueriesUtils.escapeAndJoin(URIsSet)
                     ));
             ResultSet rs = QueriesUtils.execute(query);
 
             while(rs.next()) {
                 String a = rs.getString("A").toLowerCase();
                 String b = rs.getString("B").toLowerCase();
+
                 Double score = normalizeWlm(rs.getDouble("Complete"));
 
-                if(URIs.contains(b) || score > 10.5) {
-                    nodesSet.add(b);
-
-                    Node nodeA = digraph.getOrCreate(a);
-                    digraph.getOrCreate(b);
+                if(URIsSet.contains(b)) {
                     digraph.addEdge(a, b);
 
                     // Save wlm weight
-                    if(nodeA != null) {
-                        nodeA.addEdgeAttr(
-                                b,
-                                Constants.Graph.Edges.Attribute.completeWlm,
-                                score);
-                    } else {
-                        // it happens rarely:
-                        // the node was added, but is not found
-                        // hash collision !?
-                        System.out.println(String.format(
-                                "%s: %s not found",
-                                GraphFactory.class.toString(),
-                                a
-                        ));
+                    digraph.getNode(a).addEdgeAttr(
+                            b,
+                            Constants.Graph.Edges.Attribute.completeWlm,
+                            score);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return digraph;
+    }
+
+
+    public static DirectedGraph smart2(Collection<String> URIs) {
+        DirectedGraph digraph = new DirectedGraph();
+
+        Set<String> URIsSet = new HashSet<>();
+        for(String uri: URIs) {
+            URIsSet.add(uri.toLowerCase());
+        }
+        for(String uri: URIsSet) {
+            // create initial nodes
+            Node node = new Node(uri);
+            digraph.addNode(node);
+        }
+
+        try {
+            // follow out-links
+            Set<String> newNodes = new HashSet<>();
+            String queryFn = Constants.Mysql.QueriesPath.queryOutLinks;
+            String query = QueriesUtils.read(queryFn,
+                    Arrays.asList(
+                            QueriesUtils.escapeAndJoin(URIsSet)
+                    ));
+            utils.Logger.info("Querying graph-first layer of size " + URIsSet.size());
+            ResultSet rs = QueriesUtils.execute(query);
+            utils.Logger.info(".. got response" );
+
+            while(rs.next()) {
+                String a = rs.getString("A").toLowerCase();
+                String b = rs.getString("B").toLowerCase();
+
+                Double score = normalizeWlm(rs.getDouble("Complete"));
+
+                if(URIsSet.contains(b) || score > 10.5) {
+                    if(!digraph.contains(b)) {
+                        newNodes.add(b);
+                        digraph.getOrCreate(b);
                     }
+
+                    Node nodeA = digraph.getNode(a);
+                    digraph.addEdge(a, b);
+
+                    // Save wlm weight
+                    nodeA.addEdgeAttr(
+                            b,
+                            Constants.Graph.Edges.Attribute.completeWlm,
+                            score);
                 }
             }
 
             // .. and follow out-links to existing nodes
-            String fromIds = QueriesUtils.escapeAndJoin(nodesSet); // from new nodes
-            nodesSet.addAll(URIs);
-            String toIds = QueriesUtils.escapeAndJoin(nodesSet); // to existing nodes
+            utils.Logger.info("Querying graph-second layer of size: " + newNodes.size());
+            String fromIds = QueriesUtils.escapeAndJoin(newNodes); // from new nodes
+            newNodes.addAll(URIsSet);
+            String toIds = QueriesUtils.escapeAndJoin(newNodes); // to existing nodes
 
             queryFn = Constants.Mysql.QueriesPath.queryOutLinksRestricted;
             query = QueriesUtils.read(queryFn,
@@ -76,6 +120,7 @@ public class GraphFactory {
                             toIds
                     ));
             rs = QueriesUtils.execute(query);
+            utils.Logger.info(".. got response" );
 
             while(rs.next()) {
                 String a = rs.getString("A").toLowerCase();
@@ -83,28 +128,16 @@ public class GraphFactory {
                 Double score = normalizeWlm(rs.getDouble("Complete"));
 
                 Node nodeA = digraph.getOrCreate(a);
-                digraph.getOrCreate(b); // For safety, because it should already exist
                 digraph.addEdge(a, b);
 
                 // Save wlm weight
-                if(nodeA != null) {
-                    nodeA.addEdgeAttr(
-                            b,
-                            Constants.Graph.Edges.Attribute.completeWlm,
-                            score);
-                } else {
-                    // it happens rarely:
-                    // the node was added, but is not found
-                    // hash collision !?
-                    System.out.println(String.format(
-                            "%s: %s not found",
-                            GraphFactory.class.toString(),
-                            a
-                    ));
-                }
+                nodeA.addEdgeAttr(
+                        b,
+                        Constants.Graph.Edges.Attribute.completeWlm,
+                        score);
             }
 
-            nodesSet.clear();
+            newNodes.clear();
 
         } catch (SQLException e) {
             e.printStackTrace();
