@@ -21,6 +21,17 @@ class Settings(config: Config) {
     val port = getInt("spotlight.server.port")
     val host = getString("spotlight.server.host")
   }
+  object Wikipedia {
+    object Links {
+      object Mysql {
+        val ip = getString("wikipedia.links.mysql.ip")
+        val port = getInt("wikipedia.links.mysql.port")
+        val database = getString("wikipedia.links.mysql.database")
+        val user = getString("wikipedia.links.mysql.user")
+        val password = getString("wikipedia.links.mysql.password")
+      }
+    }
+  }
   object Resources {
     val folder = getString("resources.folder")
     object Coursera {

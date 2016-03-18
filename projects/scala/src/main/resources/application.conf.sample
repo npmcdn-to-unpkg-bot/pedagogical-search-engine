@@ -6,6 +6,17 @@ wikichimp {
       port = ???
     }
   }
+  wikipedia {
+    links {
+      mysql {
+        ip = "???"
+        port = ???
+        database = "???"
+        user = "???"
+        password = "???"
+      }
+    }
+  }
   resources {
     folder = "???"
     coursera {
