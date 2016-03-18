@@ -1,6 +1,6 @@
 package utils
 
-import java.io.{PrintWriter, File}
+import _root_.java.io.{File, PrintWriter}
 
 object Files {
   case class RelativeFile(file: File, parents: List[String], rootFolder: File)
@@ -30,7 +30,9 @@ object Files {
   }
 
   def touch(file: File): File = {
-    file.getParentFile.mkdirs()
+    if(file.getParentFile != null) {
+      file.getParentFile.mkdirs()
+    }
     file.createNewFile()
     file
   }

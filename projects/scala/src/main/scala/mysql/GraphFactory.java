@@ -9,6 +9,114 @@ import java.sql.SQLException;
 import java.util.*;
 
 public class GraphFactory {
+    public static Double normalizeWlm(Double score) {
+        return Math.min(score, 16.d);
+    }
+    public static DirectedGraph noDangling(
+            Collection<String> URIs) {
+        DirectedGraph digraph = new DirectedGraph();
+
+        for(String uri: URIs) {
+            // create initial nodes
+            Node node = new Node(uri);
+            digraph.addNode(node);
+        }
+
+        try {
+            Set<String> nodesSet = new HashSet<String>();
+
+            // follow out-links
+            String queryFn = Constants.Mysql.QueriesPath.queryOutLinks;
+            String query = QueriesUtils.read(queryFn,
+                    Arrays.asList(
+                            QueriesUtils.escapeAndJoin(URIs)
+                    ));
+            ResultSet rs = QueriesUtils.execute(query);
+
+            while(rs.next()) {
+                String a = rs.getString("A").toLowerCase();
+                String b = rs.getString("B").toLowerCase();
+                Double score = normalizeWlm(rs.getDouble("Complete"));
+
+                if(URIs.contains(b) || score > 10.5) {
+                    nodesSet.add(b);
+
+                    Node nodeA = digraph.getOrCreate(a);
+                    digraph.getOrCreate(b);
+                    digraph.addEdge(a, b);
+
+                    // Save wlm weight
+                    if(nodeA != null) {
+                        nodeA.addEdgeAttr(
+                                b,
+                                Constants.Graph.Edges.Attribute.completeWlm,
+                                score);
+                    } else {
+                        // it happens rarely:
+                        // the node was added, but is not found
+                        // hash collision !?
+                        System.out.println(String.format(
+                                "%s: %s not found",
+                                GraphFactory.class.toString(),
+                                a
+                        ));
+                    }
+                }
+            }
+
+            // .. and follow out-links to existing nodes
+            String fromIds = QueriesUtils.escapeAndJoin(nodesSet); // from new nodes
+            nodesSet.addAll(URIs);
+            String toIds = QueriesUtils.escapeAndJoin(nodesSet); // to existing nodes
+
+            queryFn = Constants.Mysql.QueriesPath.queryOutLinksRestricted;
+            query = QueriesUtils.read(queryFn,
+                    Arrays.asList(
+                            fromIds,
+                            toIds
+                    ));
+            rs = QueriesUtils.execute(query);
+
+            while(rs.next()) {
+                String a = rs.getString("A").toLowerCase();
+                String b = rs.getString("B").toLowerCase();
+                Double score = normalizeWlm(rs.getDouble("Complete"));
+
+                Node nodeA = digraph.getOrCreate(a);
+                digraph.getOrCreate(b); // For safety, because it should already exist
+                digraph.addEdge(a, b);
+
+                // Save wlm weight
+                if(nodeA != null) {
+                    nodeA.addEdgeAttr(
+                            b,
+                            Constants.Graph.Edges.Attribute.completeWlm,
+                            score);
+                } else {
+                    // it happens rarely:
+                    // the node was added, but is not found
+                    // hash collision !?
+                    System.out.println(String.format(
+                            "%s: %s not found",
+                            GraphFactory.class.toString(),
+                            a
+                    ));
+                }
+            }
+
+            nodesSet.clear();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println(String.format(
+                "GraphFactory: produced graph with %s entitites",
+                String.valueOf(digraph.nbNodes())
+        ));
+        return digraph;
+    }
+
     public static DirectedGraph batch(Collection<String> URIs, int k, int chunkSize,
                                       boolean undirected) {
         DirectedGraph digraph = new DirectedGraph();

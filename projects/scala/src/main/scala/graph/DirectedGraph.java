@@ -226,8 +226,14 @@ public class DirectedGraph {
 
     public String toJSONGraph(Collection<String> specialNodes, String attr) {
         GraphVisualizer visual = new GraphVisualizer();
+        int limit = 100;
 
-        for(Node nodeA: m_nodes.values()) {
+        Collection<Node> oNodes = new ArrayList<>();
+        for(utils.java.Pair<Node, Double> p: getTopNodes(limit)) {
+            oNodes.add(p.getLeft());
+        }
+
+        for(Node nodeA: oNodes) {
             // Create node
             String a = nodeA.getId();
             double aScore = nodeA.getScoreOrZero();
@@ -236,26 +242,30 @@ public class DirectedGraph {
 
             // Create out edges
             for(Node nodeB: nodeA.getOut()) {
-                String b = nodeB.getId();
-                double bScore = nodeB.getScoreOrZero();
-                String bName = String.format("%s, %f", b, bScore);
+                if(oNodes.contains(nodeB)) {
+                    String b = nodeB.getId();
+                    double bScore = nodeB.getScoreOrZero();
+                    String bName = String.format("%s, %f", b, bScore);
 
-                visual.addNode(bName);
+                    visual.addNode(bName);
 
-                double weight = 1;
-                if(nodeA.hasEdgeAttr(b, attr)) {
-                    weight = (Double) nodeA.getEdgeAttr(b, attr);
+                    double weight = 1;
+                    if (nodeA.hasEdgeAttr(b, attr)) {
+                        weight = (Double) nodeA.getEdgeAttr(b, attr);
+                    }
+                    visual.addEdge(aName, bName, weight);
                 }
-                visual.addEdge(aName, bName, weight);
             }
         }
 
         // Color special nodes
         for(String a: specialNodes) {
-            Node nodeA = getNode(a);
-            double aScore = nodeA.getScoreOrZero();
-            String aName = String.format("%s, %f", a, aScore);
-            visual.addGroup(aName, 1);
+            if(oNodes.contains(a)) {
+                Node nodeA = getNode(a);
+                double aScore = nodeA.getScoreOrZero();
+                String aName = String.format("%s, %f", a, aScore);
+                visual.addGroup(aName, 1);
+            }
         }
 
         // Get top k nodes
@@ -266,9 +276,11 @@ public class DirectedGraph {
         int k = 5;
         for(int i = l.size()-1; i > (l.size()-k-1) && i > -1; i--) {
             Node node = l.get(i);
-            double score = node.getScoreOrZero();
-            String aName = String.format("%s, %f", node.getId(), score);
-            visual.addGroup(aName, 2);
+            if(oNodes.contains(node)) {
+                double score = node.getScoreOrZero();
+                String aName = String.format("%s, %f", node.getId(), score);
+                visual.addGroup(aName, 2);
+            }
         }
 
         return visual.toJSON();

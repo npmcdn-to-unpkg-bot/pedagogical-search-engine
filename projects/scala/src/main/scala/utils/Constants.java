@@ -21,6 +21,7 @@ public class Constants {
         public static Connection connection = amadeus.getConnection(settings);
         public static class QueriesPath {
             public static String queryOutLinks = "query-out-links.sql";
+            public static String queryOutLinksRestricted = "query-out-links-restricted.sql";
         }
         public static class Keywords {
             public static String database = "$_DATABASE";

@@ -16,7 +16,7 @@ public class Pagerank {
 
         if(nodes.size() != 0) {
             // iteratively compute PageRank
-            double epsilon = 1.d / Math.pow(10.d, 18.d);
+            double epsilon = 1.d / Math.pow(10.d, 5.d);
             int maxIter = 10*1000;
             double maxDelta = epsilon+1.d;
             int iter = 0;
