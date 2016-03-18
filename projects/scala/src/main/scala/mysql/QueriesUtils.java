@@ -2,7 +2,7 @@ package mysql;
 
 import org.apache.commons.lang3.StringUtils;
 import utils.Constants;
-import utils.File2;
+import utils.java.Files;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -73,7 +73,7 @@ public class QueriesUtils {
     }
 
     private static List<String> rawRead(String queryFn) {
-        return File2.readLines(String.format(
+        return Files.readLines(String.format(
                 "%s/%s",
                 Constants.Paths.mysqlQueries,
                 queryFn

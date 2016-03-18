@@ -1,4 +1,4 @@
-package utils.scala;
+package utils.java;
 
 public class Pair<U, V> {
     U m_left;

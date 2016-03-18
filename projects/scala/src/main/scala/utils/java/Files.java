@@ -1,13 +1,10 @@
-package utils;
-
-import org.apache.commons.lang3.StringUtils;
+package utils.java;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
-public class File2 {
+public class Files {
     public static InputStream openResource(String path) {
         InputStream is = File.class.getResourceAsStream(path);
         if(is == null) {
@@ -34,28 +31,5 @@ public class File2 {
             e.printStackTrace();
         }
         return lines;
-    }
-
-    public static void write(String content, String path) throws FileNotFoundException {
-        PrintWriter pw = new PrintWriter(path);
-        pw.write(content);
-        pw.close();
-    }
-
-    public static String read(String p) {
-        return StringUtils.join(File2.readLines(p), "\n");
-    }
-
-    public static Properties loadProperties(String path) {
-        try {
-            Properties properties = new Properties();
-            properties.load(openResource(path));
-
-            return properties;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return null;
     }
 }

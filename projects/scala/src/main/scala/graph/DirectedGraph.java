@@ -211,15 +211,15 @@ public class DirectedGraph {
         return top;
     }
 
-    public List<utils.scala.Pair<Node, Double>> getTopNodes(int n) {
+    public List<utils.java.Pair<Node, Double>> getTopNodes(int n) {
         List<Node> l = new ArrayList<Node>(getNodes());
         Collections.sort(l);
 
         // Get top nodes
-        List<utils.scala.Pair<Node, Double>> top = new ArrayList<utils.scala.Pair<Node, Double>>();
+        List<utils.java.Pair<Node, Double>> top = new ArrayList<utils.java.Pair<Node, Double>>();
         for(int i = l.size()-1; i > (l.size()-n-1) && i > -1; i--) {
             Node node = l.get(i);
-            top.add(new utils.scala.Pair<Node, Double>(node, node.getScore()));
+            top.add(new utils.java.Pair<Node, Double>(node, node.getScore()));
         }
         return top;
     }
