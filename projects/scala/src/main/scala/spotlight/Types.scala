@@ -1,6 +1,7 @@
 package spotlight
 
 import org.json4s.JValue
+import org.json4s.JsonAST.JString
 import rsc.Types.{Candidates, Spots}
 import rsc.attributes.Candidate.Spotlight
 import rsc.attributes.{Scores, Spot}
@@ -20,7 +21,7 @@ object Types {
 
     // Resource
     case ("@label", x) => ("label", x)
-    case ("@uri", x) => ("uri", x)
+    case ("@uri", JString(s)) => ("uri", JString(s.toLowerCase)) // Normalize uris to match the database uris!
     case ("@contextualScore", x) => ("contextualScore", x)
     case ("@percentageOfSecondRank", x) => ("percentageOfSecondRank", x)
     case ("@support", x) => ("support", x)
