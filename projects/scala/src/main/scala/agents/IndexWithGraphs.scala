@@ -3,6 +3,7 @@ package agents
 import java.io.File
 
 import org.json4s.native.JsonMethods._
+import rsc.annotators.{Annotator, Standard}
 import rsc.indexers.{Graph, Indexer}
 import rsc.writers.Json
 import rsc.{Formatters, Resource}
@@ -19,22 +20,34 @@ object IndexWithGraphs extends Formatters {
       val json = parse(file.file)
       val r = json.extract[Resource]
 
+      // Was it already annotated?
+      val annotated = r.oAnnotator match {
+        case None => false
+        case Some(annotator) => annotator match {
+          case Annotator.Standard => true
+          case _ => false
+        }
+      }
+
       // Was it already indexed?
-      val index = r.oIndexer match {
-        case None => true
+      val indexed = r.oIndexer match {
+        case None => false
         case Some(indexer) => indexer match {
-          case Indexer.Graph => false
-          case _ => true
+          case Indexer.Graph => true
+          case _ => false
         }
       }
 
 
       val name = file.file.getAbsolutePath
-      index match {
-        case false => {
-          Logger.info(s"Skipping: $name")
+      (annotated, indexed) match {
+        case (false, _) => {
+          Logger.info(s"Skipping - Resource not annotated: $name")
         }
-        case true => {
+        case (_ ,true) => {
+          Logger.info(s"Skipping - Resource already indexed: $name")
+        }
+        case  _ => {
           Logger.info(s"Processing ${file.file.getAbsolutePath}")
 
           new Graph().index(r) match {
