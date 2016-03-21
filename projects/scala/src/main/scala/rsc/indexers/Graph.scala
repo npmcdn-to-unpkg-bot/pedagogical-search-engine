@@ -47,6 +47,10 @@ class Graph {
     }}
   }
 
+  /**
+    * In case of conflict (same uri appearing in multiple entries),
+    * the entry with the lowest toc depth wins.
+    */
   private def urisFromNodes(nodesWithDepth: List[(Node, Int)], allowedUris: Set[String])
   : Map[String, Int] = {
     mergeOptions2List(nodesWithDepth.map(p => p._1.oSpots.map(spots => (p, spots))): _*)
@@ -55,7 +59,8 @@ class Graph {
       .filterNot(p => willBeSkimed(p._2))
       .map(p => (p._2.uri, p._1._2))
       .filter(p => allowedUris.contains(p._1))
-      .toMap
+        .groupBy(_._1)
+        .map(g => (g._1, g._2.map(_._2).min))
   }
 
   private def indexNodes(nodes: Nodes)(implicit digraph: DirectedGraph, allowedUris: Set[String])
@@ -190,6 +195,7 @@ class Graph {
               filterNot(uri => tocsUrisToDepthFiltered.contains(uri)).
               map(uri => (uri, 0)).
               toMap
+            // Note that the to maps have now distinct keys
             tocsUrisToDepthFiltered ++ topLevelUrisToDepth
           }
         }
