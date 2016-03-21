@@ -13,8 +13,9 @@ public class GraphFactory {
     public static Double normalizeWlm(Double score) {
         return Math.min(score, 16.d);
     }
-    public static DirectedGraph connect(
-            Collection<String> URIs) {
+    public static DirectedGraph connect1Smart(
+            Collection<String> URIs,
+            double minWLM) {
         DirectedGraph digraph = new DirectedGraph();
 
         Set<String> URIsSet = new HashSet<>();
@@ -42,14 +43,16 @@ public class GraphFactory {
 
                 Double score = normalizeWlm(rs.getDouble("Complete"));
 
-                if(URIsSet.contains(b)) {
-                    digraph.addEdge(a, b);
+                if(score > minWLM) {
+                    if(URIsSet.contains(b)) {
+                        digraph.addEdge(a, b);
 
-                    // Save wlm weight
-                    digraph.getNode(a).addEdgeAttr(
-                            b,
-                            Constants.Graph.Edges.Attribute.completeWlm,
-                            score);
+                        // Save wlm weight
+                        digraph.getNode(a).addEdgeAttr(
+                                b,
+                                Constants.Graph.Edges.Attribute.completeWlm,
+                                score);
+                    }
                 }
             }
         } catch (SQLException e) {
@@ -59,7 +62,9 @@ public class GraphFactory {
     }
 
 
-    public static DirectedGraph smart2(Collection<String> URIs) {
+    public static DirectedGraph smart2(
+            Collection<String> URIs,
+            double minWlm) {
         DirectedGraph digraph = new DirectedGraph();
 
         Set<String> URIsSet = new HashSet<>();
@@ -90,7 +95,7 @@ public class GraphFactory {
 
                 Double score = normalizeWlm(rs.getDouble("Complete"));
 
-                if(URIsSet.contains(b) || score > 10.5) {
+                if(URIsSet.contains(b) || score > minWlm) {
                     if(!digraph.contains(b)) {
                         newNodes.add(b);
                         digraph.getOrCreate(b);

@@ -19,9 +19,16 @@ class Graph {
       index(digraph, allUris) match {
         case Nil => None
         case titleIndices => {
+          /*// Save the graph for analysis
+          digraph.toJSONFile(
+            allUris.toList.asJava,
+            "graph.json",
+            Constants.Graph.Edges.Attribute.normalizedCwlm)
+          // */
+
           // Index the tocs
           val newOTocs = r.oTocs.map(_.map(toc => {
-            val newNodes = indexNodes(toc.nodes)(digraph)
+            val newNodes = indexNodes(toc.nodes)(digraph, allUris)
             toc.copy(nodes = newNodes)
           }))
 
@@ -38,7 +45,7 @@ class Graph {
     }}
   }
 
-  private def indexNodes(nodes: Nodes)(implicit digraph: DirectedGraph)
+  private def indexNodes(nodes: Nodes)(implicit digraph: DirectedGraph, allowedUris: Set[String])
   : Nodes = nodes match {
     case Nil => Nil
     case _ => nodes.map(node => {
@@ -47,20 +54,25 @@ class Graph {
 
       // Index the current Node
       val subNodes = node::node.childrenRec()
+
+      // Get the uris from the candidates senses allowed
       val uris = skim(
         mergeOptions2List(subNodes.map(_.oSpots): _*)
           .flatten
           .flatMap(_.candidates)
-      ).map(_.uri).toSet
+      ).map(_.uri).toSet.intersect(allowedUris)
 
       // Using pagerank
       println(s"node $node")
-      val nodeIndices = index(digraph, uris)
+      val oIndices = index(digraph, uris) match {
+        case Nil => None
+        case indices => Some(indices)
+      }
 
       // Create the new node
       node.copy(
         children = newChildren,
-        oIndices = Some(nodeIndices)
+        oIndices = oIndices
       )
     })
   }
@@ -79,16 +91,10 @@ class Graph {
       Pagerank.weighted(digraph, nWeight, eWeight, 0.8)
 
       // Produce the indices
-      val toKeep = math.ceil(uris.size.toDouble * 0.8).toInt
       val topNodes = digraph.getNodes.asScala.toList
-        .sortBy(-_.getScore).take(toKeep)
-      println(s"taking $toKeep, uris: {$uris}")
+        .sortBy(-_.getScore).take(uris.size)
       topNodes.map(println(_))
-      val topScores = rescaleD(
-        normalizeD(
-          topNodes.map(_.getScore().toDouble)
-        )
-      )
+      val topScores = topNodes.map(_.getScore().toDouble)
       val topURIs = topNodes.map(_.getId())
 
       topURIs.zip(topScores).map(p => Index(p._1, p._2))
@@ -114,7 +120,17 @@ class Graph {
 
     // Build a first digraph
     val uris = candidates.map(_.uri.toLowerCase)
-    val digraph = GraphFactory.connect(uris.asJava)
+    val digraph = GraphFactory.connect1Smart(uris.asJava, 9.0)
+
+    // Remove lonely and dangling nodes
+    digraph.removeNodes(2);
+
+    /* // Save the graph for analysis
+    digraph.toJSONFile(
+      uris.toList.asJava,
+      "graph.json",
+      Constants.Graph.Edges.Attribute.normalizedCwlm)
+    // */
 
     // Build a second digraph
     digraph.getNodes.asScala.toList match {
@@ -130,7 +146,7 @@ class Graph {
         // Build a better graph
         val uris2 = biggestCC.map(_.getId)
         Some(
-          GraphFactory.smart2(uris2.asJava),
+          GraphFactory.smart2(uris2.asJava, 10.5),
           uris2
         )
       }
