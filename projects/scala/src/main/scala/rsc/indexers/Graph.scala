@@ -6,6 +6,7 @@ import mysql.GraphFactory
 import rsc.Resource
 import rsc.Types.{Nodes, Indices}
 import rsc.attributes.Candidate.{Candidate, Spotlight}
+import rsc.toc.Node
 import utils.Constants
 import utils.Utils.mergeOptions2List
 import utils.Math._
@@ -14,9 +15,10 @@ import scala.collection.JavaConverters._
 
 class Graph {
   def index(r: Resource): Option[Resource] = {
-    constructGraph(r).flatMap { case (digraph, allUris) => {
+    constructGraph(r).flatMap { case (digraph, urisToDepth) => {
+      val allowedUris = urisToDepth.keySet
       // Index Title
-      index(digraph, allUris.map(u => (u, 0)).toMap) match {
+      index(digraph, urisToDepth) match {
         case Nil => None
         case titleIndices => {
           /*// Save the graph for analysis
@@ -28,7 +30,7 @@ class Graph {
 
           // Index the tocs
           val newOTocs = r.oTocs.map(_.map(toc => {
-            val newNodes = indexNodes(toc.nodes)(digraph, allUris)
+            val newNodes = indexNodes(toc.nodes)(digraph, allowedUris)
             toc.copy(nodes = newNodes)
           }))
 
@@ -45,6 +47,17 @@ class Graph {
     }}
   }
 
+  private def urisFromNodes(nodesWithDepth: List[(Node, Int)], allowedUris: Set[String])
+  : Map[String, Int] = {
+    mergeOptions2List(nodesWithDepth.map(p => p._1.oSpots.map(spots => (p, spots))): _*)
+      .flatMap(p => p._2.map(spot => (p._1, spot)))
+      .flatMap(p => p._2.candidates.map(candidate => (p._1, candidate)))
+      .filterNot(p => willBeSkimed(p._2))
+      .map(p => (p._2.uri, p._1._2))
+      .filter(p => allowedUris.contains(p._1))
+      .toMap
+  }
+
   private def indexNodes(nodes: Nodes)(implicit digraph: DirectedGraph, allowedUris: Set[String])
   : Nodes = nodes match {
     case Nil => Nil
@@ -56,13 +69,7 @@ class Graph {
       val subNodes = (node, 0)::node.childrenWithDepth(offset = 1)
 
       // Get the uris from the candidates senses allowed
-      val urisToDepth =
-        mergeOptions2List(subNodes.map(p => p._1.oSpots.map(spots => (p, spots))): _*)
-        .flatMap(p => p._2.map(spot => (p._1, spot)))
-            .flatMap(p => p._2.candidates.map(candidate => (p._1, candidate)))
-        .filterNot(p => willBeSkimed(p._2))
-          .map(p => (p._2.uri, p._1._2))
-        .toMap
+      val urisToDepth = urisFromNodes(subNodes, allowedUris)
 
       // Using pagerank
       println(s"node $node")
@@ -101,8 +108,14 @@ class Graph {
       ).map(s => s * math.log(1 + urisSize.toDouble))
 
       val topScores2 = topNodes.zip(topScores1).map { case (node, score) => {
-        val depth = urisToDepth(node.getId())
-        (score / (depth.toDouble + 1))
+        val nodeId = node.getId()
+        urisToDepth.contains(nodeId) match {
+          case true => {
+            val depth = urisToDepth(nodeId)
+            (score / (depth.toDouble + 1))
+          }
+          case false => (score / 2)
+        }
       }}
 
       topNodes.zip(topScores2).map(p => {
@@ -114,25 +127,28 @@ class Graph {
     }
   }
 
-  def constructGraph(r: Resource): Option[(DirectedGraph, Set[String])] = {
+  def constructGraph(r: Resource): Option[(DirectedGraph, Map[String, Int])] = {
     // Collect the candidate senses
-    val candidates = skim(mergeOptions2List(
+    val topLevelCandidates = mergeOptions2List(
       r.title.oSpots,
       r.oKeywords.map(ks => mergeOptions2List(ks.map(_.oSpots): _*).flatten),
       r.oCategories.map(cs => mergeOptions2List(cs.map(_.oSpots): _*).flatten),
       r.oDomains.map(os => mergeOptions2List(os.map(_.oSpots): _*).flatten),
       r.oSubdomains.map(ds => mergeOptions2List(ds.map(_.oSpots): _*).flatten),
 
-      // .. from Tocs
-      r.oTocs.map(ts => mergeOptions2List(ts.flatMap(_.nodesRec().map(_.oSpots)): _*).flatten),
-
       // .. from Descriptions
       r.oDescriptions.map(ds => mergeOptions2List(ds.map(_.oSpots): _*).flatten)
+    ).flatten.flatMap(_.candidates)
 
-    ).flatten.flatMap(_.candidates))
+    val tocsCandidates = mergeOptions2List(
+      // .. from Tocs
+      r.oTocs.map(ts => mergeOptions2List(ts.flatMap(_.nodesRec().map(_.oSpots)): _*).flatten)
+    ).flatten.flatMap(_.candidates)
+
+    val candidates = skim(topLevelCandidates:::tocsCandidates)
 
     // Build a first digraph
-    val uris = candidates.map(_.uri.toLowerCase)
+    val uris = candidates.map(_.uri)
     val digraph = GraphFactory.connect1Smart(uris.asJava, 9.0)
 
     // Remove lonely and dangling nodes
@@ -157,10 +173,29 @@ class Graph {
         val biggestCC = ccs.toList.sortBy(-_.size).head
 
         // Build a better graph
-        val uris2 = biggestCC.map(_.getId)
+        val uris2 = biggestCC.map(_.getId).toSet
+        val digraph2 = GraphFactory.smart2(uris2.asJava, 10.5)
+
+        // Construct allowedUrisWithDepth
+        val urisToDepth =
+          r.oTocs.map(tocs => urisFromNodes(tocs.flatMap(_.nodesWithDepth()), uris2)) match {
+          case None => uris2.map(uri => (uri, 0)).toMap
+          case Some(tocsUrisToDepth) => {
+            val topLevelUris = topLevelCandidates.map(_.uri).toSet
+            // Top-level Uris win over toc uris
+            val tocsUrisToDepthFiltered = tocsUrisToDepth.toList.
+              filterNot { case (uri, depth) => topLevelUris.contains(uri) }.
+              toMap
+            val topLevelUrisToDepth = uris2.
+              filterNot(uri => tocsUrisToDepthFiltered.contains(uri)).
+              map(uri => (uri, 0)).
+              toMap
+            tocsUrisToDepthFiltered ++ topLevelUrisToDepth
+          }
+        }
         Some(
-          GraphFactory.smart2(uris2.asJava, 10.5),
-          uris2
+          digraph2,
+          urisToDepth
         )
       }
     }
