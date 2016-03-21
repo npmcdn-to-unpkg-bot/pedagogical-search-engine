@@ -16,6 +16,17 @@ public class Node implements Comparable<Node> {
         addOut(out);
     }
 
+    public int undirectedDegree() {
+        return neighbors().size();
+    }
+
+    public Set<Node> neighbors() {
+        Set<Node> nei = new HashSet<>();
+        nei.addAll(m_in.values());
+        nei.addAll(m_out.values());
+        return nei;
+    }
+
     public Node(String id) {
         this(id, new ArrayList<Node>(), new ArrayList<Node>());
     }

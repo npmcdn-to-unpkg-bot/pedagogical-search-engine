@@ -39,6 +39,27 @@ public class DirectedGraph {
         return m_cacheVar1;
     }
 
+    public void removeNodes(int maxUndirectedDegree) {
+        boolean somethingChanged;
+        do {
+            somethingChanged = false;
+
+            // Collect all targeted nodes
+            Set<Node> toRemove = new HashSet<>();
+            for(Node node: m_nodes.values()) {
+                if(node.undirectedDegree() < maxUndirectedDegree) {
+                    toRemove.add(node);
+                    somethingChanged = true;
+                }
+            }
+
+            // Remove these nodes
+            for(Node node: toRemove) {
+                removeNode(node.getId());
+            }
+        } while(somethingChanged);
+    }
+
     public boolean contains(String id) {
         return m_nodes.containsKey(id);
     }
