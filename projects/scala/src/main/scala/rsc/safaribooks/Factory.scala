@@ -27,6 +27,7 @@ class Factory extends rsc.extraction.Factory[Book] {
     Resource(
       source = source,
       title = Title(title),
+      oTocs = Some(List(toc)),
       oPublishers = Some(publishers))
   }
 }

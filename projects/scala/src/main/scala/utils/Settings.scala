@@ -47,7 +47,6 @@ class Settings(config: Config) {
     }
     object Safari {
       val pages = getString("resources.safari.pages")
-      val data = getString("resources.safari.data")
     }
     object Scholarpedia {
       val pages = getString("resources.scholarpedia.pages")

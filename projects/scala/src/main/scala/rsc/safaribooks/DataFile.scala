@@ -5,7 +5,7 @@ import java.io.File
 import rsc.extraction.Data
 import rsc.safaribooks.Types.Book
 import utils.Conversions.toBuffer
-import utils.Files.explore
+import utils.Files._
 
 import scala.collection.mutable
 
@@ -19,5 +19,5 @@ class DataFile extends Data[Book] {
 
   override def copy(o: Book, newStatus: String): Book = o.copy(status = Some(newStatus))
 
-  override def in: File = new File(settings.Resources.Safari.data)
+  override def in: File = touch(settings.workingDir + "/safari-data-file.json")
 }
