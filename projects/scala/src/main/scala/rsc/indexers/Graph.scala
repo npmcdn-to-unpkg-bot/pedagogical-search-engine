@@ -16,7 +16,7 @@ class Graph {
   def index(r: Resource): Option[Resource] = {
     constructGraph(r).flatMap { case (digraph, allUris) => {
       // Index Title
-      index(digraph, allUris) match {
+      index(digraph, allUris.map(u => (u, 0)).toMap) match {
         case Nil => None
         case titleIndices => {
           /*// Save the graph for analysis
@@ -53,18 +53,20 @@ class Graph {
       val newChildren = indexNodes(node.children)
 
       // Index the current Node
-      val subNodes = node::node.childrenRec()
+      val subNodes = (node, 0)::node.childrenWithDepth(offset = 1)
 
       // Get the uris from the candidates senses allowed
-      val uris = skim(
-        mergeOptions2List(subNodes.map(_.oSpots): _*)
-          .flatten
-          .flatMap(_.candidates)
-      ).map(_.uri).toSet.intersect(allowedUris)
+      val urisToDepth =
+        mergeOptions2List(subNodes.map(p => p._1.oSpots.map(spots => (p, spots))): _*)
+        .flatMap(p => p._2.map(spot => (p._1, spot)))
+            .flatMap(p => p._2.candidates.map(candidate => (p._1, candidate)))
+        .filterNot(p => willBeSkimed(p._2))
+          .map(p => (p._2.uri, p._1._2))
+        .toMap
 
       // Using pagerank
       println(s"node $node")
-      val oIndices = index(digraph, uris) match {
+      val oIndices = index(digraph, urisToDepth) match {
         case Nil => None
         case indices => Some(indices)
       }
@@ -77,12 +79,12 @@ class Graph {
     })
   }
 
-  private def index(digraph: DirectedGraph, uris: Set[String])
-  : Indices = uris.size match {
+  private def index(digraph: DirectedGraph, urisToDepth: Map[String, Int])
+  : Indices = urisToDepth.size match {
     case zero if zero == 0 => Nil
-    case _ => {
+    case urisSize => {
       // Run the pagerank
-      val nWeight = new graph.nodes.biased.Uniform(digraph, uris.asJava)
+      val nWeight = new graph.nodes.biased.Uniform(digraph, urisToDepth.keys.toList.asJava)
       val eWeight = new AttachedWeight(
         digraph,
         Constants.Graph.Edges.Attribute.completeWlm,
@@ -92,13 +94,18 @@ class Graph {
 
       // Produce the indices
       val topNodes = digraph.getNodes.asScala.toList
-        .sortBy(-_.getScore).take(uris.size)
-      val topScores = rescaleD(
+        .sortBy(-_.getScore).take(urisSize)
+      val topScores1 = rescaleD(
         rescaleD(topNodes.map(_.getScore().toDouble)
         ).map(s => math.exp(2 * s))
-      ).map(s => s * math.log(1 + uris.size.toDouble))
+      ).map(s => s * math.log(1 + urisSize.toDouble))
 
-      topNodes.zip(topScores).map(p => {
+      val topScores2 = topNodes.zip(topScores1).map { case (node, score) => {
+        val depth = urisToDepth(node.getId())
+        (score / (depth.toDouble + 1))
+      }}
+
+      topNodes.zip(topScores2).map(p => {
         val node = p._1
         val score = p._2
         println(s"$node -> $score")
@@ -159,9 +166,10 @@ class Graph {
     }
   }
 
-  def skim(candidates: List[Candidate]): List[Candidate] = {
-    candidates.filterNot(c => c match {
-      case Spotlight(_, _, scores, _) => (scores.finalScore < 0.5)
-    })
+  def willBeSkimed(c: Candidate): Boolean = c match {
+    case Spotlight(_, _, scores, _) => (scores.finalScore < 0.5)
   }
+
+  def skim(candidates: List[Candidate]): List[Candidate] =
+    candidates.filterNot(c => willBeSkimed(c))
 }
