@@ -93,11 +93,17 @@ class Graph {
       // Produce the indices
       val topNodes = digraph.getNodes.asScala.toList
         .sortBy(-_.getScore).take(uris.size)
-      topNodes.map(println(_))
-      val topScores = topNodes.map(_.getScore().toDouble)
-      val topURIs = topNodes.map(_.getId())
+      val topScores = rescaleD(
+        rescaleD(topNodes.map(_.getScore().toDouble)
+        ).map(s => math.exp(2 * s))
+      ).map(s => s * math.log(1 + uris.size.toDouble))
 
-      topURIs.zip(topScores).map(p => Index(p._1, p._2))
+      topNodes.zip(topScores).map(p => {
+        val node = p._1
+        val score = p._2
+        println(s"$node -> $score")
+        Index(node.getId(), score)
+      })
     }
   }
 
@@ -125,7 +131,7 @@ class Graph {
     // Remove lonely and dangling nodes
     digraph.removeNodes(2);
 
-    /* // Save the graph for analysis
+    //* // Save the graph for analysis
     digraph.toJSONFile(
       uris.toList.asJava,
       "graph.json",
