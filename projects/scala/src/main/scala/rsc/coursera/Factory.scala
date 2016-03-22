@@ -1,77 +1,70 @@
 package rsc.coursera
 
 import rsc.Resource
-import rsc.Resource._
-import rsc.Types.Nodes
-import rsc.attributes.{Title, Level, Source}
-import rsc.coursera.Types.{Domain, Course}
-import rsc.coursera.layouts.Inline
-import rsc.toc.{Node, Toc}
-import utils.Logger
+import rsc.attributes._
+import rsc.coursera.Types.Course
+import rsc.coursera.layouts._
+import utils.Conversions.textOf
 
 class Factory extends rsc.extraction.Factory[Course]() {
 
   override def getOrFail(course: Course): Resource = {
-    // Parse
-    val doc = openWeird(settings.Resources.Coursera.pages, course.localPath)
+    course.href.startsWith("/specializations") match {
+      case false => {
+        // Parse
+        val doc = openWeird(settings.Resources.Coursera.pages, course.localPath)
 
-    // Match the page layout
-    val href = course.href
-    doc match {
-      case layouts.Simple(p) => {
-        Logger.debug(s"Simple-layout: $href")
-        process(course, p)
+        // Extract toc
+        val href = course.href
+        val oTocs = doc match {
+          case toc.Simple(x) => Some(List(x))
+          case toc.Inline(x) => Some(List(x))
+          case _ => None
+        }
+
+        // Extract description
+        val oDescriptions = doc match {
+          case description.Simple(d) => Some(List(d))
+          case description.Inline(d) => Some(List(d))
+          case _ => None
+        }
+
+        // Test that the course has at least one of them
+        if (oTocs.isDefined || oDescriptions.isDefined) {
+          // Create the metadata
+          val partnersV = course.partner match {
+            case Some(partner) => Some(partner :: Nil)
+            case None => None
+          }
+          val source = Source.Coursera
+          val title = textOf(course.label) match {
+            case t if t.length > 0 => t
+          }
+
+          val level = Level.University
+          val href = course.href
+          val miniature = course.localImg
+          val screenshot = course.screenshot
+          val oDomains = course.domain.map(d => List(new Domain(d)))
+          val oSubdomains = course.subdomain.map(d => List(new Subdomain(d)))
+
+          // Create the resource
+          Resource(
+            source = source,
+            title = Title(title),
+            oLevel = Some(level),
+            oHref = Some(href),
+            oMiniature = Some(miniature),
+            oScreenshot = Some(screenshot),
+            oDomains = oDomains,
+            oSubdomains = oSubdomains,
+            oTocs = oTocs,
+            oDescriptions = oDescriptions
+          )
+        } else {
+          throw new Exception("No description nor toc")
+        }
       }
-      case Inline(p) => {
-        Logger.debug(s"Inline-layout: $href")
-        process(course, p)
-      }
     }
-  }
-
-  def process(course: Course, toc: Toc): Resource = {
-    // Create the metadata
-    val partnersV = course.partner match {
-      case Some(partner) => Some(partner::Nil)
-      case None => None
-    }
-    val source = Source.Coursera
-    val title = course.label
-
-    val level = Level.University
-    val href = course.href
-    val miniature = course.localImg
-    val screenshot = course.screenshot
-    val oDomain = course.domain
-    val oSubdomain = course.subdomain
-
-    // Extend toc with domain, subdomain
-    def addDomain(nodes: Nodes): Nodes = oDomain match {
-      case Some(domain) => new Node(domain, nodes)::Nil
-      case None => nodes
-    }
-
-    def addSubdomain(nodes: Nodes): Nodes = oSubdomain match {
-      case Some(subdomain) => new Node(subdomain, nodes)::Nil
-      case None => nodes
-    }
-
-    def completeNodes(nodes: Nodes): Nodes = addDomain(addSubdomain(nodes))
-
-    val extendedToc = Toc(completeNodes(toc.nodes))
-
-    // Create the resource
-    val oDomains = oDomain.map(rsc.attributes.Domain(_)::Nil)
-    val oSubdomains = oSubdomain.map(rsc.attributes.Subdomain(_)::Nil)
-    Resource(
-      source = source,
-      title = Title(title),
-      oLevel = Some(level),
-      oHref = Some(href),
-      oMiniature = Some(miniature),
-      oScreenshot = Some(screenshot),
-      oDomains = oDomains,
-      oSubdomains = oSubdomains,
-      oTocs = Some(extendedToc::Nil))
   }
 }

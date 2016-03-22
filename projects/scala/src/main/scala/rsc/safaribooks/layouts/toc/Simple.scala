@@ -3,7 +3,7 @@ package rsc.safaribooks.layouts.toc
 import org.jsoup.nodes.{Document, Element}
 import rsc.extraction.LayoutExtractor
 import rsc.toc.{Node, Toc}
-import utils.Conversions.{l, text}
+import utils.Conversions.{l, textOf}
 
 object Simple extends LayoutExtractor[Toc] {
   override def getOrFail(doc: Document): Toc = {
@@ -34,7 +34,7 @@ object Simple extends LayoutExtractor[Toc] {
         val r = getSubNodes(l.tail, level + 1, Nil)
         val children = r._1
         val newL = r._2
-        val newNode = new Node(text(currentEl), children)
+        val newNode = new Node(textOf(currentEl), children)
 
         getSubNodes(newL, level, acc:::List(newNode))
       }

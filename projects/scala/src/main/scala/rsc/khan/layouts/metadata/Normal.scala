@@ -9,7 +9,7 @@ object Normal extends LayoutExtractor[Metadata] {
   override def getOrFail(doc: Document): Metadata = {
     // title
     val title = l(doc.select("div.topic-info-inner h1.topic-title")) match {
-      case e::Nil => text(e)
+      case e::Nil => textOf(e)
     }
 
     // href

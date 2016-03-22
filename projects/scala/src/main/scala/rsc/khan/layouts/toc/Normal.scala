@@ -14,13 +14,13 @@ object Normal extends LayoutExtractor[Toc] {
           // Chapter
           val chapSel = "div.tutorial-overview a.tutorial-title"
           val chapter = l(chapterEl.select(chapSel)) match {
-            case x::Nil => text(x)
+            case x::Nil => textOf(x)
           }
 
           // Sections
           val secSel = "ul.progress-container > li.progress-item span.progress-title"
           val sections = l(chapterEl.select(secSel)) match {
-            case sectionEls if !sectionEls.isEmpty => sectionEls.map(text(_))
+            case sectionEls if !sectionEls.isEmpty => sectionEls.map(textOf(_))
           }
 
           // Create Node
