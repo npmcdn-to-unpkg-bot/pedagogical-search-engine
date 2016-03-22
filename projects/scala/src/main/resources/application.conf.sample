@@ -32,7 +32,6 @@ wikichimp {
     }
     safari {
       pages = "???"
-      data = "???"
     }
     scholarpedia {
       pages = "???"
