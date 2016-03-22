@@ -20,9 +20,14 @@ object Conversions {
 
   def normalize(s: String): String = s.replaceAll("[^a-zA-Z0-9 ]", "").toLowerCase.trim
 
-  def textualize(s: String): String = s.replaceAll("\\u00a0", " ").replaceAll("\\u00ae", "")
+  def textOf(s: String): String = s.
+    replaceAll("\\u00a0", " ").
+    replaceAll("\\u00ae", "").
+    replaceAll("[^a-zA-Z0-9 !\"#$%&'()*+,\\-.\\/:;\\\\<=>\\]?@\\[\\^_`{|}~]", " "). // Keep only these characters
+    replaceAll("\\s+", " "). // Compact spaces+ into " "
+    trim
 
-  def text(e: Element): String = textualize(e.text())
+  def textOf(e: Element): String = textOf(e.text())
 
   def hash(s: String): String = MurmurHash3.stringHash(s) match {
     case n if n < 0 => "0" + abs(n)
