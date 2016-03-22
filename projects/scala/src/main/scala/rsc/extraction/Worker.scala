@@ -1,6 +1,7 @@
 package rsc.extraction
 
 import rsc.writers.Writer
+import utils.Logger
 
 class Worker[U <: HasStatus](data: Data[U], factory: Factory[U], writer: Writer) {
   def work(): Unit = {
@@ -12,10 +13,14 @@ class Worker[U <: HasStatus](data: Data[U], factory: Factory[U], writer: Writer)
       case true => {
         val entry = data.next()
         factory.getResource(entry) match {
-          case None => data.markNotOk(entry)
+          case None => {
+            data.markNotOk(entry)
+            Logger.info(s"Skipped: $entry")
+          }
           case Some(resource) => {
             writer.write(resource)
             data.markOk(entry)
+            Logger.info(s"OK: $entry")
           }
         }
 
