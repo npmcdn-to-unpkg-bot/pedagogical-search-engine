@@ -109,8 +109,8 @@ class Graph {
         .sortBy(-_.getScore).take(urisSize)
       val topScores1 = rescaleD(
         rescaleD(topNodes.map(_.getScore().toDouble)
-        ).map(s => math.exp(2 * s))
-      ).map(s => s * math.log(1 + urisSize.toDouble))
+        ).map(s => math.exp(s))
+      ).map(s => s * (math.log(1 + math.log(1 + urisSize.toDouble)) + 0.2))
 
       val topScores2 = topNodes.zip(topScores1).map { case (node, score) => {
         val nodeId = node.getId()
@@ -134,8 +134,12 @@ class Graph {
 
   def constructGraph(r: Resource): Option[(DirectedGraph, Map[String, Int])] = {
     // Collect the candidate senses
+    val titleCandidates = mergeOptions2List(r.title.oSpots).
+      flatten.
+      flatMap(_.candidates)
+    val titleUris = titleCandidates.map(_.uri).toSet
+
     val topLevelCandidates = mergeOptions2List(
-      r.title.oSpots,
       r.oKeywords.map(ks => mergeOptions2List(ks.map(_.oSpots): _*).flatten),
       r.oCategories.map(cs => mergeOptions2List(cs.map(_.oSpots): _*).flatten),
       r.oDomains.map(os => mergeOptions2List(os.map(_.oSpots): _*).flatten),
@@ -150,7 +154,7 @@ class Graph {
       r.oTocs.map(ts => mergeOptions2List(ts.flatMap(_.nodesRec().map(_.oSpots)): _*).flatten)
     ).flatten.flatMap(_.candidates)
 
-    val candidates = skim(topLevelCandidates:::tocsCandidates)
+    val candidates = skim(titleCandidates:::topLevelCandidates:::tocsCandidates)
 
     // Build a first digraph
     val uris = candidates.map(_.uri)
@@ -175,28 +179,41 @@ class Graph {
       case nodes => {
         // Get the principal connected component
         val ccs = Utils.connectedComponents(nodes)
-        val biggestCC = ccs.toList.sortBy(-_.size).head
+        val biggestCC = ccs.toList.sortBy(-_.map(_.totalDegree()).sum).head
 
         // Build a better graph
         val uris2 = biggestCC.map(_.getId).toSet
         val digraph2 = GraphFactory.smart2(uris2.asJava, 10.5)
 
+        // Uris which appear in the title
+        val titleUris2 = titleUris.filter(uris2.contains(_))
+        val uris2WithoutTitles = uris2.filterNot(titleUris2.contains(_))
+
         // Construct allowedUrisWithDepth
         val urisToDepth =
-          r.oTocs.map(tocs => urisFromNodes(tocs.flatMap(_.nodesWithDepth()), uris2)) match {
-          case None => uris2.map(uri => (uri, 0)).toMap
+          r.oTocs.map(tocs => urisFromNodes(tocs.flatMap(_.nodesWithDepth(1)), uris2)) match {
+          case None => {
+            val other = uris2WithoutTitles.map(uri => (uri, 1))
+            val title = titleUris2.map(uri => (uri, 0))
+            (other ++ title).toMap
+          }
           case Some(tocsUrisToDepth) => {
-            val topLevelUris = topLevelCandidates.map(_.uri).toSet
+            val topUris = (topLevelCandidates.map(_.uri):::titleUris2.toList).toSet
+
             // Top-level Uris win over toc uris
             val tocsUrisToDepthFiltered = tocsUrisToDepth.toList.
-              filterNot { case (uri, depth) => topLevelUris.contains(uri) }.
+              filterNot { case (uri, depth) => topUris.contains(uri) }.
               toMap
-            val topLevelUrisToDepth = uris2.
+
+            val topUrisToDepth = uris2.
               filterNot(uri => tocsUrisToDepthFiltered.contains(uri)).
-              map(uri => (uri, 0)).
-              toMap
+              map(uri => titleUris2.contains(uri) match {
+                case true => (uri, 0)
+                case false => (uri, 1)
+              }).toMap
+
             // Note that the to maps have now distinct keys
-            tocsUrisToDepthFiltered ++ topLevelUrisToDepth
+            tocsUrisToDepthFiltered ++ topUrisToDepth
           }
         }
         Some(
