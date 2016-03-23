@@ -61,7 +61,7 @@ object IndexWithGraphs extends Formatters {
           }
 
           // todo: remove
-          System.exit(1)
+          //System.exit(1)
         }
       }
     })

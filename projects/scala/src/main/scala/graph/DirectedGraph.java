@@ -114,6 +114,17 @@ public class DirectedGraph {
         removeNodesOnly(Arrays.asList(id));
     }
 
+    public void removeNodesNotIn(Collection<String> ids) {
+        List<String> toRemove = new ArrayList<>();
+        for(Node n: m_nodes.values()) {
+            String uri = n.getId();
+            if(!ids.contains(uri)) {
+                toRemove.add(uri);
+            }
+        }
+        removeNodes(toRemove);
+    }
+
     public void removeNodes(Collection<String> ids) {
         for(Node n: m_nodes.values()) {
             n.remove(ids);

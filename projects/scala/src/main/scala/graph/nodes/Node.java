@@ -110,8 +110,11 @@ public class Node implements Comparable<Node> {
         return m_out.size();
     }
 
-    public int totalDegree() {
+    public int totalDiDegree() {
         return inDegree() + outDegree();
+    }
+    public int totalNeighbors() {
+        return neighbors().size();
     }
 
     public Collection<Node> getIn() {

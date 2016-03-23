@@ -15,6 +15,12 @@ import scala.collection.JavaConverters._
 
 class Graph {
   def index(r: Resource): Option[Resource] = {
+    // Create the seed graph
+    val digraph = seedGraph(r)
+
+    return None
+
+    /*
     constructGraph(r).flatMap { case (digraph, urisToDepth) => {
       val allowedUris = urisToDepth.keySet
       // Index Title
@@ -44,7 +50,9 @@ class Graph {
           )
         }
       }
-    }}
+    }
+    }
+    */
   }
 
   /**
@@ -56,11 +64,11 @@ class Graph {
     mergeOptions2List(nodesWithDepth.map(p => p._1.oSpots.map(spots => (p, spots))): _*)
       .flatMap(p => p._2.map(spot => (p._1, spot)))
       .flatMap(p => p._2.candidates.map(candidate => (p._1, candidate)))
-      .filterNot(p => willBeSkimed(p._2))
+      .filterNot(p => willBeSkimed(p._2, 0.5))
       .map(p => (p._2.uri, p._1._2))
       .filter(p => allowedUris.contains(p._1))
-        .groupBy(_._1)
-        .map(g => (g._1, g._2.map(_._2).min))
+      .groupBy(_._1)
+      .map(g => (g._1, g._2.map(_._2).min))
   }
 
   private def indexNodes(nodes: Nodes)(implicit digraph: DirectedGraph, allowedUris: Set[String])
@@ -71,7 +79,7 @@ class Graph {
       val newChildren = indexNodes(node.children)
 
       // Index the current Node
-      val subNodes = (node, 0)::node.childrenWithDepth(offset = 1)
+      val subNodes = (node, 0) :: node.childrenWithDepth(offset = 1)
 
       // Get the uris from the candidates senses allowed
       val urisToDepth = urisFromNodes(subNodes, allowedUris)
@@ -112,16 +120,18 @@ class Graph {
         ).map(s => math.exp(s))
       ).map(s => s * (math.log(1 + math.log(1 + urisSize.toDouble)) + 0.2))
 
-      val topScores2 = topNodes.zip(topScores1).map { case (node, score) => {
-        val nodeId = node.getId()
-        urisToDepth.contains(nodeId) match {
-          case true => {
-            val depth = urisToDepth(nodeId)
-            (score / (depth.toDouble + 1))
+      val topScores2 = topNodes.zip(topScores1).map {
+        case (node, score) => {
+          val nodeId = node.getId()
+          urisToDepth.contains(nodeId) match {
+            case true => {
+              val depth = urisToDepth(nodeId)
+              (score / (depth.toDouble + 1))
+            }
+            case false => (score / 2)
           }
-          case false => (score / 2)
         }
-      }}
+      }
 
       topNodes.zip(topScores2).map(p => {
         val node = p._1
@@ -132,102 +142,159 @@ class Graph {
     }
   }
 
-  def constructGraph(r: Resource): Option[(DirectedGraph, Map[String, Int])] = {
-    // Collect the candidate senses
-    val titleCandidates = mergeOptions2List(r.title.oSpots).
-      flatten.
-      flatMap(_.candidates)
-    val titleUris = titleCandidates.map(_.uri).toSet
+  val seedValue = "seed-value"
 
-    val topLevelCandidates = mergeOptions2List(
-      r.oKeywords.map(ks => mergeOptions2List(ks.map(_.oSpots): _*).flatten),
-      r.oCategories.map(cs => mergeOptions2List(cs.map(_.oSpots): _*).flatten),
-      r.oDomains.map(os => mergeOptions2List(os.map(_.oSpots): _*).flatten),
-      r.oSubdomains.map(ds => mergeOptions2List(ds.map(_.oSpots): _*).flatten),
+  def seedGraph(r: Resource): DirectedGraph = {
+    // Build the graph
+    val seeds = getSeeds(r)
+    val mapping = mergeSeeds(seeds)
+    val digraph = GraphFactory.connect1Smart(mapping.keySet.asJava, 9.0)
 
-      // .. from Descriptions
-      r.oDescriptions.map(ds => mergeOptions2List(ds.map(_.oSpots): _*).flatten)
-    ).flatten.flatMap(_.candidates)
+    // Attach the seed to each node
+    digraph.getNodes.asScala.map(node => {
+      val uri = node.getId
+      node.addNodeAttr(seedValue, mapping(uri))
+    })
 
-    val tocsCandidates = mergeOptions2List(
-      // .. from Tocs
-      r.oTocs.map(ts => mergeOptions2List(ts.flatMap(_.nodesRec().map(_.oSpots)): _*).flatten)
-    ).flatten.flatMap(_.candidates)
+    // Skim the graph
+    def nodeValue(node: graph.nodes.Node): Int = {
+      node.totalNeighbors()
+    }
 
-    val candidates = skim(titleCandidates:::topLevelCandidates:::tocsCandidates)
+    def bestCC(digraph: DirectedGraph)
+    : Set[graph.nodes.Node] = {
+      Utils.connectedComponents(digraph.getNodes.asScala) match {
+        case Nil => Set()
+        case ccs => {
+          val sorted = ccs.toList.sortBy(g => -g.toList.map(n => nodeValue(n)).sum)
+          sorted.head
+        }
+      }
+    }
 
-    // Build a first digraph
-    val uris = candidates.map(_.uri)
-    val digraph = GraphFactory.connect1Smart(uris.asJava, 9.0)
+    def filterMaxCC(directedGraph: DirectedGraph) = {
+      val uris = bestCC(digraph).map(_.getId)
+      digraph.removeNodesNotIn(uris.asJava)
+    }
 
-    // Remove lonely and dangling nodes
-    digraph.removeNodes(2);
+    def skimStep(directedGraph: DirectedGraph) = {
+      // Remove lonely and dangling nodes
+      digraph.removeNodes(2)
 
-    //* // Save the graph for analysis
+      // Take the largest Connected Component
+      filterMaxCC(directedGraph)
+    }
+
+    def removeStep(directedGraph: DirectedGraph) = {
+      val nodes = digraph.getNodes().asScala.toList
+      val sorted = nodes.sortBy(node => {
+        val seed = node.getNodeAttr(seedValue).asInstanceOf[Seed]
+        // node with fewest priority (, degree) that leaves
+        (-seed.priority, nodeValue(node))
+      })
+      val target = sorted.head.getId()
+      digraph.removeNode(target)
+
+      // todo: remove
+      println(s"remove 1: ${sorted.head.getNodeAttr(seedValue).asInstanceOf[Seed]} ${nodeValue(sorted.head)}")
+    }
+
+    skimStep(digraph)
+    while (digraph.nbNodes() > 25) {
+      removeStep(digraph)
+      skimStep(digraph)
+    }
+
+    // todo: remove
+    saveGraph(digraph)
+
+    digraph
+  }
+
+  def saveGraph(digraph: DirectedGraph): Unit = {
     digraph.toJSONFile(
-      uris.toList.asJava,
+      digraph.getIDs().asScala.toList.asJava,
       "graph.json",
       Constants.Graph.Edges.Attribute.normalizedCwlm)
-    // */
+  }
 
-    // Build a second digraph
-    digraph.getNodes.asScala.toList match {
-      case Nil => {
-        println(s"no nodes: ${uris.size}")
-        None
-      } // fail if there are no nodes
-      case nodes => {
-        // Get the principal connected component
-        val ccs = Utils.connectedComponents(nodes)
-        val biggestCC = ccs.toList.sortBy(-_.map(_.totalDegree()).sum).head
+  case class Seed(candidate: Candidate, priority: Int, depth: Int)
 
-        // Build a better graph
-        val uris2 = biggestCC.map(_.getId).toSet
-        val digraph2 = GraphFactory.smart2(uris2.asJava, 10.5)
-
-        // Uris which appear in the title
-        val titleUris2 = titleUris.filter(uris2.contains(_))
-        val uris2WithoutTitles = uris2.filterNot(titleUris2.contains(_))
-
-        // Construct allowedUrisWithDepth
-        val urisToDepth =
-          r.oTocs.map(tocs => urisFromNodes(tocs.flatMap(_.nodesWithDepth(1)), uris2)) match {
-          case None => {
-            val other = uris2WithoutTitles.map(uri => (uri, 1))
-            val title = titleUris2.map(uri => (uri, 0))
-            (other ++ title).toMap
-          }
-          case Some(tocsUrisToDepth) => {
-            val topUris = (topLevelCandidates.map(_.uri):::titleUris2.toList).toSet
-
-            // Top-level Uris win over toc uris
-            val tocsUrisToDepthFiltered = tocsUrisToDepth.toList.
-              filterNot { case (uri, depth) => topUris.contains(uri) }.
-              toMap
-
-            val topUrisToDepth = uris2.
-              filterNot(uri => tocsUrisToDepthFiltered.contains(uri)).
-              map(uri => titleUris2.contains(uri) match {
-                case true => (uri, 0)
-                case false => (uri, 1)
-              }).toMap
-
-            // Note that the to maps have now distinct keys
-            tocsUrisToDepthFiltered ++ topUrisToDepth
-          }
-        }
-        Some(
-          digraph2,
-          urisToDepth
-        )
-      }
+  def mergeSeeds(seeds: Set[Seed])
+  : Map[String, Seed] = {
+    // Lowest depth wins
+    val groups = seeds.groupBy(_.candidate.uri)
+    groups.map {
+      case (uri, xs) => (uri, xs.toList.sortBy(_.depth).head)
     }
   }
 
-  def willBeSkimed(c: Candidate): Boolean = c match {
-    case Spotlight(_, _, scores, _) => (scores.finalScore < 0.5)
+  def getSeeds(r: Resource): Set[Seed] = {
+
+    def skimSpecial(seeds: Set[Seed])(threshold: Double)
+    : Set[Seed] = seeds.filterNot(s => willBeSkimed(s.candidate, threshold))
+
+    // Seeds from title
+    val titleSeeds: Set[Seed] = skimSpecial {
+      val spots = mergeOptions2List(r.title.oSpots).flatten
+      val candidates = spots.flatMap(_.candidates)
+      candidates.map(c => Seed(c, 1, 0)).toSet
+    }(0.5)
+
+    // Seeds from table of contents
+    val tocsSeeds: Set[Seed] = skimSpecial {
+      val oSeeds = r.oTocs.map(tocs => {
+        val allCandidates = tocs.flatMap(toc => {
+          // Root node has depth 1
+          val nodes = toc.nodesWithDepth(1)
+          val oSpots = nodes.map {
+            case (node, depth) => {
+              node.oSpots.map(spots => {
+                spots.map(spot => (spot, depth))
+              })
+            }
+          }
+          val spots = mergeOptions2List(oSpots: _*).flatten
+          val candidates = spots.flatMap {
+            case (spot, depth) => spot.candidates.map(c => (c, depth))
+          }
+          candidates
+        })
+
+        allCandidates.map {
+          case (candidate, depth) => Seed(candidate, 2, depth)
+        }
+      })
+      mergeOptions2List(oSeeds).flatten.toSet
+    }(0.5)
+
+    // Seeds from metadata
+    val metaSeeds: Set[Seed] = skimSpecial {
+      val spots = mergeOptions2List(
+        r.oKeywords.map(ks => mergeOptions2List(ks.map(_.oSpots): _*).flatten),
+        r.oCategories.map(cs => mergeOptions2List(cs.map(_.oSpots): _*).flatten),
+        r.oDomains.map(os => mergeOptions2List(os.map(_.oSpots): _*).flatten),
+        r.oSubdomains.map(ds => mergeOptions2List(ds.map(_.oSpots): _*).flatten)
+      ).flatten
+      val candidates = spots.flatMap(_.candidates)
+      // .. have depth 2
+      candidates.map(c => Seed(c, 3, 2)).toSet
+    }(0.95)
+
+    // Seeds from descriptions
+    val descrSeeds: Set[Seed] = skimSpecial {
+      val spots = mergeOptions2List {
+        r.oDescriptions.map(ds => mergeOptions2List(ds.map(_.oSpots): _*).flatten)
+      }.flatten
+      val candidates = spots.flatMap(_.candidates)
+      // .. have depth 2
+      candidates.map(c => Seed(c, 4, 2)).toSet
+    }(0.95)
+
+    (titleSeeds ++ tocsSeeds ++ metaSeeds ++ descrSeeds)
   }
 
-  def skim(candidates: List[Candidate]): List[Candidate] =
-    candidates.filterNot(c => willBeSkimed(c))
+  def willBeSkimed(c: Candidate, threshold: Double): Boolean = c match {
+    case Spotlight(_, _, scores, _) => (scores.finalScore < threshold)
+  }
 }
