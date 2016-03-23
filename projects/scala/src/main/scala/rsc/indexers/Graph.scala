@@ -4,89 +4,72 @@ import graph.edges.unbiased.AttachedWeight
 import graph.{DirectedGraph, Pagerank, Utils}
 import mysql.GraphFactory
 import rsc.Resource
-import rsc.Types.{Nodes, Indices}
+import rsc.Types.{Indices, Nodes}
 import rsc.attributes.Candidate.{Candidate, Spotlight}
-import rsc.toc.Node
 import utils.Constants
-import utils.Utils.mergeOptions2List
 import utils.Math._
+import utils.Utils.mergeOptions2List
 
 import scala.collection.JavaConverters._
 
 class Graph {
+
+  val seedValue = "seed-value"
+
   def index(r: Resource): Option[Resource] = {
     // Create the seed graph
-    val digraph = seedGraph(r)
+    val miniGraph = seedGraph(r)
 
-    return None
+    // Extract the seeds
+    val seeds = miniGraph.getNodes().asScala.map(node => {
+      node.getNodeAttr(seedValue).asInstanceOf[Seed]
+    }).toSet
 
-    /*
-    constructGraph(r).flatMap { case (digraph, urisToDepth) => {
-      val allowedUris = urisToDepth.keySet
-      // Index Title
-      index(digraph, urisToDepth) match {
-        case Nil => None
-        case titleIndices => {
-          /*// Save the graph for analysis
-          digraph.toJSONFile(
-            allUris.toList.asJava,
-            "graph.json",
-            Constants.Graph.Edges.Attribute.normalizedCwlm)
-          // */
+    // Expand the graph
+    val uris = seeds.map(_.candidate.uri).toList
+    val expanded = GraphFactory.smart2(uris.asJava, 10.5)
 
-          // Index the tocs
-          val newOTocs = r.oTocs.map(_.map(toc => {
-            val newNodes = indexNodes(toc.nodes)(digraph, allowedUris)
+    // Index the title
+    index(expanded, seeds) match {
+      case Nil => None
+      case indices => {
+        // Index the table of contents
+        val newOTocs = r.oTocs.map(tocs => {
+          tocs.map(toc => {
+            val newNodes = indexNodes(toc.nodes)(expanded, seeds)
             toc.copy(nodes = newNodes)
-          }))
+          })
+        })
 
-          // Create the new resource
-          Some(
-            r.copy(
-              title = r.title.copy(oIndices = Some(titleIndices)),
-              oTocs = newOTocs
-              //oIndexer = Some(Indexer.Graph)
-            )
+        // Create the new resource
+        Some(
+          r.copy(
+            title = r.title.copy(oIndices = Some(indices)),
+            oTocs = newOTocs
+            //oIndexer = Some(Indexer.Graph)
           )
-        }
+        )
       }
     }
-    }
-    */
   }
 
-  /**
-    * In case of conflict (same uri appearing in multiple entries),
-    * the entry with the lowest toc depth wins.
-    */
-  private def urisFromNodes(nodesWithDepth: List[(Node, Int)], allowedUris: Set[String])
-  : Map[String, Int] = {
-    mergeOptions2List(nodesWithDepth.map(p => p._1.oSpots.map(spots => (p, spots))): _*)
-      .flatMap(p => p._2.map(spot => (p._1, spot)))
-      .flatMap(p => p._2.candidates.map(candidate => (p._1, candidate)))
-      .filterNot(p => willBeSkimed(p._2, 0.5))
-      .map(p => (p._2.uri, p._1._2))
-      .filter(p => allowedUris.contains(p._1))
-      .groupBy(_._1)
-      .map(g => (g._1, g._2.map(_._2).min))
-  }
-
-  private def indexNodes(nodes: Nodes)(implicit digraph: DirectedGraph, allowedUris: Set[String])
+  private def indexNodes(nodes: Nodes)(implicit digraph: DirectedGraph, seeds: Set[Seed])
   : Nodes = nodes match {
     case Nil => Nil
     case _ => nodes.map(node => {
       // Index children
       val newChildren = indexNodes(node.children)
 
-      // Index the current Node
-      val subNodes = (node, 0) :: node.childrenWithDepth(offset = 1)
-
-      // Get the uris from the candidates senses allowed
-      val urisToDepth = urisFromNodes(subNodes, allowedUris)
+      // Create and select the allowed seeds
+      val allowed = seeds.map(_.candidate.uri)
+      val candidateSeeds = getSeeds(List(node), 0)
+      val filtered = candidateSeeds.filter(seed => {
+        allowed.contains(seed.candidate.uri)
+      })
 
       // Using pagerank
       println(s"node $node")
-      val oIndices = index(digraph, urisToDepth) match {
+      val oIndices = index(digraph, filtered) match {
         case Nil => None
         case indices => Some(indices)
       }
@@ -99,12 +82,16 @@ class Graph {
     })
   }
 
-  private def index(digraph: DirectedGraph, urisToDepth: Map[String, Int])
-  : Indices = urisToDepth.size match {
+  private def index(digraph: DirectedGraph, seeds: Set[Seed])
+  : Indices = seeds.size match {
     case zero if zero == 0 => Nil
-    case urisSize => {
-      // Run the pagerank
-      val nWeight = new graph.nodes.biased.Uniform(digraph, urisToDepth.keys.toList.asJava)
+    case _ => {
+      // Create a mapping: uri -> seed
+      val mapping = mergeSeeds(seeds)
+      val nbSeeds = mapping.keySet.size
+
+      // Run the pagerank algorithm
+      val nWeight = new graph.nodes.biased.Uniform(digraph, mapping.keys.toList.asJava)
       val eWeight = new AttachedWeight(
         digraph,
         Constants.Graph.Edges.Attribute.completeWlm,
@@ -112,37 +99,40 @@ class Graph {
 
       Pagerank.weighted(digraph, nWeight, eWeight, 0.8)
 
-      // Produce the indices
+      // Produce the indices scores
       val topNodes = digraph.getNodes.asScala.toList
-        .sortBy(-_.getScore).take(urisSize)
-      val topScores1 = rescaleD(
-        rescaleD(topNodes.map(_.getScore().toDouble)
-        ).map(s => math.exp(s))
-      ).map(s => s * (math.log(1 + math.log(1 + urisSize.toDouble)) + 0.2))
+        .sortBy(-_.getScore).take(nbSeeds)
 
-      val topScores2 = topNodes.zip(topScores1).map {
+      val r1 = rescaleD(topNodes.map(_.getScore().toDouble))
+      val r2 = rescaleD(r1.map(s => math.exp(s)))
+      val r3 = r2.map(s => s * (math.log(1 + math.log(1 + nbSeeds.toDouble)) + 0.2))
+      val scores = topNodes.zip(r3).map {
         case (node, score) => {
           val nodeId = node.getId()
-          urisToDepth.contains(nodeId) match {
+          mapping.contains(nodeId) match {
+            // Candidates score is proportional to depth
             case true => {
-              val depth = urisToDepth(nodeId)
+              val depth = mapping(nodeId).depth
               (score / (depth.toDouble + 1))
             }
+            // Candidates not in the seeds are a bit penalized
             case false => (score / 2)
           }
         }
       }
 
-      topNodes.zip(topScores2).map(p => {
+      // Produce the indices
+      topNodes.zip(scores).map(p => {
         val node = p._1
         val score = p._2
+
+        // todo: remove
         println(s"$node -> $score")
+
         Index(node.getId(), score)
       })
     }
   }
-
-  val seedValue = "seed-value"
 
   def seedGraph(r: Resource): DirectedGraph = {
     // Build the graph
@@ -158,6 +148,7 @@ class Graph {
 
     // Skim the graph
     def nodeValue(node: graph.nodes.Node): Int = {
+      // Intuitive heuristic, more complex could be designed (Machine Learning?)
       node.totalNeighbors()
     }
 
@@ -229,6 +220,32 @@ class Graph {
     }
   }
 
+  def getSeeds(nodes: Nodes, offset: Int): Set[Seed] = {
+    // Extract sub-nodes and their depth
+    val pairs = nodes.flatMap(node => {
+      (node, offset)::node.childrenWithDepth(offset + 1)
+    })
+
+    // Extract the candidates
+    val oSpots = pairs.map {
+      case (node, depth) => {
+        node.oSpots.map(spots => {
+          spots.map(spot => (spot, depth))
+        })
+      }
+    }
+    val spots = mergeOptions2List(oSpots: _*).flatten
+    val candidates = spots.flatMap {
+      case (spot, depth) => spot.candidates.map(c => (c, depth))
+    }
+
+    // Create the seeds
+    val seeds = candidates.map {
+      case (candidate, depth) => Seed(candidate, 2, depth)
+    }
+    seeds.toSet
+  }
+
   def getSeeds(r: Resource): Set[Seed] = {
 
     def skimSpecial(seeds: Set[Seed])(threshold: Double)
@@ -244,28 +261,15 @@ class Graph {
     // Seeds from table of contents
     val tocsSeeds: Set[Seed] = skimSpecial {
       val oSeeds = r.oTocs.map(tocs => {
-        val allCandidates = tocs.flatMap(toc => {
-          // Root node has depth 1
-          val nodes = toc.nodesWithDepth(1)
-          val oSpots = nodes.map {
-            case (node, depth) => {
-              node.oSpots.map(spots => {
-                spots.map(spot => (spot, depth))
-              })
-            }
-          }
-          val spots = mergeOptions2List(oSpots: _*).flatten
-          val candidates = spots.flatMap {
-            case (spot, depth) => spot.candidates.map(c => (c, depth))
-          }
-          candidates
-        })
+        // Collect the nodes
+        val nodes = tocs.flatMap(_.nodes)
 
-        allCandidates.map {
-          case (candidate, depth) => Seed(candidate, 2, depth)
-        }
+        // Extract the seeds
+        // Note: The root node has a depth of 1
+        getSeeds(nodes, 1)
       })
-      mergeOptions2List(oSeeds).flatten.toSet
+      val seeds = mergeOptions2List(oSeeds)
+      seeds.flatten.toSet
     }(0.5)
 
     // Seeds from metadata
