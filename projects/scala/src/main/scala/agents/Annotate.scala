@@ -6,14 +6,14 @@ import org.json4s.native.JsonMethods._
 import rsc.annotators.{Annotator, Standard}
 import rsc.writers.Json
 import rsc.{Formatters, Resource}
-import spotlight.WebService
+import spotlight.{WebService, LazyWebService}
 import utils.{Logger, Files, Settings}
 
 object Annotate extends Formatters {
   def main(args: Array[String]): Unit = {
 
     val settings = new Settings()
-    val webService = new WebService(settings.Spotlight.host, settings.Spotlight.port)
+    val ws = new WebService(settings.Spotlight.host, settings.Spotlight.port)
 
     // For each resource-file
     Files.explore(new File(settings.Resources.folder)).map(file => {
@@ -36,7 +36,7 @@ object Annotate extends Formatters {
         }
         case true => {
           // Annotate it
-          Standard.annotate(r, webService) match {
+          Standard.annotate(r, ws) match {
             case None => {
               Logger.error("Failed: " + friendlyName)
             }
@@ -51,6 +51,6 @@ object Annotate extends Formatters {
     })
 
     // Create the web-service
-    webService.shutdown
+    ws.shutdown
   }
 }
