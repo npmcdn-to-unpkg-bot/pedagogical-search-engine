@@ -4,6 +4,7 @@ import java.io.File
 
 import org.json4s.native.JsonMethods._
 import rsc.annotators.{Annotator, Standard}
+import rsc.attributes.Candidate.Spotlight
 import rsc.writers.Json
 import rsc.{Formatters, Resource}
 import spotlight.{WebService, LazyWebService}

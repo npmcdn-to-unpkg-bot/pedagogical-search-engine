@@ -56,23 +56,36 @@ class LazyWebService(wsHost: String, wsPort: Int) {
   def annotateTogether(texts: List[String])
   : Future[List[Spots]] = {
     // Annotated all the texts together
-    val merged = texts.mkString("")
+    val separator = "\n"
+    val merged = texts.mkString(separator)
     val annotation = annotate(merged)
+
+    // But keep the starting offsets
+    val sepSize = separator.size
+    type OffsetWithSpots = (Int, List[Spot])
+    val offsets = texts.map(_.size).foldLeft((0, List[OffsetWithSpots]())) {
+      case ((offset, acc), size) => (offset + size + sepSize, (offset, Nil)::acc)
+    } match {
+      case (_, acc) => acc
+    }
 
     // Convert a position into the starting position of its corresponding text
     // e.g. texts = List(hello, john)
     // e.g. realOffset(3) = 0, ro(8) = 5, ro(5) = 5, ro(4) = 0
     def realOffset(pos: Int): Int = {
-      def rec(pos: Int, acc: List[String], start: Int): Int = acc match {
-        case head::tail => {
-          val end = start + head.size
-          (pos < end) match {
-            case true => start
-            case false => rec(pos, tail, end)
+      def rec(pos: Int, last: OffsetWithSpots, next: List[OffsetWithSpots])
+      : OffsetWithSpots = next match {
+        case Nil => last
+        case head::tail => head match {
+          case (offset, spots) => (pos < offset) match {
+            case true => last
+            case false => rec(pos, head, tail)
           }
         }
       }
-      rec(pos, texts, 0)
+      rec(pos, (0, Nil), offsets.sortBy { case (offset, _) => offset }) match {
+        case (offset, _) => offset
+      }
     }
 
     // Dispatch back the spots
@@ -94,16 +107,28 @@ class LazyWebService(wsHost: String, wsPort: Int) {
         // Group them by real offset
         val grouped = shifted.groupBy {
           case (offset, spot) => offset
-        } toList
+        }.toList.map {
+          // drop the offset duplicate
+          case (offset, l) => {
+            val spots = l.map(_._2)
+            (offset, spots)
+          }
+        } toMap
 
         // Put them in the same order as the input texts
-        val ordered = grouped.sortBy {
+        val completed = offsets.map {
+          case (offset, spots) => grouped.contains(offset) match {
+            case true => (offset, grouped(offset))
+            case false => (offset, Nil)
+          }
+        }
+        val ordered = completed.sortBy {
           case (offset, _) => offset
         }
 
         // Extract each chunk of spots
         val newSpots: List[Spots] = ordered.map {
-          case (offset, spotsPairs) => spotsPairs.map { case (o, spot) => spot }
+          case (offset, spots) => spots
         }
 
         newSpots
