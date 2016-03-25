@@ -68,7 +68,6 @@ class Graph {
       })
 
       // Using pagerank
-      println(s"node $node")
       val oIndices = index(digraph, filtered) match {
         case Nil => None
         case indices => Some(indices)
@@ -126,9 +125,6 @@ class Graph {
         val node = p._1
         val score = p._2
 
-        // todo: remove
-        println(s"$node -> $score")
-
         Index(node.getId(), score)
       })
     }
@@ -185,9 +181,6 @@ class Graph {
       })
       val target = sorted.head.getId()
       digraph.removeNode(target)
-
-      // todo: remove
-      println(s"remove 1: ${sorted.head.getNodeAttr(seedValue).asInstanceOf[Seed]} ${nodeValue(sorted.head)}")
     }
 
     skimStep(digraph)
@@ -195,9 +188,6 @@ class Graph {
       removeStep(digraph)
       skimStep(digraph)
     }
-
-    // todo: remove
-    saveGraph(digraph)
 
     digraph
   }

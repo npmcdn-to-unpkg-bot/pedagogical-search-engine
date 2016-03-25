@@ -3,7 +3,7 @@ package agents
 import java.io.File
 
 import org.json4s.native.JsonMethods._
-import rsc.annotators.{Annotator, Standard}
+import rsc.annotators.Annotator
 import rsc.indexers.{Graph, Indexer}
 import rsc.writers.Json
 import rsc.{Formatters, Resource}
@@ -59,9 +59,6 @@ object IndexWithGraphs extends Formatters {
               Logger.info(s"OK: $name")
             }
           }
-
-          // todo: remove
-          //System.exit(1)
         }
       }
     })
