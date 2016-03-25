@@ -251,12 +251,14 @@ class Graph {
     def skimSpecial(seeds: Set[Seed])(threshold: Double)
     : Set[Seed] = seeds.filterNot(s => willBeSkimed(s.candidate, threshold))
 
+    val thre = 0.5
+
     // Seeds from title
     val titleSeeds: Set[Seed] = skimSpecial {
       val spots = mergeOptions2List(r.title.oSpots).flatten
       val candidates = spots.flatMap(_.candidates)
       candidates.map(c => Seed(c, 1, 0)).toSet
-    }(0.5)
+    }(thre)
 
     // Seeds from table of contents
     val tocsSeeds: Set[Seed] = skimSpecial {
@@ -270,7 +272,7 @@ class Graph {
       })
       val seeds = mergeOptions2List(oSeeds)
       seeds.flatten.toSet
-    }(0.5)
+    }(thre)
 
     // Seeds from metadata
     val metaSeeds: Set[Seed] = skimSpecial {
@@ -283,7 +285,7 @@ class Graph {
       val candidates = spots.flatMap(_.candidates)
       // .. have depth 2
       candidates.map(c => Seed(c, 3, 2)).toSet
-    }(0.95)
+    }(thre)
 
     // Seeds from descriptions
     val descrSeeds: Set[Seed] = skimSpecial {
@@ -293,7 +295,7 @@ class Graph {
       val candidates = spots.flatMap(_.candidates)
       // .. have depth 2
       candidates.map(c => Seed(c, 4, 2)).toSet
-    }(0.95)
+    }(thre)
 
     (titleSeeds ++ tocsSeeds ++ metaSeeds ++ descrSeeds)
   }
