@@ -2,18 +2,13 @@ package rsc.annotators
 
 import rsc.Resource
 import rsc.Types._
-import spotlight.WebService
+import spotlight.LazyWebService
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 object Standard {
-  def annotate(r: Resource, ws: WebService): Option[Resource] = {
-    try {
-      Some(newResource(r, ws))
-    } catch {
-      case e => None
-    }
-  }
-
-  private def newResource(r: Resource, ws: WebService): Resource = {
+  def annotate(r: Resource, ws: LazyWebService): Future[Resource] = {
 
     //
     val titleWork: List[(Object, String)] = (r.title -> r.title.label)::Nil
@@ -82,72 +77,76 @@ object Standard {
     val work: List[(Object, String)] =
       titleWork ::: keyWork ::: catWork ::: domWork ::: subdomWork ::: desWork ::: nodeWork
 
-    //
-    val results: Map[Object, Spots] = ws.annotateTogether(
+    // Annotate
+    ws.annotateTogether(
       work.map {
         case (obj, text) => text
       }
-    ) match {
-      case Some(spotsList) => work.map {
-        case (obj, _) => obj
-      }.zip(spotsList).toMap
-    }
+    ).map(spots => {
+      // Compute the results Map
+      val results: Map[Object, Spots] = {
+        work.map {
+          case (obj, _) => obj
+        }.zip(spots).toMap
+      }
 
-    // Function to annotate the nodes recursively
-    def annotateNodes(nodes: Nodes): Nodes = nodes.map(node => {
-      val spots = results(node)
-      node.copy(oSpots = Some(spots), children = annotateNodes(node.children))
-    })
-
-    // Construct new elements
-    val newTitle = r.title.copy(oSpots = Some(results(r.title)))
-
-    val newOKeywords = r.oKeywords.map(keywords => {
-      keywords.map(keyword => {
-        keyword.copy(oSpots = Some(results(keyword)))
+      // Function to annotate the nodes recursively
+      def annotateNodes(nodes: Nodes): Nodes = nodes.map(node => {
+        val spots = results(node)
+        node.copy(oSpots = Some(spots), children = annotateNodes(node.children))
       })
-    })
 
-    val newOCategories = r.oCategories.map(categories => {
-      categories.map(category => {
-        category.copy(oSpots = Some(results(category)))
+      // Construct new elements
+      val newTitle = r.title.copy(oSpots = Some(results(r.title)))
+
+      val newOKeywords = r.oKeywords.map(keywords => {
+        keywords.map(keyword => {
+          keyword.copy(oSpots = Some(results(keyword)))
+        })
       })
-    })
 
-    val newODomains = r.oDomains.map(domains => {
-      domains.map(domain => {
-        domain.copy(oSpots = Some(results(domain)))
+      val newOCategories = r.oCategories.map(categories => {
+        categories.map(category => {
+          category.copy(oSpots = Some(results(category)))
+        })
       })
-    })
 
-    val newOSubdomains = r.oSubdomains.map(subdomains => {
-      subdomains.map(subdomain => {
-        subdomain.copy(oSpots = Some(results(subdomain)))
+      val newODomains = r.oDomains.map(domains => {
+        domains.map(domain => {
+          domain.copy(oSpots = Some(results(domain)))
+        })
       })
-    })
 
-    val newOTocs = r.oTocs.map(tocs => {
-      tocs.map(toc => {
-        toc.copy(nodes = annotateNodes(toc.nodes))
+      val newOSubdomains = r.oSubdomains.map(subdomains => {
+        subdomains.map(subdomain => {
+          subdomain.copy(oSpots = Some(results(subdomain)))
+        })
       })
-    })
 
-    val newODescriptions = r.oDescriptions.map(descriptions => {
-      descriptions.map(description => {
-        description.copy(oSpots = Some(results(description)))
+      val newOTocs = r.oTocs.map(tocs => {
+        tocs.map(toc => {
+          toc.copy(nodes = annotateNodes(toc.nodes))
+        })
       })
+
+      val newODescriptions = r.oDescriptions.map(descriptions => {
+        descriptions.map(description => {
+          description.copy(oSpots = Some(results(description)))
+        })
+      })
+
+      // Create the new resource
+      r.copy(
+        oAnnotator = Some(Annotator.Standard),
+        title = newTitle,
+        oKeywords = newOKeywords,
+        oCategories = newOCategories,
+        oDomains = newODomains,
+        oSubdomains = newOSubdomains,
+        oTocs = newOTocs,
+        oDescriptions = newODescriptions
+      )
     })
 
-    // Create the new resource
-    r.copy(
-      oAnnotator = Some(Annotator.Standard),
-      title = newTitle,
-      oKeywords = newOKeywords,
-      oCategories = newOCategories,
-      oDomains = newODomains,
-      oSubdomains = newOSubdomains,
-      oTocs = newOTocs,
-      oDescriptions = newODescriptions
-    )
   }
 }
