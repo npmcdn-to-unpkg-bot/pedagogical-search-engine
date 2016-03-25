@@ -55,7 +55,6 @@ public class Pagerank {
                 // iterate
                 iter += 1;
             }
-            System.out.println("iter: " + iter);
         }
     }
 }

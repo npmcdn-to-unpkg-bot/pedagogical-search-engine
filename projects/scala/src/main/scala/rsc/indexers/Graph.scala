@@ -11,12 +11,14 @@ import utils.Math._
 import utils.Utils.mergeOptions2List
 
 import scala.collection.JavaConverters._
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class Graph {
 
   val seedValue = "seed-value"
 
-  def index(r: Resource): Option[Resource] = {
+  def index(r: Resource): Future[Option[Resource]] = {
     // Create the seed graph
     val miniGraph = seedGraph(r)
 
@@ -27,30 +29,32 @@ class Graph {
 
     // Expand the graph
     val uris = seeds.map(_.candidate.uri).toList
-    val expanded = GraphFactory.smart2(uris.asJava, 10.5)
-
-    // Index the title
-    index(expanded, seeds) match {
-      case Nil => None
-      case indices => {
-        // Index the table of contents
-        val newOTocs = r.oTocs.map(tocs => {
-          tocs.map(toc => {
-            val newNodes = indexNodes(toc.nodes)(expanded, seeds)
-            toc.copy(nodes = newNodes)
+    Future {
+      GraphFactory.smart2(uris.asJava, 10.5)
+    } map(expanded => {
+      // Index the title
+      index(expanded, seeds) match {
+        case Nil => None
+        case indices => {
+          // Index the table of contents
+          val newOTocs = r.oTocs.map(tocs => {
+            tocs.map(toc => {
+              val newNodes = indexNodes(toc.nodes)(expanded, seeds)
+              toc.copy(nodes = newNodes)
+            })
           })
-        })
 
-        // Create the new resource
-        Some(
-          r.copy(
-            title = r.title.copy(oIndices = Some(indices)),
-            oTocs = newOTocs
-            //oIndexer = Some(Indexer.Graph)
+          // Create the new resource
+          Some(
+            r.copy(
+              title = r.title.copy(oIndices = Some(indices)),
+              oTocs = newOTocs
+              //oIndexer = Some(Indexer.Graph)
+            )
           )
-        )
+        }
       }
-    }
+    })
   }
 
   private def indexNodes(nodes: Nodes)(implicit digraph: DirectedGraph, seeds: Set[Seed])

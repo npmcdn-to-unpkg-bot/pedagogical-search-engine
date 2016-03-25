@@ -7,7 +7,6 @@ import utils.Constants;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.logging.Logger;
 
 public class GraphFactory {
     public static Double normalizeWlm(Double score) {
@@ -85,9 +84,7 @@ public class GraphFactory {
                     Arrays.asList(
                             QueriesUtils.escapeAndJoin(URIsSet)
                     ));
-            utils.Logger.info("Querying graph-first layer of size " + URIsSet.size());
             ResultSet rs = QueriesUtils.execute(query);
-            utils.Logger.info(".. got response" );
 
             while(rs.next()) {
                 String a = rs.getString("A").toLowerCase();
@@ -113,7 +110,6 @@ public class GraphFactory {
             }
 
             // .. and follow out-links to existing nodes
-            utils.Logger.info("Querying graph-second layer of size: " + newNodes.size());
             String fromIds = QueriesUtils.escapeAndJoin(newNodes); // from new nodes
             newNodes.addAll(URIsSet);
             String toIds = QueriesUtils.escapeAndJoin(newNodes); // to existing nodes
@@ -125,7 +121,6 @@ public class GraphFactory {
                             toIds
                     ));
             rs = QueriesUtils.execute(query);
-            utils.Logger.info(".. got response" );
 
             while(rs.next()) {
                 String a = rs.getString("A").toLowerCase();
@@ -148,10 +143,6 @@ public class GraphFactory {
             e.printStackTrace();
         }
 
-        System.out.println(String.format(
-                "GraphFactory: produced graph with %s entitites",
-                String.valueOf(digraph.nbNodes())
-        ));
         return digraph;
     }
 
@@ -170,11 +161,6 @@ public class GraphFactory {
         List<String> unvisited = new ArrayList<String>(new HashSet<String>(URIs));
         Set<String> newLinks = new HashSet<String>();
         for(int i = 1; i <= k; i++) {
-            System.out.println(String.format(
-                    "GraphFactory: Exploring %s entities at i = %s",
-                    String.valueOf(unvisited.size()),
-                    String.valueOf(i)
-                    ));
 
             // Explore nodes by chunks
             int nbChunks = (int) Math.ceil(((double) unvisited.size()) / ((double) chunkSize));
@@ -214,26 +200,15 @@ public class GraphFactory {
                         }
 
                         // Save wlm weight
-                        if(nodeA != null) {
-                            nodeA.addEdgeAttr(
-                                    b,
+                        nodeA.addEdgeAttr(
+                                b,
+                                Constants.Graph.Edges.Attribute.completeWlm,
+                                score);
+                        if(undirected) {
+                            nodeB.addEdgeAttr(
+                                    a,
                                     Constants.Graph.Edges.Attribute.completeWlm,
                                     score);
-                            if(undirected) {
-                                nodeB.addEdgeAttr(
-                                        a,
-                                        Constants.Graph.Edges.Attribute.completeWlm,
-                                        score);
-                            }
-                        } else {
-                            // it happens rarely:
-                            // the node was added, but is not found
-                            // hash collision !?
-                            System.out.println(String.format(
-                                    "%s: %s not found",
-                                    GraphFactory.class.toString(),
-                                    a
-                            ));
                         }
                     }
                 } catch (SQLException e) {
@@ -256,11 +231,6 @@ public class GraphFactory {
         visited.clear();
         unvisited.clear();
         newLinks.clear();
-
-        System.out.println(String.format(
-                "GraphFactory: produced graph with %s entitites",
-                String.valueOf(digraph.nbNodes())
-        ));
         return digraph;
     }
 
