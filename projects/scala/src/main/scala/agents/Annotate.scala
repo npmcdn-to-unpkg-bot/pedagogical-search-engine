@@ -23,46 +23,52 @@ object Annotate extends Formatters {
     // For each resource-file
     val futures: List[Future[Resource]] =
       Files.explore(new File(settings.Resources.folder)).flatMap(file => {
-
         val friendlyName = file.file.getAbsolutePath
         Logger.info(".. " + friendlyName)
 
-      // Parse it
-      val json = parse(file.file)
-      val r = json.extract[Resource]
+        try {
+          // Parse it
+          val json = parse(file.file)
+          val r = json.extract[Resource]
 
-      // Has the resource been annotated already?
-      val annotate = r.oAnnotator match {
-        case Some(annotator) => annotator match {
-          case Annotator.Standard => false
-          case _ => true
-        }
-        case None => true
-      }
-
-      annotate match {
-        case false => {
-          Logger.info("Skipping: " + friendlyName)
-          Nil
-        }
-        case true => {
-          // Annotate it
-          val future = Standard.annotate(r, ws)
-
-          future onComplete {
-            case Failure(t) => {
-              Logger.error("Failed: " + friendlyName)
+          // Has the resource been annotated already?
+          val annotate = r.oAnnotator match {
+            case Some(annotator) => annotator match {
+              case Annotator.Standard => false
+              case _ => true
             }
-            case Success(newR) => {
-              // Write it
-              Json.write(newR, Some(file.file.getAbsolutePath))
-              Logger.info("OK: " + friendlyName)
-            }
+            case None => true
           }
 
-          List(future)
+          annotate match {
+            case false => {
+              Logger.info("Skipping: " + friendlyName)
+              Nil
+            }
+            case true => {
+              // Annotate it
+              val future = Standard.annotate(r, ws)
+
+              future onComplete {
+                case Failure(t) => {
+                  Logger.error("Failed: " + friendlyName)
+                }
+                case Success(newR) => {
+                  // Write it
+                  Json.write(newR, Some(file.file.getAbsolutePath))
+                  Logger.info("OK: " + friendlyName)
+                }
+              }
+
+              List(future)
+            }
+          }
+        } catch {
+          case e => {
+            Logger.error("Failed to parse: " + friendlyName)
+            Nil
+          }
         }
-      }
     })
 
 
