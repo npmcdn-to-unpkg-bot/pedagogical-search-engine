@@ -20,41 +20,45 @@ class Graph {
 
   def index(r: Resource): Future[Option[Resource]] = {
     // Create the seed graph
-    val miniGraph = seedGraph(r)
+    seedGraph(r) flatMap {
+      case miniGraph => {
+        // Extract the seeds
+        val seeds = miniGraph.getNodes().asScala.map(node => {
+          node.getNodeAttr(seedValue).asInstanceOf[Seed]
+        }).toSet
 
-    // Extract the seeds
-    val seeds = miniGraph.getNodes().asScala.map(node => {
-      node.getNodeAttr(seedValue).asInstanceOf[Seed]
-    }).toSet
+        // Expand the graph
+        val uris = seeds.map(_.candidate.uri)
+        val futureExpanded = GraphFactory.follow2(uris, 10.5)
 
-    // Expand the graph
-    val uris = seeds.map(_.candidate.uri).toList
-    Future {
-      GraphFactory.smart2(uris.asJava, 10.5)
-    } map(expanded => {
-      // Index the title
-      index(expanded, seeds) match {
-        case Nil => None
-        case indices => {
-          // Index the table of contents
-          val newOTocs = r.oTocs.map(tocs => {
-            tocs.map(toc => {
-              val newNodes = indexNodes(toc.nodes)(expanded, seeds)
-              toc.copy(nodes = newNodes)
-            })
-          })
+        futureExpanded map {
+          case expanded => {
+            // Index the title
+            index(expanded, seeds) match {
+              case Nil => None
+              case indices => {
+                // Index the table of contents
+                val newOTocs = r.oTocs.map(tocs => {
+                  tocs.map(toc => {
+                    val newNodes = indexNodes(toc.nodes)(expanded, seeds)
+                    toc.copy(nodes = newNodes)
+                  })
+                })
 
-          // Create the new resource
-          Some(
-            r.copy(
-              title = r.title.copy(oIndices = Some(indices)),
-              oTocs = newOTocs
-              //oIndexer = Some(Indexer.Graph)
-            )
-          )
+                // Create the new resource
+                Some(
+                  r.copy(
+                    title = r.title.copy(oIndices = Some(indices)),
+                    oTocs = newOTocs
+                    //oIndexer = Some(Indexer.Graph)
+                  )
+                )
+              }
+            }
+          }
         }
       }
-    })
+    }
   }
 
   private def indexNodes(nodes: Nodes)(implicit digraph: DirectedGraph, seeds: Set[Seed])
@@ -134,66 +138,71 @@ class Graph {
     }
   }
 
-  def seedGraph(r: Resource): DirectedGraph = {
+  def seedGraph(r: Resource)
+  : Future[DirectedGraph] = {
     // Build the graph
     val seeds = getSeeds(r)
     val mapping = mergeSeeds(seeds)
-    val digraph = GraphFactory.connect1Smart(mapping.keySet.asJava, 9.0)
+    val future = GraphFactory.follow1(mapping.keySet, 9.0)
 
-    // Attach the seed to each node
-    digraph.getNodes.asScala.map(node => {
-      val uri = node.getId
-      node.addNodeAttr(seedValue, mapping(uri))
-    })
+    future map {
+      case digraph => {
+        // Attach the seed to each node
+        digraph.getNodes.asScala.map(node => {
+          val uri = node.getId
+          node.addNodeAttr(seedValue, mapping(uri))
+        })
 
-    // Skim the graph
-    def nodeValue(node: graph.nodes.Node): Int = {
-      // Intuitive heuristic, more complex could be designed (Machine Learning?)
-      node.totalNeighbors()
-    }
-
-    def bestCC(digraph: DirectedGraph)
-    : Set[graph.nodes.Node] = {
-      Utils.connectedComponents(digraph.getNodes.asScala) match {
-        case Nil => Set()
-        case ccs => {
-          val sorted = ccs.toList.sortBy(g => -g.toList.map(n => nodeValue(n)).sum)
-          sorted.head
+        // Skim the graph
+        def nodeValue(node: graph.nodes.Node): Int = {
+          // Intuitive heuristic, more complex could be designed (Machine Learning?)
+          node.totalNeighbors()
         }
+
+        def bestCC(digraph: DirectedGraph)
+        : Set[graph.nodes.Node] = {
+          Utils.connectedComponents(digraph.getNodes.asScala) match {
+            case Nil => Set()
+            case ccs => {
+              val sorted = ccs.toList.sortBy(g => -g.toList.map(n => nodeValue(n)).sum)
+              sorted.head
+            }
+          }
+        }
+
+        def filterMaxCC(directedGraph: DirectedGraph) = {
+          val uris = bestCC(digraph).map(_.getId)
+          digraph.removeNodesNotIn(uris.asJava)
+        }
+
+        def skimStep(directedGraph: DirectedGraph) = {
+          // Remove lonely and dangling nodes
+          digraph.removeNodes(2)
+
+          // Take the largest Connected Component
+          filterMaxCC(directedGraph)
+        }
+
+        def removeStep(directedGraph: DirectedGraph) = {
+          val nodes = digraph.getNodes().asScala.toList
+          val sorted = nodes.sortBy(node => {
+            val seed = node.getNodeAttr(seedValue).asInstanceOf[Seed]
+            // node with fewest priority (, degree) that leaves
+            (-seed.priority, nodeValue(node))
+          })
+          val target = sorted.head.getId()
+          digraph.removeNode(target)
+        }
+
+        skimStep(digraph)
+        while (digraph.nbNodes() > 25) {
+          removeStep(digraph)
+          skimStep(digraph)
+        }
+
+        digraph
       }
     }
-
-    def filterMaxCC(directedGraph: DirectedGraph) = {
-      val uris = bestCC(digraph).map(_.getId)
-      digraph.removeNodesNotIn(uris.asJava)
-    }
-
-    def skimStep(directedGraph: DirectedGraph) = {
-      // Remove lonely and dangling nodes
-      digraph.removeNodes(2)
-
-      // Take the largest Connected Component
-      filterMaxCC(directedGraph)
-    }
-
-    def removeStep(directedGraph: DirectedGraph) = {
-      val nodes = digraph.getNodes().asScala.toList
-      val sorted = nodes.sortBy(node => {
-        val seed = node.getNodeAttr(seedValue).asInstanceOf[Seed]
-        // node with fewest priority (, degree) that leaves
-        (-seed.priority, nodeValue(node))
-      })
-      val target = sorted.head.getId()
-      digraph.removeNode(target)
-    }
-
-    skimStep(digraph)
-    while (digraph.nbNodes() > 25) {
-      removeStep(digraph)
-      skimStep(digraph)
-    }
-
-    digraph
   }
 
   def saveGraph(digraph: DirectedGraph): Unit = {
