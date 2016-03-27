@@ -7,6 +7,8 @@ Structure [o: Optional, v: Value]
 		(v:spotlight-0.7.2-wiki-20160113)
 	(o:indexer)
 		(v:spotlight-0.7.2-wiki-20160113)
+	(o:snippetizer)
+		(v:PatternsDeducer)
 	(source) Identify where does the resource come from
 		(v:coursera)
 		(v:khan) khan-academy
@@ -17,7 +19,7 @@ Structure [o: Optional, v: Value]
 		(o:spots)
 			[spot]
 		(o:indices) Indices that are relevant for the entire resource
-			[index]
+			[indices]
 	(o:level) Level of expertise of the resource
 		(v:fundamental) Negligeable prior knowledge
 		(v:high-school) Fundamental prior knowledge
@@ -59,7 +61,7 @@ Brackets-References
 	(o:spots)
 		[spot]
 	(o:indices) Indices that are relevant for the current toc-entry
-		[index]
+		[indices]
 	(o:children) Entries below this one
 		{array:[toc]}
 
@@ -76,9 +78,17 @@ Brackets-References
 			(priorScore)
 			(finalScore)
 
-[index]
-	(uri) sense Wikipedia URI
-	(score) double precision
+[indices]
+	(o:snippet)
+		(lines)
+			(text)
+			(indices)
+				(uri)
+				(start)
+				(stop)
+	(values)
+		(uri) sense Wikipedia URI
+		(score) double precision
 
 ----------------------------
 Notes about (tocs)
