@@ -1,6 +1,7 @@
 package rsc.toc
 
-import rsc.Types.{Indices, Spots, Nodes}
+import rsc.Types.{Nodes, Spots}
+import rsc.indexers.Indices
 
 case class Node(label: String,
                 children: Nodes = Nil,

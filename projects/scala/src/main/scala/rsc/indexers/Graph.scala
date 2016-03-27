@@ -4,15 +4,15 @@ import graph.edges.unbiased.AttachedWeight
 import graph.{DirectedGraph, Pagerank, Utils}
 import mysql.GraphFactory
 import rsc.Resource
-import rsc.Types.{Indices, Nodes}
+import rsc.Types.Nodes
 import rsc.attributes.Candidate.{Candidate, Spotlight}
 import utils.Constants
 import utils.Math._
 import utils.Utils.mergeOptions2List
 
 import scala.collection.JavaConverters._
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 class Graph {
 
@@ -48,9 +48,9 @@ class Graph {
                 // Create the new resource
                 Some(
                   r.copy(
-                    title = r.title.copy(oIndices = Some(indices)),
-                    oTocs = newOTocs
-                    //oIndexer = Some(Indexer.Graph)
+                    title = r.title.copy(oIndices = Some(new Indices(indices))),
+                    oTocs = newOTocs,
+                    oIndexer = Some(Indexer.Graph)
                   )
                 )
               }
@@ -78,7 +78,7 @@ class Graph {
       // Using pagerank
       val oIndices = index(digraph, filtered) match {
         case Nil => None
-        case indices => Some(indices)
+        case indices => Some(new Indices(indices))
       }
 
       // Create the new node
@@ -90,7 +90,7 @@ class Graph {
   }
 
   private def index(digraph: DirectedGraph, seeds: Set[Seed])
-  : Indices = seeds.size match {
+  : List[Index] = seeds.size match {
     case zero if zero == 0 => Nil
     case _ => {
       // Create a mapping: uri -> seed

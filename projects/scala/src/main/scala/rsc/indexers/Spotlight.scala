@@ -1,7 +1,7 @@
 package rsc.indexers
 
 import rsc.Resource
-import rsc.Types.{Indices, Nodes, Spots}
+import rsc.Types.{Nodes, Spots}
 import rsc.attributes.Candidate.Spotlight
 
 class Spotlight(threshold: Double) {
@@ -81,14 +81,16 @@ class Spotlight(threshold: Double) {
     // Create the new Resource
     Some((oTitleIndices match {
       case None => r
-      case _ => r.copy(
+      case Some(indices) => r.copy(
         oIndexer = Some(Indexer.StandardSpotlight),
-        title = r.title.copy(oIndices = oTitleIndices)
+        title = r.title.copy(oIndices = Some(
+          new Indices(indices)
+        ))
       )
     }).copy(oTocs = newOTocs))
   }
 
-  def produceIndices(spots: Spots): Indices = spots.flatMap(spot => {
+  def produceIndices(spots: Spots): List[Index] = spots.flatMap(spot => {
     spot.candidates.flatMap(candidate => candidate match {
       case Spotlight(label, uri, scores, _) => {
         // Take only the candidates above the threshold
@@ -130,7 +132,7 @@ class Spotlight(threshold: Double) {
       // Create the new node
       indices match {
         case Nil => node
-        case _ => node.copy(oIndices = Some(indices), children = children)
+        case _ => node.copy(oIndices = Some(new Indices(indices)), children = children)
       }
     })
   }
