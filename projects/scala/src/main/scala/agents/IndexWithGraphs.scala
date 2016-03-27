@@ -63,19 +63,18 @@ object IndexWithGraphs extends Formatters {
           case  _ => {
             Logger.info(s"Processing ${file.file.getAbsolutePath}")
 
-            val future = indexer.index(r)
-
-            future onComplete  {
-              case Failure(_) => {
-                Logger.error(s"Cannot index: $name")
+            val future = indexer.index(r) andThen {
+              case Failure(t) => {
+                Logger.error(s"Error: $name")
+                t.printStackTrace()
               }
-              case Success(opt) => opt match {
-                case None => {
-                  Logger.error(s"Cannot index: $name")
-                }
+              case Success(oNewR) => oNewR match {
                 case Some(newR) => {
                   Json.write(newR, Some(file.file.getAbsolutePath))
                   Logger.info(s"OK: $name")
+                }
+                case None => {
+                  Logger.error(s"Cannot index: $name")
                 }
               }
             }

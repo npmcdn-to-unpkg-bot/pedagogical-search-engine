@@ -47,9 +47,7 @@ object Annotate extends Formatters {
             }
             case true => {
               // Annotate it
-              val future = Standard.annotate(r, ws)
-
-              future onComplete {
+              val future = Standard.annotate(r, ws) andThen {
                 case Failure(t) => {
                   Logger.error("Failed: " + friendlyName)
                 }
