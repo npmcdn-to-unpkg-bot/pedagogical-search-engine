@@ -11,11 +11,10 @@ import utils.Math._
 import utils.Utils.mergeOptions2List
 
 import scala.collection.JavaConverters._
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class Graph {
-
+class Graph(_ec: ExecutionContext) {
+  implicit val ec = _ec
   val seedValue = "seed-value"
 
   def index(r: Resource): Future[Option[Resource]] = {

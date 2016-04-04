@@ -7,13 +7,12 @@ import graph.nodes.Node
 import utils.Constants
 
 import scala.collection.JavaConverters._
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 object GraphFactory {
   def normalizeWlm(score: Double): Double = Math.min(score, 16.0)
 
-  def follow1(uris: Set[String], minWLM: Double)
+  def follow1(uris: Set[String], minWLM: Double)(implicit ec: ExecutionContext)
   : Future[DirectedGraph] = {
     // Create the digraph
     val digraph: DirectedGraph = new DirectedGraph
@@ -46,7 +45,7 @@ object GraphFactory {
     }
   }
 
-  def follow2(uris: Set[String], minWlm: Double)
+  def follow2(uris: Set[String], minWlm: Double)(implicit ec: ExecutionContext)
   : Future[DirectedGraph] = {
     // Create the digraph
     val digraph: DirectedGraph = new DirectedGraph

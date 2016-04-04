@@ -1,6 +1,7 @@
 package agents
 
 import java.io.File
+import java.util.concurrent.Executors
 
 import org.json4s.native.JsonMethods._
 import rsc.annotators.Annotator
@@ -9,23 +10,28 @@ import rsc.writers.Json
 import rsc.{Formatters, Resource}
 import utils.{Files, Logger, Settings}
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
-import scala.concurrent.{Await, Future}
+import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
 object IndexWithGraphs extends Formatters {
   def main(args: Array[String]): Unit = {
     // todo: delete
     println("start")
-
     val settings = new Settings()
+
+    // Create the thread pools
+    val cores: Int = Runtime.getRuntime().availableProcessors()
+    val tasksQueue = ExecutionContext.
+      fromExecutor(Executors.newFixedThreadPool(cores))
+    val indexerQueue = ExecutionContext.
+      fromExecutor(Executors.newFixedThreadPool(cores * 2))
 
     // For each resource-file
     val futures = Files.explore(
       new File(settings.Resources.folder)).flatMap(file => {
       val name = file.file.getAbsolutePath
-      val indexer = new Graph()
+      val indexer = new Graph(indexerQueue)
 
       try {
         // Parse it
@@ -63,21 +69,37 @@ object IndexWithGraphs extends Formatters {
           case  _ => {
             Logger.info(s"Processing ${file.file.getAbsolutePath}")
 
-            val future = indexer.index(r) andThen {
-              case Failure(t) => {
-                Logger.error(s"Error: $name")
-                t.printStackTrace()
-              }
-              case Success(oNewR) => oNewR match {
-                case Some(newR) => {
-                  Json.write(newR, Some(file.file.getAbsolutePath))
-                  Logger.info(s"OK: $name")
+            val future = Future {
+              // Launch the indexation for the current resource
+              // in [indexerQueue]
+              val index = indexer.index(r)
+
+              // We only end when the resource indices are computed and written.
+              //
+              // This enforces that the maximum number of resources that
+              // are indexed in parallel does not exceed the "tasksQueue" pool size.
+              // i.e. Otherwise, we might end up computing the indices of all the resources
+              // in parallel and get out of memory since the intermediate results are
+              // stored in memory.
+              //
+              // Note that: The computation itself can be fragmented into
+              // futures and cleverly scheduled such that all CPU is used etc..
+              // It is the purpose of the "indexerQueue"
+              try {
+                Await.result(index, 10 days) match {
+                  case Some(newR) => {
+                    Json.write(newR, Some(file.file.getAbsolutePath))
+                    Logger.info(s"OK: $name")
+                  }
+                  case None => {
+                    Logger.error(s"Cannot index: $name")
+                  }
                 }
-                case None => {
-                  Logger.error(s"Cannot index: $name")
-                }
+              } catch {
+                case e: Throwable => e.printStackTrace()
               }
-            }
+            }(tasksQueue)
+
             List(future)
           }
         }
@@ -89,15 +111,15 @@ object IndexWithGraphs extends Formatters {
       }
     })
 
-    val merged = Future.sequence(futures)
-    merged onComplete {
+    val merged = Future.sequence(futures)(implicitly, tasksQueue)
+    merged.onComplete({
       case Failure(_) => {
         Logger.info(s"Global Failure")
       }
       case Success(_) => {
         Logger.info(s"Global Success")
       }
-    }
+    })(tasksQueue)
 
     Await.result(merged, 10 days)
   }
