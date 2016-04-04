@@ -12,15 +12,17 @@ import utils.{Files, Logger, Settings}
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, Future}
-import scala.util.{Failure, Success}
+import scala.util.Success
 
 object IndexWithGraphs extends Formatters {
   def main(args: Array[String]): Unit = {
+
+    val start = System.nanoTime()
     val settings = new Settings()
 
     // Create the thread pools
     val cores: Int = Runtime.getRuntime().availableProcessors()
-    val nbTasks= math.floor(cores * 1).toInt
+    val nbTasks= math.floor(cores * 2).toInt
     val tasksQueue = ExecutionContext.
       fromExecutor(Executors.newFixedThreadPool(nbTasks))
     val indexerQueue = ExecutionContext.
@@ -68,14 +70,12 @@ object IndexWithGraphs extends Formatters {
             Nil
           }
           case  _ => {
-            Logger.info(s"Processing ${file.file.getAbsolutePath}")
-
             val future = Future {
-              // Launch the indexation for the current resource
-              // in [indexerQueue]
-              val index = indexer.index(r)
+              Logger.info(s"Processing ${file.file.getAbsolutePath}")
 
-              // We only end when the resource indices are computed and written.
+              // [TL;DR] 1 Future = index 1 resource entirely
+              //
+              // We only terminate when the resource indices are computed and written.
               //
               // This enforces that the maximum number of resources that
               // are indexed in parallel does not exceed the "tasksQueue" pool size.
@@ -87,6 +87,10 @@ object IndexWithGraphs extends Formatters {
               // futures and cleverly scheduled such that all CPU is used etc..
               // It is the purpose of the "indexerQueue"
               try {
+                // Launch the indexation for the current resource
+                // in [indexerQueue]
+                val index = indexer.index(r)
+
                 Await.result(index, 10 days) match {
                   case Some(newR) => {
                     Json.write(newR, Some(file.file.getAbsolutePath))
@@ -96,8 +100,14 @@ object IndexWithGraphs extends Formatters {
                     Logger.error(s"Cannot index: $name")
                   }
                 }
+                true
               } catch {
-                case e: Throwable => e.printStackTrace()
+                case e: Throwable => {
+                  val error = e.getClass.getName
+                  e.printStackTrace()
+                  Logger.error(s"Failed($error): $name")
+                  false
+                }
               }
             }(tasksQueue)
 
@@ -112,16 +122,23 @@ object IndexWithGraphs extends Formatters {
       }
     })
 
-    val merged = Future.sequence(futures)(implicitly, tasksQueue)
-    merged.onComplete({
-      case Failure(_) => {
-        Logger.info(s"Global Failure")
-      }
-      case Success(_) => {
-        Logger.info(s"Global Success")
+    val merge = Future.sequence(futures)(implicitly, tasksQueue)
+    val finalize = merge.andThen({
+      case Success(xs) => {
+        // Measure execution time
+        val stop = System.nanoTime()
+        val elapsed = (stop - start) / (1000*1000*1000) // in seconds
+
+        // Log success
+        val succeeded = xs.filter(b => b).size
+        val failed = xs.size - succeeded
+        Logger.info(s"Finished globally: succeeded($succeeded), failed($failed), elapsed(${elapsed}s)")
+
+        // todo: Fix this - it should exit automatically
+        System.exit(0)
       }
     })(tasksQueue)
 
-    Await.result(merged, 10 days)
+    Await.result(finalize, 10 days)
   }
 }

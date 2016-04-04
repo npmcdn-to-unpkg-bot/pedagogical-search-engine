@@ -40,6 +40,7 @@ object GraphFactory {
             }
           }
         }
+        rs.close()
         digraph
       }
     }
@@ -95,6 +96,7 @@ object GraphFactory {
             }.takeWhile(_ => rs.next).flatten.toSet
           }
         }
+        rs.close()
 
         // .. follow the links a second time
         val fromIds = QueriesUtils.escapeAndJoin(newNodes.toList.asJava)
@@ -119,6 +121,7 @@ object GraphFactory {
           digraph.addEdge(a, b)
           nodeA.addEdgeAttr(b, Constants.Graph.Edges.Attribute.completeWlm, score)
         }
+        rs.close()
         digraph
       }
     }

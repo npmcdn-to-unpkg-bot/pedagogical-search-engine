@@ -1,4 +1,4 @@
-package utils.java;
+package utils.javathings;
 
 public class Pair<U, V> {
     U m_left;

@@ -243,15 +243,15 @@ public class DirectedGraph {
         return top;
     }
 
-    public List<utils.java.Pair<Node, Double>> getTopNodes(int n) {
+    public List<utils.javathings.Pair<Node, Double>> getTopNodes(int n) {
         List<Node> l = new ArrayList<Node>(getNodes());
         Collections.sort(l);
 
         // Get top nodes
-        List<utils.java.Pair<Node, Double>> top = new ArrayList<utils.java.Pair<Node, Double>>();
+        List<utils.javathings.Pair<Node, Double>> top = new ArrayList<utils.javathings.Pair<Node, Double>>();
         for(int i = l.size()-1; i > (l.size()-n-1) && i > -1; i--) {
             Node node = l.get(i);
-            top.add(new utils.java.Pair<Node, Double>(node, node.getScore()));
+            top.add(new utils.javathings.Pair<Node, Double>(node, node.getScore()));
         }
         return top;
     }
@@ -260,7 +260,7 @@ public class DirectedGraph {
         GraphVisualizer visual = new GraphVisualizer();
 
         Collection<Node> oNodes = new ArrayList<>();
-        for(utils.java.Pair<Node, Double> p: getTopNodes(limit)) {
+        for(utils.javathings.Pair<Node, Double> p: getTopNodes(limit)) {
             oNodes.add(p.getLeft());
         }
 

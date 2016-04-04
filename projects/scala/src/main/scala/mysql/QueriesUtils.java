@@ -2,9 +2,11 @@ package mysql;
 
 import org.apache.commons.lang3.StringUtils;
 import utils.Constants;
-import utils.java.Files;
+import utils.javathings.Files;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -19,7 +21,7 @@ public class QueriesUtils {
 
         // replace keywords
         query = query.replace(Constants.Mysql.Keywords.database,
-                Constants.Mysql.connection.getDatabase());
+                Constants.database.database());
 
         return query;
     }
@@ -40,17 +42,18 @@ public class QueriesUtils {
         return query;
     }
 
-    public static ResultSet execute(String query) {
+    public static ResultSet execute(String query) throws SQLException {
         ResultSet rs = null;
 
         // Split query into (updates, deletes, insert) / select statements
         String[] statements = query.split(";");
         for(String statement: statements) {
             statement = statement.trim();
+            java.sql.Connection co = Constants.database.getConnection();
             if(statement.startsWith("SELECT")) {
-                rs = Constants.Mysql.connection.query(statement);
+                rs = co.createStatement().executeQuery(statement);
             } else {
-                Constants.Mysql.connection.update(statement);
+                co.createStatement().executeUpdate(statement);
             }
         }
         return rs;

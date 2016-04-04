@@ -1,11 +1,8 @@
 package utils;
 
-import mysql.Connection;
-
-
 public class Constants {
     public static Settings settings = new Settings();
-    public static Amadeus amadeus = new Amadeus();
+    public static Database database = new Database(settings);
     public static class Paths {
         public static String mysqlQueries = "/mysql-queries";
     }
@@ -18,7 +15,6 @@ public class Constants {
         }
     }
     public static class Mysql {
-        public static Connection connection = amadeus.getConnection(settings);
         public static class QueriesPath {
             public static String queryOutLinks = "query-out-links.sql";
             public static String queryOutLinksRestricted = "query-out-links-restricted.sql";
