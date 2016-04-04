@@ -39,7 +39,6 @@ object Annotate extends Formatters {
     val futures: List[Future[Boolean]] =
       Files.explore(new File(settings.Resources.folder)).flatMap(file => {
         val friendlyName = file.file.getAbsolutePath
-        Logger.info(".. " + friendlyName)
 
         try {
           // Parse it
@@ -57,12 +56,14 @@ object Annotate extends Formatters {
 
           annotated match {
             case true => {
-              Logger.info("Skipping: " + friendlyName)
+              Logger.info(s"Skipping: $friendlyName")
               Nil
             }
             case false => {
               // Annotate it
               val future = Future {
+                Logger.info(s"Processing $friendlyName")
+
                 // 1 Future = annotate 1 resource entirely
                 try {
                   val annotate = Standard.annotate(r, ws)(annotatorPool)
@@ -70,7 +71,7 @@ object Annotate extends Formatters {
 
                   // Write the resource
                   Json.write(newR, Some(file.file.getAbsolutePath))
-                  Logger.info("OK: " + friendlyName)
+                  Logger.info(s"OK: $friendlyName")
                   true
                 } catch {
                   case e => {
