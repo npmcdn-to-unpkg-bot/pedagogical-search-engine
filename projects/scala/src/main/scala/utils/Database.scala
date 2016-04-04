@@ -14,7 +14,6 @@ class Database(settings: Settings) {
   val url = s"jdbc:mysql://$ip:$port/$database"
 
   def getConnection(): java.sql.Connection = {
-    // todo: dataSource.getConnection()
     Class.forName("com.mysql.jdbc.Driver").newInstance()
     DriverManager.getConnection(url, user, password)
   }

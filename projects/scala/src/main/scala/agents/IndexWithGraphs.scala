@@ -22,7 +22,7 @@ object IndexWithGraphs extends Formatters {
 
     // Create the thread pools
     val cores: Int = Runtime.getRuntime().availableProcessors()
-    val nbTasks= math.floor(cores * 2).toInt
+    val nbTasks= math.floor(cores * 3).toInt
     val tasksQueue = ExecutionContext.
       fromExecutor(Executors.newFixedThreadPool(nbTasks))
     val indexerQueue = ExecutionContext.
