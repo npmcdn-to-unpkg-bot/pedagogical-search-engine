@@ -5,12 +5,12 @@ import java.util.concurrent.TimeoutException
 import dispatch._
 import rsc.Types._
 
-import scala.concurrent.Await
+import scala.concurrent.{ExecutionContext, Await}
 import scala.concurrent.duration._
 
-class WebService(wsHost: String, wsPort: Int) {
+class WebService(wsHost: String, wsPort: Int, ec: ExecutionContext) {
 
-  val lazyWs = new LazyWebService(wsHost, wsPort)
+  val lazyWs = new LazyWebService(wsHost, wsPort, ec)
 
   def annotateTogether(texts: List[String]): Option[List[Spots]] = {
     val future = lazyWs.annotateTogether(texts)

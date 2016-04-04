@@ -4,11 +4,11 @@ import rsc.Resource
 import rsc.Types._
 import spotlight.LazyWebService
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 object Standard {
-  def annotate(r: Resource, ws: LazyWebService): Future[Resource] = {
+  def annotate(r: Resource, ws: LazyWebService)(implicit ec: ExecutionContext)
+  : Future[Resource] = {
 
     //
     val titleWork: List[(Object, String)] = (r.title -> r.title.label)::Nil

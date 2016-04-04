@@ -8,9 +8,16 @@ import rsc.Types.Spots
 import rsc.attributes.Spot
 import spotlight.Types.Annotation
 
+import scala.concurrent.ExecutionContext
 
-class LazyWebService(wsHost: String, wsPort: Int) {
+
+class LazyWebService(wsHost: String, wsPort: Int, ec: ExecutionContext) {
   implicit val formats = DefaultFormats
+
+  val http = Http.configure(_.
+    setRequestTimeout(5 * 1000).
+    setMaxRequestRetry(5).
+    setAllowPoolingConnections(true))
 
   def annotate(text: String)
   : Future[Spots] = {
@@ -24,7 +31,7 @@ class LazyWebService(wsHost: String, wsPort: Int) {
       "coreferenceResolution" -> "false"
     )
 
-    val response = Http(myRequest.POST OK dispatch.as.json4s.Json)
+    val response = http(myRequest.POST OK dispatch.as.json4s.Json)(ec)
 
     // Produce the spots
     response.map(json => {
