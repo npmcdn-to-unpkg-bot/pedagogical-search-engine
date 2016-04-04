@@ -16,16 +16,17 @@ import scala.util.{Failure, Success}
 
 object IndexWithGraphs extends Formatters {
   def main(args: Array[String]): Unit = {
-    // todo: delete
-    println("start")
     val settings = new Settings()
 
     // Create the thread pools
     val cores: Int = Runtime.getRuntime().availableProcessors()
+    val nbTasks= math.floor(cores * 1).toInt
     val tasksQueue = ExecutionContext.
-      fromExecutor(Executors.newFixedThreadPool(cores))
+      fromExecutor(Executors.newFixedThreadPool(nbTasks))
     val indexerQueue = ExecutionContext.
-      fromExecutor(Executors.newFixedThreadPool(cores * 2))
+      fromExecutor(Executors.newFixedThreadPool(nbTasks * 10))
+
+    Logger.info(s"Start indexing: #tasks=${nbTasks}")
 
     // For each resource-file
     val futures = Files.explore(
