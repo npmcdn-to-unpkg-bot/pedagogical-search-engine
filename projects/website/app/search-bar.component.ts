@@ -1,5 +1,7 @@
 import {Component} from 'angular2/core'
 import {CompletionService} from './completion.service'
+import {Observable} from "rxjs/Observable";
+import {Completion} from "./completion"
 
 @Component({
     selector: 'wc-search-bar',
@@ -13,8 +15,8 @@ import {CompletionService} from './completion.service'
         </div>
         <div class="wc-sb-div2r">
             <input type="text" [(ngModel)]="search.text"
-            (keydown.tab)="userPush($event)"
-            (keydown.enter)="userPush($event, true)"
+            (keydown.tab)="keydown($event)"
+            (keydown.enter)="keydown($event, true)"
             (ngModelChange)="change($event)">
         </div>
     </div>
@@ -23,7 +25,7 @@ import {CompletionService} from './completion.service'
         (click)="goSearching()">Search</button>
     </div>
     <div class="wc-sb-c-div1">
-        <div class="wc-sb-c-entry" *ngFor="#proposition of completion">
+        <div class="wc-sb-c-entry" *ngFor="#proposition of completion?.propositions">
             <span [textContent]="proposition.label"></span>
         </div>
     </div>
@@ -39,12 +41,12 @@ export class SearchBarCmp {
         text: '',
         uris: []
     }
-    completion = []
+    completion: Completion
     timeout = null
 
     constructor(private _completionService: CompletionService) {}
 
-    userPush(event, enter) {
+    keydown(event, enter) {
         event.preventDefault()
         if(enter && this.search.text.length === 0) {
             this.goSearching()
@@ -53,26 +55,45 @@ export class SearchBarCmp {
                 this.search.uris.push(this.search.text)
             }
             this.search.text = ''
-            this.completion = []
+            this.clearObservable()
+            this.clearTimeout()
         }
     }
 
     change(event) {
-        if(this.timeout !== null) {
-            clearTimeout(this.timeout)
-        }
+        this.clearTimeout()
         this.timeout = setTimeout(function(self) {
             self.autoComplete()
-        }, 750, this);
+        }, 500, this);
+    }
+
+    clearTimeout() {
+        if(this.timeout) {
+            clearTimeout(this.timeout)
+        }
+    }
+
+    clearObservable() {
+        this.completion = new Completion([])
     }
 
     autoComplete() {
-        this._completionService.list().subscribe(
-            value => {
-                this.completion = value
-            },
-            error => console.log('cannot retrieve completions')
-        )
+        console.log('start')
+        let current = this.completion
+        let obs = this._completionService.list()
+        let obs2: Observable<{obj: Completion, newValue: Completion}> = obs.map(com => {
+            return {
+                'obj': current,
+                'newValue': com
+            }
+        })
+        obs2.subscribe(tuple => {
+            if(tuple.obj) {
+                tuple.obj.update(tuple.newValue)
+            } else {
+                this.completion = tuple.newValue
+            }
+        })
     }
 
     remove(i) {
