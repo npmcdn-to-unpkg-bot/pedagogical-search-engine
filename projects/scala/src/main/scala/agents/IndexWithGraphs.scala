@@ -54,7 +54,7 @@ object IndexWithGraphs extends Formatters {
         val indexed = r.oIndexer match {
           case None => false
           case Some(i) => i match {
-            case Indexer.Graph => false // todo: true
+            case Indexer.Graph => true
             case _ => false
           }
         }
@@ -95,12 +95,13 @@ object IndexWithGraphs extends Formatters {
                   case Some(newR) => {
                     Json.write(newR, Some(file.file.getAbsolutePath))
                     Logger.info(s"OK: $name")
+                    true
                   }
                   case None => {
                     Logger.error(s"Cannot index: $name")
+                    false
                   }
                 }
-                true
               } catch {
                 case e: Throwable => {
                   val error = e.getClass.getName
