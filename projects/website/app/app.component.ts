@@ -1,5 +1,5 @@
-import {Component} from 'angular2/core'
-import {SearchBarCmp} from './search-bar.component'
+import {Component} from "angular2/core";
+import {SearchBarCmp} from "./search-bar/search-bar.component";
 
 @Component({
     selector: 'wc-app',
@@ -9,6 +9,5 @@ import {SearchBarCmp} from './search-bar.component'
 `,
     directives: [SearchBarCmp]
 })
-export class AppComponent {
-}
+export class AppComponent {}
 
