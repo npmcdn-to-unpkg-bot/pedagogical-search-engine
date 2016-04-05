@@ -1,11 +1,14 @@
-import {Component} from 'angular2/core';
+import {Component} from 'angular2/core'
+import {SearchBarCmp} from './search-bar.component'
 
 @Component({
-    selector: 'my-app',
-    template: '<h1 [textContent]="title"></h1><h2>{{hero}}</h2>'
+    selector: 'wc-app',
+    template: `
+    <h1>WikiChimp</h1>
+    <wc-search-bar></wc-search-bar>
+`,
+    directives: [SearchBarCmp]
 })
 export class AppComponent {
-    title = 'Tour of Heroes'
-    hero = 'Windstorm'
 }
 
