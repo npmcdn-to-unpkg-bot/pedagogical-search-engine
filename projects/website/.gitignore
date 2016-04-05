@@ -1,0 +1,8 @@
+
+# tools folders
+node_modules/
+.idea/
+
+# outputs
+dist/
+typings/
