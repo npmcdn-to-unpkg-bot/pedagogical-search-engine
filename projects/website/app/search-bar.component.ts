@@ -7,21 +7,29 @@ import {CompletionService} from './completion.service'
 
 <div class="wc-sb-div1">
     <div class="wc-sb-div2">
-        <div class="wc-sb-div2l" *ngFor="#uri of search.uris" [textContent]="uri">
-            {{ uri }}
+        <div class="wc-sb-div2l" *ngFor="#uri of search.uris; #i = index">
+            <span [textContent]="uri"></span>
+            <span (click)="remove(i)">&#x2715;</span>
         </div>
         <div class="wc-sb-div2r">
             <input type="text" [(ngModel)]="search.text"
             (keydown.tab)="userPush($event)"
-            (keydown.enter)="userPush($event, true)">
+            (keydown.enter)="userPush($event, true)"
+            (ngModelChange)="change($event)">
         </div>
     </div>
     <div class="wc-sb-div3">
-        <button [disabled]="search.uris.length < 1">Search</button>
+        <button [disabled]="search.uris.length < 1"
+        (click)="goSearching()">Search</button>
+    </div>
+    <div class="wc-sb-c-div1">
+        <div class="wc-sb-c-entry" *ngFor="#proposition of completion">
+            <span [textContent]="proposition.label"></span>
+        </div>
     </div>
 </div>
 <p>
-    {{ search | json }}
+    {{ completion | json }}
 </p>
 
 `
@@ -31,6 +39,8 @@ export class SearchBarCmp {
         text: '',
         uris: []
     }
+    completion = []
+    timeout = null
 
     constructor(private _completionService: CompletionService) {}
 
@@ -39,16 +49,37 @@ export class SearchBarCmp {
         if(enter && this.search.text.length === 0) {
             this.goSearching()
         } else if(this.search.text.length > 0) {
-            this.search.uris.push(this.search.text)
+            if(this.search.uris.indexOf(this.search.text) === -1) {
+                this.search.uris.push(this.search.text)
+            }
             this.search.text = ''
+            this.completion = []
         }
+    }
+
+    change(event) {
+        if(this.timeout !== null) {
+            clearTimeout(this.timeout)
+        }
+        this.timeout = setTimeout(function(self) {
+            self.autoComplete()
+        }, 750, this);
+    }
+
+    autoComplete() {
+        this._completionService.list().subscribe(
+            value => {
+                this.completion = value
+            },
+            error => console.log('cannot retrieve completions')
+        )
+    }
+
+    remove(i) {
+        this.search.uris.splice(i, 1);
     }
 
     goSearching() {
         console.log('go Searching!')
-    }
-
-    list() {
-        return this._completionService.list()
     }
 }
