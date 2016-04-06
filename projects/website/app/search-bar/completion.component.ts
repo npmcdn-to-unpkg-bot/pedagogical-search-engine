@@ -1,4 +1,4 @@
-import {Component, provide, Output, EventEmitter, Inject} from "angular2/core";
+import {Component, provide, Output, EventEmitter, Inject, Input, SimpleChange} from "angular2/core";
 import {CompletionService} from "./completion.service";
 import {MockCompletionService} from "./mock-completion.service";
 import {Completion} from "./completion";
@@ -23,6 +23,7 @@ import {Resource} from "./resource";
 })
 export class CompletionCmp {
 
+    @Input("text") private _text = ''
     @Output("emptyEnter") eeEmitter = new EventEmitter();
     @Output("itemSelected") isEmitter = new EventEmitter<Resource>();
 
@@ -33,6 +34,18 @@ export class CompletionCmp {
     // Constructor
     constructor(
         @Inject(CompletionService) private _completionService: CompletionService) {
+    }
+
+    // Custom angular
+    public ngOnChanges(changes: {_text: SimpleChange}) {
+        if(!changes._text.isFirstChange()) {
+            let newText = changes._text.currentValue;
+
+            if(newText.length > 0) {
+                this._clearTimeout();
+                this._setTimeout();
+            }
+        }
     }
 
     // Public methods
@@ -51,8 +64,6 @@ export class CompletionCmp {
         console.log("tab (unhandled)");
     }
     public change(text: String) {
-        this._clearTimeout();
-        this._setTimeout();
     }
 
     // Private

@@ -16,8 +16,7 @@ import {Resource} from "./resource";
         <div class="wc-sb-div2r">
             <input type="text" [(ngModel)]="_text"
                 (keydown.tab)="_specialKeydown($event, 'tab')"
-                (keydown.enter)="_specialKeydown($event, 'enter')"
-                (ngModelChange)="_completionObj.change(text)">
+                (keydown.enter)="_specialKeydown($event, 'enter')">
         </div>
     </div>
     <div class="wc-sb-div3">
@@ -26,6 +25,7 @@ import {Resource} from "./resource";
     </div>
     <wc-completion
         #completionObj
+        [text]="_text"
         (emptyEnter)="_emptyEnter()"
         (itemSelected)="_itemSelected($event)">
     </wc-completion>
