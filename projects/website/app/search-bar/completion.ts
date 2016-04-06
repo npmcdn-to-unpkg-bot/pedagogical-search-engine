@@ -1,14 +1,27 @@
 import {Resource} from "./resource";
 
 export class Completion {
-    constructor(public propositions: Array<Resource>) {}
-    
-    reset() {
-        this.propositions = []
+    private _propositions: Array<Resource>
+
+    constructor(propositions: Array<Resource> = []) {
+        this._propositions = propositions;
     }
 
-    update(other: Completion) {
-        delete this.propositions
-        this.propositions = other.propositions
+    // Public
+    public update(newPropositions: Array<Resource>) {
+        this.clear();
+        this._propositions = newPropositions;
+    }
+    public getPropositions() {
+        return this._propositions;
+    }
+    public nbOfPropositions() {
+        return this._propositions.length;
+    }
+    public hasPropositions() {
+        return (this.nbOfPropositions() > 0);
+    }
+    public clear() {
+        delete this._propositions; // help GC
     }
 }

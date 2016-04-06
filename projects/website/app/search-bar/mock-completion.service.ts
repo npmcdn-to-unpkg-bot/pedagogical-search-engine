@@ -5,18 +5,19 @@ import {Completion} from "./completion";
 import {Resource} from "./resource";
 import {CompletionService} from "./completion.service";
 
-@Injectable()                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+@Injectable()
 export class MockCompletionService extends CompletionService {
     constructor(private _http: Http) {}
 
     public latencyMs = 500
 
     list(): Observable<Completion> {
-        return Observable.of(new Completion([
+        let completion: Completion = new Completion([
             this.createResource(),
             this.createResource(),
             this.createResource(),
-        ])).delay(this.latencyMs);
+        ]);
+        return Observable.of(completion).delay(this.latencyMs);
     }
 
     createResource(): Resource {
