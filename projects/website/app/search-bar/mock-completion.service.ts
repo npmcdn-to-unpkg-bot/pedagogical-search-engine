@@ -13,15 +13,15 @@ export class MockCompletionService extends CompletionService {
 
     list(): Observable<Completion> {
         let completion: Completion = new Completion([
-            this.createResource(),
-            this.createResource(),
-            this.createResource(),
+            this.createResource("Umbrella (song)"),
+            this.createResource("Umbrella"),
+            this.createResource("Umbrella Movement"),
         ]);
         return Observable.of(completion).delay(this.latencyMs);
     }
 
-    createResource(): Resource {
-        let n = Math.ceil(Math.random() * 100)
-        return new Resource('Entry ' + n, 'entry_' +  + n)
+    createResource(pre: String = "Entry"): Resource {
+        let n = Math.ceil(Math.random() * 100);
+        return new Resource(`${pre} ${n}`, `${pre} ${n}`)
     }
 }

@@ -72,10 +72,10 @@ export class CompletionCmp {
         }
     }
     public down() {
-        this._setAndApplyCursor(this._reframCursor(this._cursor + 1));
+        this._setAndApplyCursor(this._reframeCursorToClosest(this._cursor + 1));
     }
     public up() {
-        this._setAndApplyCursor(this._reframCursor(this._cursor - 1));
+        this._setAndApplyCursor(this._reframeCursorToClosest(this._cursor - 1));
     }
 
     // Private
@@ -97,7 +97,7 @@ export class CompletionCmp {
             return {'currentRef': currentRef, 'newRef': newRef}
         }).subscribe(t => {
             t.currentRef.update(t.newRef.getPropositions());
-            this._setAndApplyCursor(0);
+            this._setAndApplyCursor(this._reframeCursorToClosest(this._cursor));
         })
     }
     private _newCompletion(completion: Completion = new Completion()) {
@@ -114,7 +114,7 @@ export class CompletionCmp {
     private _applyCursor(): void {
         this._completion.select(this._cursor);
     }
-    private _reframCursor(pos: number): number {
+    private _reframeCursorToClosest(pos: number): number {
         if(pos < 0) {
             return 0; // Left limit
         }
