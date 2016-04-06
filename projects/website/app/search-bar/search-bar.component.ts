@@ -2,6 +2,7 @@ import {Component, ViewChild} from "angular2/core";
 import {CompletionCmp} from "./completion.component";
 import {Resource} from "./resource";
 
+enum keys {Tab, Enter, Down, Up};
 
 @Component({
     selector: 'wc-search-bar',
@@ -15,8 +16,10 @@ import {Resource} from "./resource";
         </div>
         <div class="wc-sb-div2r">
             <input type="text" [(ngModel)]="_text"
-                (keydown.tab)="_specialKeydown($event, 'tab')"
-                (keydown.enter)="_specialKeydown($event, 'enter')">
+                (keydown.tab)="_specialKeydown($event, _KEYS.Tab)"
+                (keydown.enter)="_specialKeydown($event, _KEYS.Enter)"
+                (keydown.ArrowDown)="_specialKeydown($event, _KEYS.Down)"
+                (keydown.ArrowUp)="_specialKeydown($event, _KEYS.Up)">
         </div>
     </div>
     <div class="wc-sb-div3">
@@ -26,7 +29,7 @@ import {Resource} from "./resource";
     <wc-completion
         #completionObj
         [text]="_text"
-        (emptyEnter)="_emptyEnter()"
+        (emptySelect)="_emptySelect($event)"
         (itemSelected)="_itemSelected($event)">
     </wc-completion>
 </div>
@@ -38,6 +41,8 @@ export class SearchBarCmp {
     private _text: String = '';
     private _resources: Array<Resource> = [];
 
+    private _KEYS = keys;
+
     @ViewChild('completionObj') private _completionObj;
 
     // Public
@@ -46,8 +51,10 @@ export class SearchBarCmp {
     }
 
     // Private
-    private _emptyEnter() {
-        this.goSearching();
+    private _emptySelect(event) {
+        if(event === keys.Enter) {
+            this.goSearching();
+        }
     }
     private _itemSelected(item: Resource) {
         if(this._resources.indexOf(item) === -1) {
@@ -59,11 +66,17 @@ export class SearchBarCmp {
         event.preventDefault();
 
         if(this._completionObj) {
-            if(type === 'tab') {
-                this._completionObj.tabDown();
+            if(type === keys.Tab) {
+                this._completionObj.select(keys.Tab);
             }
-            if(type === 'enter') {
-                this._completionObj.enterDown();
+            if(type === keys.Enter) {
+                this._completionObj.select(keys.Enter);
+            }
+            if(type === keys.Down) {
+                this._completionObj.down();
+            }
+            if(type === keys.Up) {
+                this._completionObj.up();
             }
         }
     }

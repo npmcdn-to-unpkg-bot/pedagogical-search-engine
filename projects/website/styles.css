@@ -16,3 +16,8 @@ body, input[text], button {
     color: #888;
     font-family: Cambria, Georgia;
 }
+
+
+.wc-sb-c-selected {
+    border: 2px solid #0066bb;
+}

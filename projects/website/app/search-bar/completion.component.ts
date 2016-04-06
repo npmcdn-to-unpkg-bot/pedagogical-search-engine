@@ -8,10 +8,12 @@ import {Resource} from "./resource";
     selector: 'wc-completion',
     template: `
 
-<h2>Completion</h2>
+<h2>Completion of {{ _text }}, cursor {{ _cursor }}</h2>
 
 <div class="wc-sb-c-div1">
-    <div class="wc-sb-c-entry" *ngFor="#proposition of _completion.getPropositions()">
+    <div class="wc-sb-c-entry"
+        *ngFor="#proposition of _completion.getPropositions(); #i = index"
+        [class.wc-sb-c-selected]="proposition.isSelected()">
         <span [textContent]="proposition | json"></span>
     </div>
 </div>
@@ -24,12 +26,13 @@ import {Resource} from "./resource";
 export class CompletionCmp {
 
     @Input("text") private _text = ''
-    @Output("emptyEnter") eeEmitter = new EventEmitter();
-    @Output("itemSelected") isEmitter = new EventEmitter<Resource>();
+    @Output("emptySelect") private _esEmitter = new EventEmitter();
+    @Output("itemSelected") private _isEmitter = new EventEmitter<Resource>();
 
     private _timeout: number;
     private _completion: Completion = new Completion();
     private _latency: number = 500;
+    private _cursor: number = 0;
 
     // Constructor
     constructor(
@@ -49,21 +52,32 @@ export class CompletionCmp {
     }
 
     // Public methods
-    public enterDown() {
+    public select(event) {
+        let clearThings: boolean = true;
         if(this._completion.hasPropositions()) {
-            this.isEmitter.emit(this._completion.getPropositions()[0]);
+            this._isEmitter.emit(this._completion.getProposition(this._cursor).getResource());
         } else {
-            this.eeEmitter.emit("");
+            if(this._text.length == 0) {
+                this._esEmitter.emit(event);
+            } else {
+                clearThings = false; // Let the propositions come
+            }
         }
 
-        // Reset everything
-        this._clearTimeout();
-        this._newCompletion();
+        if(clearThings) {
+            // Reset everything
+            this._clearTimeout();
+            this._newCompletion();
+            this._resetCursor();
+        }
     }
-    public tabDown() {
-        console.log("tab (unhandled)");
+    public down() {
+        this._cursor = this._reframCursor(this._cursor + 1);
+        this._applyCursor();
     }
-    public change(text: String) {
+    public up() {
+        this._cursor = this._reframCursor(this._cursor - 1);
+        this._applyCursor();
     }
 
     // Private
@@ -85,11 +99,36 @@ export class CompletionCmp {
             return {'currentRef': currentRef, 'newRef': newRef}
         }).subscribe(t => {
             t.currentRef.update(t.newRef.getPropositions());
+            this._resetCursor();
+            this._applyCursor();
         })
     }
     private _newCompletion(completion: Completion = new Completion()) {
         this._completion.clear();
         delete this._completion; // help GC
         this._completion = completion;
+    }
+    private _isSelected(index: number): boolean {
+        return this._completion.getProposition(index).isSelected();
+    }
+    private _resetCursor(): void {
+        this._cursor = 0;
+    }
+    private _applyCursor(): void {
+        this._completion.select(this._cursor);
+    }
+    private _reframCursor(pos: number): number {
+        if(pos < 0) {
+            return 0; // Left limit
+        }
+
+        let np = this._completion.nbOfPropositions();
+        if(np == 0) {
+            return 0; // Special case
+        } else if(pos >= np) {
+            return (np - 1);
+        } else {
+            return pos; // Right limit
+        }
     }
 }
