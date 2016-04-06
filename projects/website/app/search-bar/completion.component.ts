@@ -10,12 +10,12 @@ import {Resource} from "./resource";
 
 <h2>Completion of {{ _text }}, cursor {{ _cursor }}</h2>
 
-<div class="wc-sb-c-div1">
-    <div class="wc-sb-c-entry"
-        *ngFor="#proposition of _completion.getPropositions(); #i = index"
-        [class.wc-sb-c-selected]="proposition.isSelected()">
-        <span [textContent]="proposition | json"></span>
-    </div>
+<div class="wc-sb-c-entry"
+    *ngFor="#proposition of _completion.getPropositions(); #i = index"
+    [class.wc-sb-c-selected]="proposition.isSelected()"
+    (click)="select()"
+    (mouseover)="_setAndApplyCursor(i)">
+    <span [textContent]="proposition | json"></span>
 </div>
     
     `,
@@ -52,7 +52,7 @@ export class CompletionCmp {
     }
 
     // Public methods
-    public select(event) {
+    public select(event = null) {
         let clearThings: boolean = true;
         if(this._completion.hasPropositions()) {
             this._isEmitter.emit(this._completion.getProposition(this._cursor).getResource());
@@ -72,12 +72,10 @@ export class CompletionCmp {
         }
     }
     public down() {
-        this._cursor = this._reframCursor(this._cursor + 1);
-        this._applyCursor();
+        this._setAndApplyCursor(this._reframCursor(this._cursor + 1));
     }
     public up() {
-        this._cursor = this._reframCursor(this._cursor - 1);
-        this._applyCursor();
+        this._setAndApplyCursor(this._reframCursor(this._cursor - 1));
     }
 
     // Private
@@ -99,8 +97,7 @@ export class CompletionCmp {
             return {'currentRef': currentRef, 'newRef': newRef}
         }).subscribe(t => {
             t.currentRef.update(t.newRef.getPropositions());
-            this._resetCursor();
-            this._applyCursor();
+            this._setAndApplyCursor(0);
         })
     }
     private _newCompletion(completion: Completion = new Completion()) {
@@ -130,5 +127,9 @@ export class CompletionCmp {
         } else {
             return pos; // Right limit
         }
+    }
+    private _setAndApplyCursor(pos: number): void {
+        this._cursor = pos;
+        this._applyCursor();
     }
 }
