@@ -80,7 +80,7 @@ CREATE TABLE `labels` (
 # (5:bash) native2ascii -encoding UTF-8 -reverse labels.csv labels.utf8.csv
 # (6:bash) mkfifo labels.utf8.fifo
 # (7:bash-blocking) pv labels.utf8.csv > labels.utf8.fifo
-# (8:bash) FILE='labels.utf8.fifo'; WORKDIR=`pwd`; mysql -u YOUR_USER -pYOUR_PASSWORD YOUR_DB_NAME --execute="LOAD DATA INFILE '$WORKDIR/$FILE' IGNORE INTO TABLE labels CHARACTER SET UTF8 FIELDS TERMINATED BY ',' ENCLOSED BY '\"'; SHOW WARNINGS" > labels.utf8.warnings.log &
+# (8:bash) FILE='labels.utf8.fifo'; WORKDIR=`pwd`; mysql -u YOUR_USER -pYOUR_PASSWORD YOUR_DB_NAME --execute="START TRANSACTION; LOAD DATA INFILE '$WORKDIR/$FILE' IGNORE INTO TABLE labels CHARACTER SET UTF8 FIELDS TERMINATED BY ',' ENCLOSED BY '\"'; COMMIT; SHOW WARNINGS" > labels.utf8.warnings.log &
 
 # Create table `transitive-redirects`
 CREATE TABLE `transitive-redirects` (
@@ -97,7 +97,7 @@ CREATE TABLE `transitive-redirects` (
 # (4.2:bash) if necessary(discard last line): sed -i '$ d' transitive-redirects.csv
 # (5:bash) mkfifo transitive-redirects.fifo
 # (6:bash-blocking) pv transitive-redirects.csv > transitive-redirects.fifo
-# (7:bash) FILE='transitive-redirects.fifo'; WORKDIR=`pwd`; mysql -u YOUR_USER -pYOUR_PASSWORD YOUR_DB_NAME --execute="LOAD DATA INFILE '$WORKDIR/$FILE' IGNORE INTO TABLE transitive-redirects FIELDS TERMINATED BY ',' ENCLOSED BY '\"'; SHOW WARNINGS" > transitive-redirects.warnings.log &
+# (7:bash) FILE='transitive-redirects.fifo'; WORKDIR=`pwd`; mysql -u YOUR_USER -pYOUR_PASSWORD YOUR_DB_NAME --execute="START TRANSACTION; LOAD DATA INFILE '$WORKDIR/$FILE' IGNORE INTO TABLE transitive-redirects FIELDS TERMINATED BY ',' ENCLOSED BY '\"'; COMMIT; SHOW WARNINGS" > transitive-redirects.warnings.log &
 
 # Create table `transitive-redirects2`
 CREATE TABLE `transitive-redirects2` (
@@ -157,6 +157,7 @@ Drop
 	index `PRIMARY`
 	ON `dictionary-titles`;
 
+# [2016.04.11] About 1 minute
 INSERT IGNORE INTO `dictionary-titles` (`Uri`, `Label`, `In`) 
 	SELECT eu.`Uri`, l.`Label`, ld2.`In`
 	FROM `existing-uris` eu
@@ -166,14 +167,60 @@ INSERT IGNORE INTO `dictionary-titles` (`Uri`, `Label`, `In`)
 			ON eu.Uri = ld2.Uri
 ;
 
+# Create table `dictionary-titles-uri-idx`
+CREATE TABLE `dictionary-titles-uri-idx` (
+  `Uri` VARCHAR(255) CHARACTER SET 'utf8',
+  `Label` VARCHAR(255) CHARACTER SET 'utf8',
+  `In` INT,
+  PRIMARY KEY (`Uri`))
+  CHARACTER SET 'utf8';
+
+# [2016.04.11] About 4 minutes
+START TRANSACTION;
+INSERT IGNORE INTO `dictionary-titles-uri-idx` (`Uri`, `Label`, `In`) 
+	SELECT dt.`Uri`, dt.`Label`, dt.`In`
+	FROM `dictionary-titles` dt
+;
+COMMIT;
+
+
+# Note: The following queries can be quiet long
+# You can check the status using `sudo top` in a console
+# Or issue these mysql commands in another mysql-process
+# The "ROW OPERATIONS" section is especially interesting
+# with "x inserts/s" and "Number of rows inserted x"
+SHOW ENGINE INNODB STATUS;
+SHOW FULL PROCESSLIST;
+
+# Create table `dictionary-redirects-seed`
+CREATE TABLE `dictionary-redirects-seed` (
+  `UriB` VARCHAR(255) CHARACTER SET 'utf8',
+  `LabelA` VARCHAR(255) CHARACTER SET 'utf8',
+  PRIMARY KEY (`UriB`, `LabelA`))
+  CHARACTER SET 'utf8';
+
+# Perform the following commands in a mysql console:
+# mysql -u YOUR_USER -pYOUR_PASSWORD YOUR_DB_NAME
+#   Performance: [2016.04.11]
+#   Query OK, 3'879'979 rows affected (32 min 30.96 sec)
+#   Records: 3'977'307  Duplicates: 97'328  Warnings: 0
+START TRANSACTION;
+INSERT IGNORE INTO `dictionary-redirects-seed` (`UriB`, `LabelA`) 
+	SELECT tr2.B, l.Label
+	FROM `transitive-redirects2` tr2
+		JOIN `labels` l
+			ON tr2.A = l.Uri
+;
+COMMIT;
+
 # Create table `dictionary-redirects`
 CREATE TABLE `dictionary-redirects` (
   `LabelA` VARCHAR(255) CHARACTER SET 'utf8' NOT NULL,
   INDEX label_idx (`LabelA`(10)),
   
-  `LabelB` VARCHAR(255) CHARACTER SET 'utf8' NOT NULL,
-  `UriB` VARCHAR(255) CHARACTER SET 'utf8' NOT NULL,
-  `InB` INT NOT NULL,
+  `LabelB` VARCHAR(255) CHARACTER SET 'utf8',
+  `UriB` VARCHAR(255) CHARACTER SET 'utf8',
+  `InB` INT,
   PRIMARY KEY (`LabelA`, `UriB`))
   CHARACTER SET 'utf8';
 
@@ -181,25 +228,20 @@ Drop
 	index `PRIMARY`
 	ON `dictionary-redirects`;
 
-# (1:bash) mysql -u YOUR_USER -pYOUR_PASSWORD YOUR_DB_NAME
-# (2:manually) Launch this in the mysql console
-set autocommit=0;
+# Perform the following commands in a mysql console:
+# mysql -u YOUR_USER -pYOUR_PASSWORD YOUR_DB_NAME
+#   Performance: [2016.04.11]
+#   Query OK, 3'879'979 rows affected (17 min 11.27 sec)
+#   Records: 3'879'979  Duplicates: 0  Warnings: 0
+
+START TRANSACTION;
 INSERT IGNORE INTO `dictionary-redirects` (`LabelA`, `LabelB`, `UriB`, `InB`) 
-	SELECT l1.`Label`, l2.`Label`, tr2.`B`, ld2.`In`
-	FROM `transitive-redirects2` tr2
-		JOIN `labels` l1
-			ON tr2.A = l1.Uri
-		JOIN `labels` l2
-			ON tr2.B = l2.Uri
-		JOIN `links-degree2` ld2
-			ON tr2.B = ld2.Uri
+	SELECT drs.LabelA, dtui.Label, drs.UriB, dtui.`In`
+	FROM `dictionary-redirects-seed` drs
+		JOIN `dictionary-titles-uri-idx` dtui
+			ON drs.UriB = dtui.Uri
 ;
 COMMIT;
-
-# You can check the status using `sudo top` in a console
-# Or issue these mysql commands in another mysql-process
-SHOW ENGINE INNODB STATUS;
-SHOW FULL PROCESSLIST;
 
 # Create table `disambiguation`
 CREATE TABLE `disambiguations` (
@@ -215,9 +257,11 @@ CREATE TABLE `disambiguations` (
 # (4.2:bash) if necessary(discard last line): sed -i '$ d' disambiguations.csv
 # (5:bash) mkfifo disambiguations.fifo
 # (6:bash-blocking) pv disambiguations.csv > disambiguations.fifo
-# (7:bash) FILE='disambiguations.fifo'; WORKDIR=`pwd`; mysql -u YOUR_USER -pYOUR_PASSWORD YOUR_DB_NAME --execute="LOAD DATA INFILE '$WORKDIR/$FILE' IGNORE INTO TABLE disambiguations FIELDS TERMINATED BY ',' ENCLOSED BY '\"'; SHOW WARNINGS" > disambiguations.warnings.log &
+# (7:bash) FILE='disambiguations.fifo'; WORKDIR=`pwd`; mysql -u YOUR_USER -pYOUR_PASSWORD YOUR_DB_NAME --execute="START TRANSACTION; LOAD DATA INFILE '$WORKDIR/$FILE' IGNORE INTO TABLE disambiguations FIELDS TERMINATED BY ',' ENCLOSED BY '\"'; COMMIT; SHOW WARNINGS" > disambiguations.warnings.log &
 
 
 
-
-
+    
+    
+    
+    
