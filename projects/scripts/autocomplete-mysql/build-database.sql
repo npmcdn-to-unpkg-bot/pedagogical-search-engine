@@ -10,6 +10,9 @@
 # --------------------------------------------------------------------
 If launched, this script will crash because of this line :p
 
+# todo: Read this article to speedup imports
+# http://dev.mysql.com/doc/refman/5.5/en/optimizing-innodb-bulk-data-loading.html
+
 # Create a table `existing-uris` with
 # a Uri (Varchar(255)) table utf-8-general_ci
 
@@ -115,32 +118,88 @@ INSERT INTO `transitive-redirects2` (A, B)
 			ON eu.Uri = tr.b
 ;
 
-# Create table `dictionary`
-CREATE TABLE `dictionary` (
-  `Uri` VARCHAR(255) NOT NULL,
-  `Label` VARCHAR(255) CHARACTER SET 'utf8' NOT NULL,
-  PRIMARY KEY (`Uri`, `Label`));
-  
-# Insert the labels of the redirects
-# On server-disconnect, you can check status with
-# SHOW ENGINE INNODB STATUS;
-# You should see the thread active in the "TRANSACTIONS" section
-# Note: The "Ignore" Keywork is because we might have two times 
-#       the same label for one uri
-INSERT IGNORE INTO `dictionary` (Uri, Label) 
-	SELECT tr2.b, l.Label
-	FROM `transitive-redirects2` tr2
-		JOIN `labels` l
-			ON tr2.a = l.Uri
+# Create table `links-degree`
+CREATE TABLE `links-degree` (
+  `Uri` VARCHAR(255) CHARACTER SET 'utf8' NOT NULL,
+  `In` INT NOT NULL,
+  `Out` INT NOT NULL,
+  PRIMARY KEY (`Uri`));
+
+# (1:manually) Import the links-degree file generated offline..
+
+# Create table `links-degree2`
+# Things reduce from 10'713'237 to 1'561'134! [2016.04.10] 
+CREATE TABLE `links-degree2` (
+  `Uri` VARCHAR(255) CHARACTER SET 'utf8' NOT NULL,
+  `In` INT NOT NULL,
+  `Out` INT NOT NULL,
+  PRIMARY KEY (`Uri`));
+
+
+INSERT IGNORE INTO `links-degree2` (`Uri`, `In`, `Out`)
+	SELECT ld.`Uri`, ld.`In`, ld.`Out`
+	FROM `links-degree` ld
+		JOIN `existing-uris` eu
+			ON ld.Uri = eu.Uri
 ;
 
-# Insert the labels of the existing-"accessible" uri 
-INSERT IGNORE INTO `dictionary` (Uri, Label) 
-	SELECT eu.Uri, l.Label
+# Create table `dictionary-titles`
+CREATE TABLE `dictionary-titles` (
+  `Label` VARCHAR(255) CHARACTER SET 'utf8' NOT NULL,
+  INDEX label_idx (`Label`(10)),
+  
+  `Uri` VARCHAR(255) CHARACTER SET 'utf8' NOT NULL,
+  `In` INT NOT NULL,
+  PRIMARY KEY (`Uri`))
+  CHARACTER SET 'utf8';
+
+Drop
+	index `PRIMARY`
+	ON `dictionary-titles`;
+
+INSERT IGNORE INTO `dictionary-titles` (`Uri`, `Label`, `In`) 
+	SELECT eu.`Uri`, l.`Label`, ld2.`In`
 	FROM `existing-uris` eu
 		JOIN `labels` l
 			ON eu.Uri = l.Uri
+		JOIN `links-degree2` ld2
+			ON eu.Uri = ld2.Uri
 ;
+
+# Create table `dictionary-redirects`
+CREATE TABLE `dictionary-redirects` (
+  `LabelA` VARCHAR(255) CHARACTER SET 'utf8' NOT NULL,
+  INDEX label_idx (`LabelA`(10)),
+  
+  `LabelB` VARCHAR(255) CHARACTER SET 'utf8' NOT NULL,
+  `UriB` VARCHAR(255) CHARACTER SET 'utf8' NOT NULL,
+  `InB` INT NOT NULL,
+  PRIMARY KEY (`LabelA`, `UriB`))
+  CHARACTER SET 'utf8';
+
+Drop
+	index `PRIMARY`
+	ON `dictionary-redirects`;
+
+# (1:bash) mysql -u YOUR_USER -pYOUR_PASSWORD YOUR_DB_NAME
+# (2:manually) Launch this in the mysql console
+set autocommit=0;
+INSERT IGNORE INTO `dictionary-redirects` (`LabelA`, `LabelB`, `UriB`, `InB`) 
+	SELECT l1.`Label`, l2.`Label`, tr2.`B`, ld2.`In`
+	FROM `transitive-redirects2` tr2
+		JOIN `labels` l1
+			ON tr2.A = l1.Uri
+		JOIN `labels` l2
+			ON tr2.B = l2.Uri
+		JOIN `links-degree2` ld2
+			ON tr2.B = ld2.Uri
+;
+COMMIT;
+
+# You can check the status using `sudo top` in a console
+# Or issue these mysql commands in another mysql-process
+SHOW ENGINE INNODB STATUS;
+SHOW FULL PROCESSLIST;
 
 # Create table `disambiguation`
 CREATE TABLE `disambiguations` (
@@ -148,7 +207,7 @@ CREATE TABLE `disambiguations` (
   `B` VARCHAR(255) CHARACTER SET 'utf8' NOT NULL,
   PRIMARY KEY (`A`, `B`))
 ;
-  
+
 # (1:manually) Download disambiguations_en.nt from the dbpedia project
 # (2:bash) cp disambiguations_en.nt disambiguations_en.csv
 # (3:bash) sed -ri 's/^<http:\/\/dbpedia\.org\/resource\/(.+)?> <http:\/\/dbpedia\.org\/ontology\/wikiPageDisambiguates> <http:\/\/dbpedia\.org\/resource\/(.+)?> \.$/\"\1\",\"\2\"/' disambiguations_en.csv
