@@ -10,8 +10,15 @@
 # --------------------------------------------------------------------
 If launched, this script will crash because of this line :p
 
-# todo: Read this article to speedup imports
-# http://dev.mysql.com/doc/refman/5.5/en/optimizing-innodb-bulk-data-loading.html
+# Tune MySQL in order to make it faster.
+# (1:manually) sudo /etc/init.d/mysql stop
+# (2:manually) sudo vim /etc/mysql/my.cnf
+# (3:manually) add the following lines
+#   # From the following guide
+#   # https://www.percona.com/blog/2007/11/01/innodb-performance-optimization-basics/
+#   innodb_buffer_pool_size = 14G
+#   innodb_thread_concurrency = 8
+# (4:manually) sudo /etc/init.d/mysql start
 
 # Create a table `existing-uris` with
 # a Uri (Varchar(255)) table utf-8-general_ci
@@ -260,7 +267,108 @@ CREATE TABLE `disambiguations` (
 # (7:bash) FILE='disambiguations.fifo'; WORKDIR=`pwd`; mysql -u YOUR_USER -pYOUR_PASSWORD YOUR_DB_NAME --execute="START TRANSACTION; LOAD DATA INFILE '$WORKDIR/$FILE' IGNORE INTO TABLE disambiguations FIELDS TERMINATED BY ',' ENCLOSED BY '\"'; COMMIT; SHOW WARNINGS" > disambiguations.warnings.log &
 
 
+# Create table `dictionary-disambiguation-seed1`
+CREATE TABLE `dictionary-disambiguation-seed1` (
+  `A` VARCHAR(255) CHARACTER SET 'utf8',
+  `B` VARCHAR(255) CHARACTER SET 'utf8',
+  `LabelA` VARCHAR(255) CHARACTER SET 'utf8',
+  PRIMARY KEY (`A`, `B`))
+;
 
+# Perform the following commands in a mysql console:
+# mysql -u YOUR_USER -pYOUR_PASSWORD YOUR_DB_NAME
+# [2016.04.11] Performance
+#   Query OK, 1'419'848 rows affected (41.89 sec)
+#   Records: 1'419'848  Duplicates: 0  Warnings: 0
+START TRANSACTION;
+INSERT IGNORE INTO `dictionary-disambiguation-seed1` (`A`, `B`, `LabelA`) 
+	SELECT d.A, d.B, l.Label
+	FROM `disambiguations` d
+		JOIN `labels` l
+			ON d.A = l.Uri
+;
+COMMIT;
+
+# Create table `dictionary-disambiguation-seed2`
+CREATE TABLE `dictionary-disambiguation-seed2` (
+  `B` VARCHAR(255) CHARACTER SET 'utf8',
+  `A` VARCHAR(255) CHARACTER SET 'utf8',
+  `LabelA` VARCHAR(255) CHARACTER SET 'utf8',
+  PRIMARY KEY (`B`, `A`))
+;
+
+# Perform the following commands in a mysql console:
+# mysql -u YOUR_USER -pYOUR_PASSWORD YOUR_DB_NAME
+# [2016.04.11] Performance
+#   Query OK, 1419848 rows affected (6 min 31.94 sec)
+#   Records: 1419848  Duplicates: 0  Warnings: 0
+START TRANSACTION;
+INSERT IGNORE INTO `dictionary-disambiguation-seed2` (`B`, `A`, `LabelA`) 
+	SELECT ds1.B, ds1.A, ds1.LabelA
+	FROM `dictionary-disambiguation-seed1` ds1
+;
+COMMIT;
+
+
+# Create table `dictionary-disambiguation-seed3`
+CREATE TABLE `dictionary-disambiguation-seed3` (
+  `B` VARCHAR(255) CHARACTER SET 'utf8',
+  `A` VARCHAR(255) CHARACTER SET 'utf8',
+  `LabelA` VARCHAR(255) CHARACTER SET 'utf8',
+  `LabelB` VARCHAR(255) CHARACTER SET 'utf8',
+  PRIMARY KEY (`B`, `A`))
+;
+
+# Perform the following commands in a mysql console:
+# mysql -u YOUR_USER -pYOUR_PASSWORD YOUR_DB_NAME
+# [2016.04.11] Performance
+#   Query OK, 1315398 rows affected (1 min 16.63 sec)
+#   Records: 1315398  Duplicates: 0  Warnings: 0
+# Note: Some rows have been lost because some pages b
+# of disamb. a->b do not appear in the `labels`
+START TRANSACTION;
+INSERT IGNORE INTO `dictionary-disambiguation-seed3` (`B`, `A`, `LabelA`, `LabelB`) 
+	SELECT ds2.B, ds2.A, ds2.LabelA, l.Label
+	FROM `dictionary-disambiguation-seed2` ds2
+    FORCE INDEX (`PRIMARY`) 
+		JOIN `labels` l
+			ON ds2.B = l.Uri
+;
+COMMIT;
+
+
+# Create table `dictionary-disambiguation`
+CREATE TABLE `dictionary-disambiguation` (
+  `LabelA` VARCHAR(255) CHARACTER SET 'utf8',
+  INDEX label_idx (`LabelA`(10)),
+  
+  `A` VARCHAR(255) CHARACTER SET 'utf8',
+  `B` VARCHAR(255) CHARACTER SET 'utf8',
+  `LabelB` VARCHAR(255) CHARACTER SET 'utf8',
+  `InB` INT,
+  PRIMARY KEY (`A`, `B`))
+  CHARACTER SET 'utf8';
+
+Drop
+	index `PRIMARY`
+	ON `dictionary-disambiguation`;
+
+# Perform the following commands in a mysql console:
+# mysql -u YOUR_USER -pYOUR_PASSWORD YOUR_DB_NAME
+# [2016.04.11] Performance
+#   Query OK, 709951 rows affected (58.79 sec)
+#   Records: 709951  Duplicates: 0  Warnings: 0
+# Note: The number of records has once again dropped because
+# links-degree2 contains only uris from `existing-uris` and
+# are making a JOIN with it.
+START TRANSACTION;
+INSERT IGNORE INTO `dictionary-disambiguation` (`LabelA`, `A`, `B`, `LabelB`, `InB`) 
+	SELECT ds3.LabelA, ds3.A, ds3.B, ds3.LabelB, ld2.`In`
+	FROM `dictionary-disambiguation-seed3` ds3
+		JOIN `links-degree2` ld2
+			ON ds3.B = ld2.Uri
+;
+COMMIT;
     
     
     
