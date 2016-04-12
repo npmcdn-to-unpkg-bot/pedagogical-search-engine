@@ -11,6 +11,9 @@ libraryDependencies ++= Seq(
   "net.databinder.dispatch" % "dispatch-core_2.11" % "0.11.3",
   "net.databinder.dispatch" % "dispatch-json4s-native_2.11" % "0.11.3",
   "com.typesafe" % "config" % "1.2.1",
+  "com.typesafe.slick" %% "slick" % "3.1.1",
+  "com.typesafe.slick" % "slick-hikaricp_2.11" % "3.1.1",
+  "org.slf4j" % "slf4j-nop" % "1.6.4",
 
   // Scala Test
   "org.scalactic" % "scalactic_2.11" % "2.2.6",
