@@ -11,7 +11,6 @@ libraryDependencies ++= Seq(
   "net.databinder.dispatch" % "dispatch-core_2.11" % "0.11.3",
   "net.databinder.dispatch" % "dispatch-json4s-native_2.11" % "0.11.3",
   "com.typesafe" % "config" % "1.2.1",
-  "com.sksamuel.elastic4s" % "elastic4s-core_2.11" % "2.3.0",
 
   // Scala Test
   "org.scalactic" % "scalactic_2.11" % "2.2.6",
@@ -22,5 +21,5 @@ libraryDependencies ++= Seq(
   "org.apache.commons" % "commons-lang3" % "3.4",
   "org.json" % "json" % "20131018",
   "junit" % "junit" % "4.12",
-  "mysql" % "mysql-connector-java" % "5.1.37"
+  "mysql" % "mysql-connector-java" % "5.1.38"
 )
