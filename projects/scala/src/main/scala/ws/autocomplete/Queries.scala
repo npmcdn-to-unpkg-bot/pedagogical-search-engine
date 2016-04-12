@@ -2,10 +2,11 @@ package ws.autocomplete
 
 import slick.driver.MySQLDriver.api.actionBasedSQLInterpolation
 import slick.jdbc.GetResult
-import ws.autocomplete.results.{Disambiguation, PageElement, Result}
+import ws.autocomplete.results._
 
 object Queries {
   object Codes {
+    val ignore = 0
     object Exact {
       val disambiguation = 1
       val title = 2
@@ -18,14 +19,25 @@ object Queries {
     }
   }
 
-  val separator = ",,," // Ensure that no labels or uris contain this
+  val separator = ",¬" // Ensure that no labels or uris contain this
   def preventWildcards(s: String): String =
     s.replaceAll("\\%", "\\\\%").replaceAll("\\_", "\\\\_")
+
+  /* mysql GROUP_CONCAT can be truncated, we can send a funky
+   * row filled with garbage to set the non-truncated window
+   * size. (dirty hack)
+   * View also this candidate "solution" http://stackoverflow.com/a/23608554/3890306
+   * Benchmark: 4-letters
+   *   [.., 512] freq: 10ms - avg-resp: 55ms
+   *   [512, 8k] freq: 10?-20?ms - avg-resp: 55ms
+   */
+  val strPadding = "\"" + "a" * (2^12) + "\""
 
   implicit val getSearchResult: GetResult[Result] = GetResult(r => {
     val source = r.nextInt()
 
     source match {
+      case Codes.ignore => Ignore()
       case Codes.Exact.disambiguation | Codes.Prefix.disambiguation => {
         val labelA = r.nextString()
         val labelB = r.nextString().split(separator).toList
@@ -38,7 +50,22 @@ object Queries {
         }
         Disambiguation(uriA, labelA, bs)
       }
-      case _ => Disambiguation("?", "?", Nil)
+      case Codes.Exact.title | Codes.Prefix.title => {
+        r.skip
+        val label = r.nextString()
+        r.skip
+        val uri =  r.nextString()
+        val in = r.nextInt()
+        Title(label, uri, in)
+      }
+      case Codes.Exact.redirect | Codes.Prefix.redirect => {
+        val labelA = r.nextString()
+        val labelB = r.nextString()
+        r.skip
+        val uriB = r.nextString()
+        val inB = r.nextInt()
+        Redirect(labelA, labelB, uriB, inB)
+      }
     }
   })
 
@@ -48,12 +75,20 @@ object Queries {
     sql"""
     (
       SELECT
+        #${Codes.ignore} as `Source`,
+        #$strPadding as `LabelA`,
+        #$strPadding as `LabelB`,
+        #$strPadding as `UriA`,
+        #$strPadding as `UriB`,
+        1 as `InB`
+    ) UNION (
+      SELECT
         #${Codes.Exact.disambiguation} as `Source`,
         MIN(d.`LabelA`) as `LabelA`,
-        GROUP_CONCAT(d.`LabelB` SEPARATOR '#$separator') as `LabelB`,
+        GROUP_CONCAT(d.`LabelB` ORDER BY d.`InB` DESC SEPARATOR '#$separator') as `LabelB`,
         d.`A` as `UriA`,
-        GROUP_CONCAT(d.`B` SEPARATOR '#$separator') as `UriB`,
-        GROUP_CONCAT(d.`InB` SEPARATOR '#$separator') as `InB`
+        GROUP_CONCAT(d.`B` ORDER BY d.`InB` DESC SEPARATOR '#$separator') as `UriB`,
+        GROUP_CONCAT(d.`InB` ORDER BY d.`InB` DESC SEPARATOR '#$separator') as `InB`
       FROM `dictionary-disambiguation` d
       WHERE
         d.`LabelA` LIKE $text
@@ -89,10 +124,10 @@ object Queries {
       SELECT
         #${Codes.Prefix.disambiguation} as `Source`,
         MIN(d.`LabelA`) as `LabelA`,
-        GROUP_CONCAT(d.`LabelB` SEPARATOR '#$separator') as `LabelB`,
+        GROUP_CONCAT(d.`LabelB` ORDER BY d.`InB` DESC SEPARATOR '#$separator') as `LabelB`,
         d.`A` as `UriA`,
-        GROUP_CONCAT(d.`B` SEPARATOR '#$separator') as `UriB`,
-        GROUP_CONCAT(d.`InB` SEPARATOR '#$separator') as `InB`
+        GROUP_CONCAT(d.`B` ORDER BY d.`InB` DESC SEPARATOR '#$separator') as `UriB`,
+        GROUP_CONCAT(d.`InB` ORDER BY d.`InB` DESC SEPARATOR '#$separator') as `InB`
       FROM `dictionary-disambiguation` d
       WHERE
         d.`LabelA` LIKE $textPercent
