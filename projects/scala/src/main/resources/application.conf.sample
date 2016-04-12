@@ -17,6 +17,22 @@ wikichimp {
       }
     }
   }
+  autocomplete = {
+    slick {
+      driver = "com.mysql.jdbc.Driver"
+      url = "jdbc:mysql://"?ip?"/tocpic"
+
+      databaseName = ???
+      user = ???
+      password = ???
+
+      connectionPool = "slick.jdbc.hikaricp.HikariCPJdbcDataSource$"
+      numThreads = 20
+      queueSize = 10
+
+      keepAliveConnection = true
+    }
+  }
   resources {
     folder = "???"
     coursera {
