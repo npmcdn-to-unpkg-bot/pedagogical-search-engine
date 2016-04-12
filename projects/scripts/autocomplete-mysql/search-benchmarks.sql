@@ -121,23 +121,237 @@ SET @search = "Cool";
 ORDER BY `Source` ASC;
 
 
-# [Titles+Redirects] Prefix search
-# todo
 
-# [Titles+Redirects] Garbage search
-# todo
 
-# [Titles+Redirects] Exact+Prefix+Garbage search
-# todo
 
-# Strategy
-# (1) [Titles+Redirects] Exact Match
-# (2) [1-3] Fill with garbage
-# (2) [4+] Prefix search {Titles, Redirects}
-#
-# Results Presentation
-# {Title} Label
-# {Redirects} RLabel (TargetLabel)
-#
-# Time expectation:
-# todo
+
+# Final Strategy Benchmark
+# For searches with length >= 4
+# Performance: [0.045, 0.06]
+SET @search = "us pr";
+SET @sep = ',,,';
+(
+	SELECT
+		1 as `Source`,
+		MIN(d.`LabelA`) as `LabelA`,
+		GROUP_CONCAT(d.`LabelB`, @sep) as `LabelB`,
+		d.`A` as `UriA`,
+		GROUP_CONCAT(d.`B`, @sep) as `UriB`,
+		GROUP_CONCAT(d.`InB`, @sep) as `InB`,
+		length(MIN(d.`LabelA`)) as `Length`
+	FROM `dictionary-disambiguation` d
+	WHERE
+		d.`LabelA` LIKE @search
+	GROUP BY d.`A`
+	LIMIT 10
+) UNION (
+	SELECT
+        2 as `Source`,
+		NULL as `LabelA`,
+		d.`Label` as `LabelB`,
+        NULL as `UriA`,
+		d.`Uri` as `UriB`,
+		d.`In` as `InB`,
+        length(d.`Label`) as `Length`
+	FROM `dictionary-titles` d
+	WHERE
+		d.`Label` LIKE @search
+	ORDER BY d.`In` DESC
+	LIMIT 10
+) UNION (
+	SELECT
+        3 as `Source`,
+		d.`LabelA` as `LabelA`,
+		d.`LabelB` as `LabelB`,
+		NULL as `UriA`,
+		d.`UriB` as `UriB`,
+		d.`InB` as `InB`,
+        length(d.`LabelA`) as `Length`
+	FROM `dictionary-redirects` d
+	WHERE
+		d.`LabelA` LIKE @search
+	ORDER BY d.`InB` DESC
+	LIMIT 10
+) UNION (
+	SELECT
+		4 as `Source`,
+		MIN(d.`LabelA`) as `LabelA`,
+		GROUP_CONCAT(d.`LabelB`, @sep) as `LabelB`,
+		d.`A` as `UriA`,
+		GROUP_CONCAT(d.`B`, @sep) as `UriB`,
+		GROUP_CONCAT(d.`InB`, @sep) as `InB`,
+		length(MIN(d.`LabelA`)) as `Length`
+	FROM `dictionary-disambiguation` d
+	WHERE
+		d.`LabelA` LIKE CONCAT(@search, "%")
+	GROUP BY d.`A`
+	ORDER BY length(d.`LabelA`) ASC
+	LIMIT 10
+) UNION (
+	SELECT
+        5 as `Source`,
+		NULL as `LabelA`,
+		d.`Label` as `LabelB`,
+        NULL as `UriA`,
+		d.`Uri` as `UriB`,
+		d.`In` as `InB`,
+        length(d.`Label`) as `Length`
+	FROM `dictionary-titles` d
+	WHERE
+		d.`Label` LIKE CONCAT(@search, "%")
+	ORDER BY length(d.`Label`) ASC, d.`In` DESC
+	LIMIT 10
+) UNION (
+	SELECT
+        6 as `Source`,
+		d.`LabelA` as `LabelA`,
+		d.`LabelB` as `LabelB`,
+		NULL as `UriA`,
+		d.`UriB` as `UriB`,
+		d.`InB` as `InB`,
+        length(d.`LabelA`) as `Length`
+	FROM `dictionary-redirects` d
+	WHERE
+		d.`LabelA` LIKE CONCAT(@search, "%")
+	ORDER BY length(d.`LabelA`) ASC, d.`InB` DESC
+	LIMIT 10
+) ORDER BY `Length` ASC, `InB` DESC, `Source` ASC;
+
+
+# Final Strategy Benchmark
+# For searches with length <[2,3]
+# Performance: [0.05]
+SET @search = "zz";
+SET @sep = ',,,';
+(
+	SELECT
+		1 as `Source`,
+		MIN(d.`LabelA`) as `LabelA`,
+		GROUP_CONCAT(d.`LabelB`, @sep) as `LabelB`,
+		d.`A` as `UriA`,
+		GROUP_CONCAT(d.`B`, @sep) as `UriB`,
+		GROUP_CONCAT(d.`InB`, @sep) as `InB`,
+		length(MIN(d.`LabelA`)) as `Length`
+	FROM `dictionary-disambiguation` d
+	WHERE
+		d.`LabelA` LIKE @search
+	GROUP BY d.`A`
+	LIMIT 10
+) UNION (
+	SELECT
+        2 as `Source`,
+		NULL as `LabelA`,
+		d.`Label` as `LabelB`,
+        NULL as `UriA`,
+		d.`Uri` as `UriB`,
+		d.`In` as `InB`,
+        length(d.`Label`) as `Length`
+	FROM `dictionary-titles` d
+	WHERE
+		d.`Label` LIKE @search
+	ORDER BY d.`In` DESC
+	LIMIT 10
+) UNION (
+	SELECT
+        3 as `Source`,
+		d.`LabelA` as `LabelA`,
+		d.`LabelB` as `LabelB`,
+		NULL as `UriA`,
+		d.`UriB` as `UriB`,
+		d.`InB` as `InB`,
+        length(d.`LabelA`) as `Length`
+	FROM `dictionary-redirects` d
+	WHERE
+		d.`LabelA` LIKE @search
+	ORDER BY d.`InB` DESC
+	LIMIT 10
+) UNION (
+	SELECT
+		4 as `Source`,
+		MIN(d.`LabelA`) as `LabelA`,
+		GROUP_CONCAT(d.`LabelB`, @sep) as `LabelB`,
+		d.`A` as `UriA`,
+		GROUP_CONCAT(d.`B`, @sep) as `UriB`,
+		GROUP_CONCAT(d.`InB`, @sep) as `InB`,
+		length(MIN(d.`LabelA`)) as `Length`
+	FROM `dictionary-disambiguation` d
+	WHERE
+		d.`LabelA` LIKE CONCAT(@search, "%")
+	GROUP BY d.`A`
+	LIMIT 10
+) UNION (
+	SELECT
+        5 as `Source`,
+		NULL as `LabelA`,
+		d.`Label` as `LabelB`,
+        NULL as `UriA`,
+		d.`Uri` as `UriB`,
+		d.`In` as `InB`,
+        length(d.`Label`) as `Length`
+	FROM `dictionary-titles` d
+	WHERE
+		d.`Label` LIKE CONCAT(@search, "%")
+	LIMIT 10
+) UNION (
+	SELECT
+        6 as `Source`,
+		d.`LabelA` as `LabelA`,
+		d.`LabelB` as `LabelB`,
+		NULL as `UriA`,
+		d.`UriB` as `UriB`,
+		d.`InB` as `InB`,
+        length(d.`LabelA`) as `Length`
+	FROM `dictionary-redirects` d
+	WHERE
+		d.`LabelA` LIKE CONCAT(@search, "%")
+	LIMIT 10
+) ORDER BY `Length` ASC, `InB` DESC, `Source` ASC;
+
+# Final Strategy Benchmark
+# For searches with length = 1
+# Performance: [0.05]
+SET @search = "c";
+SET @sep = ',,,';
+(
+	SELECT
+		1 as `Source`,
+		MIN(d.`LabelA`) as `LabelA`,
+		GROUP_CONCAT(d.`LabelB`, @sep) as `LabelB`,
+		d.`A` as `UriA`,
+		GROUP_CONCAT(d.`B`, @sep) as `UriB`,
+		GROUP_CONCAT(d.`InB`, @sep) as `InB`,
+		length(MIN(d.`LabelA`)) as `Length`
+	FROM `dictionary-disambiguation` d
+	WHERE
+		d.`LabelA` LIKE @search
+	GROUP BY d.`A`
+	LIMIT 10
+) UNION (
+	SELECT
+        2 as `Source`,
+		NULL as `LabelA`,
+		d.`Label` as `LabelB`,
+        NULL as `UriA`,
+		d.`Uri` as `UriB`,
+		d.`In` as `InB`,
+        length(d.`Label`) as `Length`
+	FROM `dictionary-titles` d
+	WHERE
+		d.`Label` LIKE @search
+	ORDER BY d.`In` DESC
+	LIMIT 10
+) UNION (
+	SELECT
+        3 as `Source`,
+		d.`LabelA` as `LabelA`,
+		d.`LabelB` as `LabelB`,
+		NULL as `UriA`,
+		d.`UriB` as `UriB`,
+		d.`InB` as `InB`,
+        length(d.`LabelA`) as `Length`
+	FROM `dictionary-redirects` d
+	WHERE
+		d.`LabelA` LIKE @search
+	ORDER BY d.`InB` DESC
+	LIMIT 10
+) ORDER BY `InB` DESC, `Source` ASC;
