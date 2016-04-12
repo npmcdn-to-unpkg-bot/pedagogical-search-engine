@@ -10,6 +10,11 @@
 # --------------------------------------------------------------------
 If launched, this script will crash because of this line :p
 
+# todo: Add "CHARACTER SET 'utf8'" everywhere
+# todo: Int -> MEDIUMINT or even smallest if possible
+# todo: shrink VARCHAR length
+# todo: rename the tables in a smart way
+
 # Tune MySQL in order to make it faster.
 # (1:manually) sudo /etc/init.d/mysql stop
 # (2:manually) sudo vim /etc/mysql/my.cnf
@@ -53,7 +58,7 @@ SELECT COUNT(*) FROM `existing-uris`;
 # Just to have a look
 SELECT * FROM `existing-uris` LIMIT 10;
 
-# Create table `labels`
+# Create table
 CREATE TABLE `labels` (
   `Uri` VARCHAR(255) NOT NULL,
   `Label` VARCHAR(255) CHARACTER SET 'utf8' NOT NULL,
@@ -89,7 +94,7 @@ CREATE TABLE `labels` (
 # (7:bash-blocking) pv labels.utf8.csv > labels.utf8.fifo
 # (8:bash) FILE='labels.utf8.fifo'; WORKDIR=`pwd`; mysql -u YOUR_USER -pYOUR_PASSWORD YOUR_DB_NAME --execute="START TRANSACTION; LOAD DATA INFILE '$WORKDIR/$FILE' IGNORE INTO TABLE labels CHARACTER SET UTF8 FIELDS TERMINATED BY ',' ENCLOSED BY '\"'; COMMIT; SHOW WARNINGS" > labels.utf8.warnings.log &
 
-# Create table `transitive-redirects`
+# Create table
 CREATE TABLE `transitive-redirects` (
   `A` VARCHAR(255) NOT NULL,
   `B` VARCHAR(255) CHARACTER SET 'utf8' NOT NULL,
@@ -106,7 +111,7 @@ CREATE TABLE `transitive-redirects` (
 # (6:bash-blocking) pv transitive-redirects.csv > transitive-redirects.fifo
 # (7:bash) FILE='transitive-redirects.fifo'; WORKDIR=`pwd`; mysql -u YOUR_USER -pYOUR_PASSWORD YOUR_DB_NAME --execute="START TRANSACTION; LOAD DATA INFILE '$WORKDIR/$FILE' IGNORE INTO TABLE transitive-redirects FIELDS TERMINATED BY ',' ENCLOSED BY '\"'; COMMIT; SHOW WARNINGS" > transitive-redirects.warnings.log &
 
-# Create table `transitive-redirects2`
+# Create table
 CREATE TABLE `transitive-redirects2` (
   `A` VARCHAR(255) NOT NULL,
   `B` VARCHAR(255) CHARACTER SET 'utf8' NOT NULL,
@@ -125,7 +130,7 @@ INSERT INTO `transitive-redirects2` (A, B)
 			ON eu.Uri = tr.b
 ;
 
-# Create table `links-degree`
+# Create table
 CREATE TABLE `links-degree` (
   `Uri` VARCHAR(255) CHARACTER SET 'utf8' NOT NULL,
   `In` INT NOT NULL,
@@ -134,7 +139,7 @@ CREATE TABLE `links-degree` (
 
 # (1:manually) Import the links-degree file generated offline..
 
-# Create table `links-degree2`
+# Create table
 # Things reduce from 10'713'237 to 1'561'134! [2016.04.10] 
 CREATE TABLE `links-degree2` (
   `Uri` VARCHAR(255) CHARACTER SET 'utf8' NOT NULL,
@@ -150,8 +155,8 @@ INSERT IGNORE INTO `links-degree2` (`Uri`, `In`, `Out`)
 			ON ld.Uri = eu.Uri
 ;
 
-# Create table `dictionary-titles`
-CREATE TABLE `dictionary-titles` (
+# Create table
+CREATE TABLE `dictionary-titles-init` (
   `Label` VARCHAR(255) CHARACTER SET 'utf8' NOT NULL,
   INDEX label_idx (`Label`(10)),
   
@@ -162,10 +167,10 @@ CREATE TABLE `dictionary-titles` (
 
 Drop
 	index `PRIMARY`
-	ON `dictionary-titles`;
+	ON `dictionary-titles-init`;
 
 # [2016.04.11] About 1 minute
-INSERT IGNORE INTO `dictionary-titles` (`Uri`, `Label`, `In`) 
+INSERT IGNORE INTO `dictionary-titles-init` (`Uri`, `Label`, `In`) 
 	SELECT eu.`Uri`, l.`Label`, ld2.`In`
 	FROM `existing-uris` eu
 		JOIN `labels` l
@@ -174,7 +179,33 @@ INSERT IGNORE INTO `dictionary-titles` (`Uri`, `Label`, `In`)
 			ON eu.Uri = ld2.Uri
 ;
 
-# Create table `dictionary-titles-uri-idx`
+# Create table
+CREATE TABLE `dictionary-titles` (
+  `Label` VARCHAR(255) CHARACTER SET 'utf8' NOT NULL,
+  INDEX label_idx (`Label`(10)),
+  
+  `Uri` VARCHAR(255) CHARACTER SET 'utf8' NOT NULL,
+  `In` INT NOT NULL,
+  `available` TINYINT,
+  PRIMARY KEY (`Uri`))
+  CHARACTER SET 'utf8';
+
+Drop
+	index `PRIMARY`
+	ON `dictionary-titles`;
+
+# Performance: unknown
+INSERT IGNORE INTO `dictionary-titles`
+	(`Uri`, `Label`, `In`, `available`) 
+	SELECT eu.`Uri`, l.`Label`, ld2.`In`, 0
+	FROM `existing-uris` eu
+		JOIN `labels` l
+			ON eu.Uri = l.Uri
+		JOIN `links-degree2` ld2
+			ON eu.Uri = ld2.Uri
+;
+
+# Create table
 CREATE TABLE `dictionary-titles-uri-idx` (
   `Uri` VARCHAR(255) CHARACTER SET 'utf8',
   `Label` VARCHAR(255) CHARACTER SET 'utf8',
@@ -185,8 +216,8 @@ CREATE TABLE `dictionary-titles-uri-idx` (
 # [2016.04.11] About 4 minutes
 START TRANSACTION;
 INSERT IGNORE INTO `dictionary-titles-uri-idx` (`Uri`, `Label`, `In`) 
-	SELECT dt.`Uri`, dt.`Label`, dt.`In`
-	FROM `dictionary-titles` dt
+	SELECT `Uri`, `Label`, `In`
+	FROM `dictionary-titles-init`
 ;
 COMMIT;
 
@@ -199,7 +230,7 @@ COMMIT;
 SHOW ENGINE INNODB STATUS;
 SHOW FULL PROCESSLIST;
 
-# Create table `dictionary-redirects-seed`
+# Create table
 CREATE TABLE `dictionary-redirects-seed` (
   `UriB` VARCHAR(255) CHARACTER SET 'utf8',
   `LabelA` VARCHAR(255) CHARACTER SET 'utf8',
@@ -220,8 +251,8 @@ INSERT IGNORE INTO `dictionary-redirects-seed` (`UriB`, `LabelA`)
 ;
 COMMIT;
 
-# Create table `dictionary-redirects`
-CREATE TABLE `dictionary-redirects` (
+# Create table
+CREATE TABLE `dictionary-redirects-init` (
   `LabelA` VARCHAR(255) CHARACTER SET 'utf8' NOT NULL,
   INDEX label_idx (`LabelA`(10)),
   
@@ -233,7 +264,7 @@ CREATE TABLE `dictionary-redirects` (
 
 Drop
 	index `PRIMARY`
-	ON `dictionary-redirects`;
+	ON `dictionary-redirects-init`;
 
 # Perform the following commands in a mysql console:
 # mysql -u YOUR_USER -pYOUR_PASSWORD YOUR_DB_NAME
@@ -242,7 +273,8 @@ Drop
 #   Records: 3'879'979  Duplicates: 0  Warnings: 0
 
 START TRANSACTION;
-INSERT IGNORE INTO `dictionary-redirects` (`LabelA`, `LabelB`, `UriB`, `InB`) 
+INSERT IGNORE INTO `dictionary-redirects-init`
+	(`LabelA`, `LabelB`, `UriB`, `InB`) 
 	SELECT drs.LabelA, dtui.Label, drs.UriB, dtui.`In`
 	FROM `dictionary-redirects-seed` drs
 		JOIN `dictionary-titles-uri-idx` dtui
@@ -250,7 +282,36 @@ INSERT IGNORE INTO `dictionary-redirects` (`LabelA`, `LabelB`, `UriB`, `InB`)
 ;
 COMMIT;
 
-# Create table `disambiguation`
+
+# Create table
+CREATE TABLE `dictionary-redirects` (
+  `LabelA` VARCHAR(255) CHARACTER SET 'utf8' NOT NULL,
+  INDEX label_idx (`LabelA`(10)),
+  
+  `LabelB` VARCHAR(255) CHARACTER SET 'utf8',
+  `UriB` VARCHAR(255) CHARACTER SET 'utf8',
+  `InB` INT,
+  `available` TINYINT,
+  PRIMARY KEY (`LabelA`, `UriB`))
+  CHARACTER SET 'utf8';
+
+Drop
+	index `PRIMARY`
+	ON `dictionary-redirects`;
+    
+# Perform the following commands in a mysql console:
+# mysql -u YOUR_USER -pYOUR_PASSWORD YOUR_DB_NAME
+#   Performance: unknown
+
+START TRANSACTION;
+INSERT IGNORE INTO `dictionary-redirects`
+	(`LabelA`, `LabelB`, `UriB`, `InB`, `available`) 
+	SELECT `LabelA`, `LabelB`, `UriB`, `InB`, `available`, 0
+	FROM `dictionary-redirects-init`
+;
+COMMIT;
+
+# Create table
 CREATE TABLE `disambiguations` (
   `A` VARCHAR(255) NOT NULL,
   `B` VARCHAR(255) CHARACTER SET 'utf8' NOT NULL,
@@ -267,7 +328,7 @@ CREATE TABLE `disambiguations` (
 # (7:bash) FILE='disambiguations.fifo'; WORKDIR=`pwd`; mysql -u YOUR_USER -pYOUR_PASSWORD YOUR_DB_NAME --execute="START TRANSACTION; LOAD DATA INFILE '$WORKDIR/$FILE' IGNORE INTO TABLE disambiguations FIELDS TERMINATED BY ',' ENCLOSED BY '\"'; COMMIT; SHOW WARNINGS" > disambiguations.warnings.log &
 
 
-# Create table `dictionary-disambiguation-seed1`
+# Create table
 CREATE TABLE `dictionary-disambiguation-seed1` (
   `A` VARCHAR(255) CHARACTER SET 'utf8',
   `B` VARCHAR(255) CHARACTER SET 'utf8',
@@ -289,7 +350,7 @@ INSERT IGNORE INTO `dictionary-disambiguation-seed1` (`A`, `B`, `LabelA`)
 ;
 COMMIT;
 
-# Create table `dictionary-disambiguation-seed2`
+# Create table
 CREATE TABLE `dictionary-disambiguation-seed2` (
   `B` VARCHAR(255) CHARACTER SET 'utf8',
   `A` VARCHAR(255) CHARACTER SET 'utf8',
@@ -310,7 +371,7 @@ INSERT IGNORE INTO `dictionary-disambiguation-seed2` (`B`, `A`, `LabelA`)
 COMMIT;
 
 
-# Create table `dictionary-disambiguation-seed3`
+# Create table
 CREATE TABLE `dictionary-disambiguation-seed3` (
   `B` VARCHAR(255) CHARACTER SET 'utf8',
   `A` VARCHAR(255) CHARACTER SET 'utf8',
@@ -337,8 +398,8 @@ INSERT IGNORE INTO `dictionary-disambiguation-seed3` (`B`, `A`, `LabelA`, `Label
 COMMIT;
 
 
-# Create table `dictionary-disambiguation`
-CREATE TABLE `dictionary-disambiguation` (
+# Create table
+CREATE TABLE `dictionary-disambiguation-init` (
   `LabelA` VARCHAR(255) CHARACTER SET 'utf8',
   INDEX label_idx (`LabelA`(10)),
   
@@ -351,7 +412,7 @@ CREATE TABLE `dictionary-disambiguation` (
 
 Drop
 	index `PRIMARY`
-	ON `dictionary-disambiguation`;
+	ON `dictionary-disambiguation-init`;
 
 # Perform the following commands in a mysql console:
 # mysql -u YOUR_USER -pYOUR_PASSWORD YOUR_DB_NAME
@@ -362,7 +423,8 @@ Drop
 # links-degree2 contains only uris from `existing-uris` and
 # are making a JOIN with it.
 START TRANSACTION;
-INSERT IGNORE INTO `dictionary-disambiguation` (`LabelA`, `A`, `B`, `LabelB`, `InB`) 
+INSERT IGNORE INTO `dictionary-disambiguation-init`
+	(`LabelA`, `A`, `B`, `LabelB`, `InB`) 
 	SELECT ds3.LabelA, ds3.A, ds3.B, ds3.LabelB, ld2.`In`
 	FROM `dictionary-disambiguation-seed3` ds3
 		JOIN `links-degree2` ld2
@@ -371,5 +433,30 @@ INSERT IGNORE INTO `dictionary-disambiguation` (`LabelA`, `A`, `B`, `LabelB`, `I
 COMMIT;
     
     
+# Create table
+CREATE TABLE `dictionary-disambiguation` (
+  `LabelA` VARCHAR(255) CHARACTER SET 'utf8',
+  INDEX label_idx (`LabelA`(10)),
+  
+  `A` VARCHAR(255) CHARACTER SET 'utf8',
+  `B` VARCHAR(255) CHARACTER SET 'utf8',
+  `LabelB` VARCHAR(255) CHARACTER SET 'utf8',
+  `InB` INT,
+  `available` TINYINT,
+  PRIMARY KEY (`A`, `B`))
+  CHARACTER SET 'utf8';
+
+Drop
+	index `PRIMARY`
+	ON `dictionary-disambiguation`;
     
-    
+# Perform the following commands in a mysql console:
+# mysql -u YOUR_USER -pYOUR_PASSWORD YOUR_DB_NAME
+# Performance: Unknown
+START TRANSACTION;
+INSERT IGNORE INTO `dictionary-disambiguation`
+	(`LabelA`, `A`, `B`, `LabelB`, `InB`, `available`) 
+	SELECT `LabelA`, `A`, `B`, `LabelB`, `InB`, `available`, 0
+	FROM `dictionary-disambiguation-init`
+;
+COMMIT;
