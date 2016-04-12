@@ -12,9 +12,9 @@ object mysqlService extends App {
   val db = Database.forConfig("wikichimp.autocomplete.slick")
 
   try {
-    val text = "spring"
+    val text = "fst"
     val nbResults = 10
-    val test1 = Queries.fourPlus(text, nbResults)
+
     def projectSize(s: String): Int = math.min(s.size, text.size + 3)
     def contains(acc: List[Result], uri: String): Boolean = acc match {
       case Nil => false
@@ -25,11 +25,15 @@ object mysqlService extends App {
       }).equals(uri) || contains(tail, uri)
     }
 
-    val future = db.run(test1.map(results => {
-      val ranked = results.filter(r => r match {
-        case Ignore() => false // Filter out Ignore elements
-        case _ => true
-      }).groupBy(r => {
+    // Create the query-action
+    val action = text.size match {
+      case one if one == 1 => ???
+      case twoThre if (twoThre == 2 || twoThre == 3) => Queries.twoThre(text, nbResults)
+      case fourPlus => Queries.fourPlus(text, nbResults)
+    }
+
+    val future = db.run(action.map(results => {
+      val ranked = results.groupBy(r => {
         val label = r match  {
           case Disambiguation(_, label, _) => label
           case Redirect(label, _, _, _) => label
