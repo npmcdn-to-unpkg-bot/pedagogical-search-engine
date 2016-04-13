@@ -1,8 +1,9 @@
-package ws.autocomplete
+package ws.autocomplete.query
 
 import slick.driver.MySQLDriver.api.actionBasedSQLInterpolation
 import slick.jdbc.GetResult
 import ws.autocomplete.results._
+
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object Queries {

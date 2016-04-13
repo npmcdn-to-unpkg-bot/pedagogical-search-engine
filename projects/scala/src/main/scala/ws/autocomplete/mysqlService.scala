@@ -1,8 +1,10 @@
 package ws.autocomplete
 
 import slick.jdbc.JdbcBackend.Database
-import ws.autocomplete.ranking.V1
+import ws.autocomplete.fetcher.Jdbc
+import ws.autocomplete.ranking.SizeFirst
 import ws.autocomplete.results._
+import ws.autocomplete.strategy.{Rebounce, Strategy}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
@@ -15,30 +17,33 @@ object mysqlService extends App {
   try {
     val text = "order british"
 
+    if(text.trim().size == 0) {
+      // todo: discard the query
+    }
+
     // The strategy tries to have the number of results in this window
     val maximum = 10
     val minimum = 5
 
     // Launch the search
-    val future = db.run(Queries.getAction(text, maximum).map(results => {
-      val ranked = V1.rank(results.toList, text)
-      val completed = (ranked.size >= minimum) match {
-        case true => ranked.take(maximum)
-        case false => {
-          ???
-        }
-      }
+    val sc = new SearchContext(text, minimum, maximum)
+    val fetcher = new Jdbc(db)
+    val processed = Rebounce.process(fetcher, sc)
 
-      println(s"Completed: nbRes=${completed.size}, ranking:")
-      ranked.map(println(_))
-    })).recover({
+    // todo: remove this post-processing
+    val postProcessed = processed.map {
+      results => {
+        println(s"Completed: nbRes=${results.size}, ranking:")
+        results.map(println(_))
+      }
+    }.recover({
       // If anything goes wrong
       case e => {
         println(s"failed: $text, reason: ${e.getMessage}")
         e.printStackTrace()
       }
     })
+    Await.result(postProcessed, Duration.Inf)
 
-    Await.result(future, Duration.Inf)
   } finally db.close
 }

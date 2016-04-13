@@ -3,7 +3,7 @@ package evaluation.autocomplete
 import java.util.concurrent.atomic.AtomicInteger
 
 import slick.jdbc.JdbcBackend._
-import ws.autocomplete.Queries
+import ws.autocomplete.query.Queries
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration

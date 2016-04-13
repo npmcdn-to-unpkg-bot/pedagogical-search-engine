@@ -1,16 +1,17 @@
 package ws.autocomplete.ranking
 
+import ws.autocomplete.SearchContext
 import ws.autocomplete.results.{Disambiguation, Redirect, Result, Title}
 
-object V1 {
-  def rank(results: List[Result], text: String): List[Result] = {
+object SizeFirst extends  Ranking {
+  def rank(results: List[Result], sc: SearchContext): List[Result] = {
     results.groupBy(r => {
       val label = r match {
         case Disambiguation(_, label, _) => label
         case Redirect(label, _, _, _) => label
         case Title(label, _, _) => label
       }
-      projectSize(label, text) // smallest lengths first
+      projectSize(label, sc.text) // smallest lengths first
     }).toList.sortBy {
       case (length, _) => length
     }.flatMap {
