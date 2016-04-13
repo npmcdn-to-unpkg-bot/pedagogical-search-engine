@@ -1,11 +1,9 @@
 package ws.autocomplete.query
 
-import slick.driver.MySQLDriver.api.actionBasedSQLInterpolation
 import slick.jdbc.GetResult
+import slick.driver.MySQLDriver.api._
 import utils.StringUtils
 import ws.autocomplete.results._
-
-import scala.concurrent.ExecutionContext.Implicits.global
 
 object Queries {
   object Codes {
@@ -36,6 +34,8 @@ object Queries {
    *   [512, 8k] freq: 10?-20?ms - avg-resp: 55ms
    */
   val strPadding = 2^13
+  // The added row is dropped before being returned with this "Limit 1, x" trick
+  val maxNbRows = 2^10
 
   // Create the query-action
   def getAction(text: String, n: Int) = text.size match {
@@ -58,7 +58,6 @@ object Queries {
     val source = r.nextInt()
 
     source match {
-      case Codes.ignore => Ignore()
       case Codes.Exact.disambiguation | Codes.Prefix.disambiguation => {
         val labelA = r.nextString()
         val labelB = r.nextString().split(separator).toList
@@ -140,11 +139,8 @@ object Queries {
         d.`LabelA` LIKE $text
       ORDER BY d.`InB` DESC
       LIMIT #$n
-    );
-    """.as[Result].map(rs => rs.filter {
-      case Ignore() => false
-      case _ => true
-    })
+    ) ORDER BY `Source` ASC LIMIT 1, #$maxNbRows;
+    """.as[Result]
   }
 
   def twoThre(i: String, n: Int = defaultLimit) = {
@@ -235,11 +231,8 @@ object Queries {
       WHERE
         d.`LabelA` LIKE $textPercent
       LIMIT #$n
-    );
-    """.as[Result].map(rs => rs.filter {
-      case Ignore() => false
-      case _ => true
-    })
+    ) ORDER BY `Source` ASC LIMIT 1, #$maxNbRows;
+    """.as[Result]
   }
 
   def fourPlus(i: String, n: Int = defaultLimit) = {
@@ -333,10 +326,7 @@ object Queries {
         d.`LabelA` LIKE $textPercent
       ORDER BY length(d.`LabelA`) ASC, d.`InB` DESC
       LIMIT #$n
-    );
-    """.as[Result].map(rs => rs.filter {
-      case Ignore() => false
-      case _ => true
-    })
+    ) ORDER BY `Source` ASC LIMIT 1, #$maxNbRows;
+    """.as[Result]
   }
 }
