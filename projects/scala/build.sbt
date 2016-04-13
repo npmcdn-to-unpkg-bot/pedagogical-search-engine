@@ -26,3 +26,15 @@ libraryDependencies ++= Seq(
   "junit" % "junit" % "4.12",
   "mysql" % "mysql-connector-java" % "5.1.38"
 )
+
+libraryDependencies ++= {
+  val akkaV = "2.3.9"
+  val sprayV = "1.3.2"
+  Seq(
+    "io.spray"            %%  "spray-can"     % sprayV,
+    "io.spray"            %%  "spray-routing" % sprayV,
+    "io.spray"            %%  "spray-json"    % sprayV,
+    //"io.spray"            %%  "spray-httpx"   % sprayV,
+    "com.typesafe.akka"   %%  "akka-actor"    % akkaV
+  )
+}
