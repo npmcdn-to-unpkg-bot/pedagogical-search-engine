@@ -1,6 +1,7 @@
 package ws.autocomplete
 
 import slick.jdbc.JdbcBackend.Database
+import ws.autocomplete.ranking.V1
 import ws.autocomplete.results._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -12,71 +13,26 @@ object mysqlService extends App {
   val db = Database.forConfig("wikichimp.autocomplete.slick")
 
   try {
-    val text = "fst"
-    val nbResults = 10
+    val text = "order british"
 
-    def projectSize(s: String): Int = math.min(s.size, text.size + 3)
-    def contains(acc: List[Result], uri: String): Boolean = acc match {
-      case Nil => false
-      case head::tail => (head match {
-        case Disambiguation(uri2, _, _) => uri2
-        case Redirect(_, _, uri2, _) => uri2
-        case Title(_, uri2, _) => uri2
-      }).equals(uri) || contains(tail, uri)
-    }
+    // The strategy tries to have the number of results in this window
+    val maximum = 10
+    val minimum = 5
 
-    // Create the query-action
-    val action = text.size match {
-      case one if one == 1 => ???
-      case twoThre if (twoThre == 2 || twoThre == 3) => Queries.twoThre(text, nbResults)
-      case fourPlus => Queries.fourPlus(text, nbResults)
-    }
+    // Launch the search
+    val future = db.run(Queries.getAction(text, maximum).map(results => {
+      val ranked = V1.rank(results.toList, text)
+      val completed = (ranked.size >= minimum) match {
+        case true => ranked.take(maximum)
+        case false => {
+          ???
+        }
+      }
 
-    val future = db.run(action.map(results => {
-      val ranked = results.groupBy(r => {
-        val label = r match  {
-          case Disambiguation(_, label, _) => label
-          case Redirect(label, _, _, _) => label
-          case Title(label, _, _) => label
-        }
-        projectSize(label) // smallest lengths first
-      }).toList.sortBy {
-        case (length, _) => length
-      }.flatMap {
-        case (l, rs) => rs.sortBy {
-          case Disambiguation(_, _, _) => Integer.MIN_VALUE // Disambiguations first
-          case Redirect(_, _, _, in) => -in // max |In| then
-          case Title(_, _, in) => -in
-        }
-      }.foldLeft(List[Result]()) { // Filter out duplicate "uri"s
-        case (acc, result) => (result match {
-          case Disambiguation(uriA, _, _) => contains(acc, uriA)
-          case Redirect(_, _, uriB, _) => contains(acc, uriB)
-          case Title(_, uri, _) => contains(acc, uri)
-        }) match {
-          case true => acc
-          case false => acc:::List(result)
-        }
-      }.take(nbResults)
-
-
-      println(s"Completed: nbRes=${results.size}, ranking:")
-      ranked.map(r => r match {
-        case Disambiguation(uriA, labelA, bs) => {
-          println(s"d: $labelA($uriA)")
-          bs.map {
-            case PageElement(uri, label, in) =>
-              println(s"   $label ($uri: $in)")
-          }
-        }
-        case Redirect(labelA, labelB, uriB, inB) => {
-          println(s"r: $labelA ($uriB: $inB)")
-        }
-        case Title(label, uri, in) => {
-          println(s"t: $label ($uri: $in)")
-        }
-      })
+      println(s"Completed: nbRes=${completed.size}, ranking:")
+      ranked.map(println(_))
     })).recover({
+      // If anything goes wrong
       case e => {
         println(s"failed: $text, reason: ${e.getMessage}")
         e.printStackTrace()
