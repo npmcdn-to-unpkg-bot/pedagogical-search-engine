@@ -22,11 +22,7 @@ object SizeFirst extends  Ranking {
       }
     }.foldLeft(List[Result]()) {
       // Filter out duplicate "uri"s
-      case (acc, result) => (result match {
-        case Disambiguation(uriA, _, _) => contains(acc, uriA)
-        case Redirect(_, _, uriB, _) => contains(acc, uriB)
-        case Title(_, uri, _) => contains(acc, uri)
-      }) match {
+      case (acc, result) => result.isContainedIn(acc) match {
         case true => acc
         case false => acc ::: List(result)
       }
@@ -34,12 +30,4 @@ object SizeFirst extends  Ranking {
   }
 
   def projectSize(s: String, text: String): Int = math.min(s.size, text.size + 3)
-  def contains(acc: List[Result], uri: String): Boolean = acc match {
-    case Nil => false
-    case head::tail => (head match {
-      case Disambiguation(uri2, _, _) => uri2
-      case Redirect(_, _, uri2, _) => uri2
-      case Title(_, uri2, _) => uri2
-    }).equals(uri) || contains(tail, uri)
-  }
 }

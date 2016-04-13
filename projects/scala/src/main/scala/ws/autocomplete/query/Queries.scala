@@ -2,6 +2,7 @@ package ws.autocomplete.query
 
 import slick.driver.MySQLDriver.api.actionBasedSQLInterpolation
 import slick.jdbc.GetResult
+import utils.StringUtils
 import ws.autocomplete.results._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -41,6 +42,16 @@ object Queries {
     case one if one == 1 => Queries.one(text, n)
     case twoThre if (twoThre == 2 || twoThre == 3) => Queries.twoThre(text, n)
     case _ => Queries.fourPlus(text, n)
+  }
+
+  def withWilcards(text: String): String = {
+    val max = 4
+    val sep = " "
+    StringUtils.glue(text.split(sep).toList, max, sep) match {
+      case Nil => ""
+      case head::Nil => head + "%"
+      case head::tail => head + "%" + tail.mkString(" ") + "%"
+    }
   }
 
   implicit val getSearchResult: GetResult[Result] = GetResult(r => {
@@ -233,7 +244,7 @@ object Queries {
 
   def fourPlus(i: String, n: Int = defaultLimit) = {
     val text = preventWildcards(i)
-    val textPercent = text + "%"
+    val textPercent = withWilcards(text)
     sql"""
     (
       SELECT
