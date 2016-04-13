@@ -30,11 +30,11 @@ object Queries {
    * row filled with garbage to set the non-truncated window
    * size. (dirty hack)
    * View also this candidate "solution" http://stackoverflow.com/a/23608554/3890306
-   * Benchmark: 4-letters
+   * It has no real impact on the performances. Benchmark: 4-letters
    *   [.., 512] freq: 10ms - avg-resp: 55ms
    *   [512, 8k] freq: 10?-20?ms - avg-resp: 55ms
    */
-  val strPadding = "\"" + "a" * (2^12) + "\""
+  val strPadding = 2^13
 
   // Create the query-action
   def getAction(text: String, n: Int) = text.size match {
@@ -85,10 +85,10 @@ object Queries {
     (
       SELECT
         #${Codes.ignore} as `Source`,
-        #$strPadding as `LabelA`,
-        #$strPadding as `LabelB`,
-        #$strPadding as `UriA`,
-        #$strPadding as `UriB`,
+        REPEAT('a', #$strPadding) as `LabelA`,
+        REPEAT('a', #$strPadding) as `LabelB`,
+        REPEAT('a', #$strPadding) as `UriA`,
+        REPEAT('a', #$strPadding) as `UriB`,
         1 as `InB`
     ) UNION (
       SELECT
