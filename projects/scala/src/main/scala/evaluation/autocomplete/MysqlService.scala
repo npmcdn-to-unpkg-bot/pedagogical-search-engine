@@ -13,25 +13,33 @@ object MysqlService extends App {
 
   val db = Database.forConfig("wikichimp.autocomplete.slick")
 
-  // Functions to generate the text of each search
-  val alphabet = "abcdefghijklmnopqrstuvwxyz"
-  def gen(n: Int, pre: String = ""): String = n match {
-    case neg if neg <= 0 => pre
-    case _ => {
-      val i = math.floor(math.random * alphabet.length).toInt
-      gen(n - 1, pre + alphabet(i))
-    }
-  }
-  val words = List("spring", "springfield", "simpsons", "coca", "Fanta")
-  val pre = List("abu", "spr", "cle", "com", "bio", "car", "fre")
-  def gen2(): String = {
-    if(math.random < 0.8) {
-      val i = math.floor(math.random * words.length).toInt
-      words(i)
-    } else {
-      val i = math.floor(math.random * pre.length).toInt
-      pre(i) + gen(1)
-    }
+  // Search texts
+  val one = "abcdefghijklmnopqrstuvwxyz".toList.map(_.toString)
+  val twoThre = List(
+    "us", "fst", "NY", "LA", "vim", "nlp", "art"):::List(
+    "hel", "nat", "sci", "com", "al", "ph", "cog", "wi", "she", "ja"
+  )
+  val fourPlus = List(
+    "natural langage", "finite state", "maths", "logic", "physic",
+    "statistics", "particles", "Philosophy", "english", "vine",
+    "javascript", "java", "shell", "cell", "business", "music",
+    "piano", "guitar", "video games", "computer science", "jazz music",
+    "the simpsons", "north america", "string instrument", "São Paulo",
+    "los angeles", "us primaries", "french fries", "book"
+  ):::List(
+    "computer ", "mathematical ", "softw", "paleon", "biolo", "gouvern",
+    "natural ", "aspa", "cognit", "conjun", "electrical", "illn",
+    "javasc", "finite st", "new yor", "shakesp", "new z"
+  ):::List(
+    "passe", "super heoros", "litterature", "hotles", "compter sci",
+    "java script", "prgram", "naturl ", "elmentary"
+  )
+
+  val candidates = one:::twoThre:::fourPlus
+
+  def getText(): String = {
+    val i = math.floor(math.random * candidates.length).toInt
+    candidates(i)
   }
 
   // Function to profile the amount of elapsed time
@@ -42,27 +50,36 @@ object MysqlService extends App {
 
   // Run the evaluation
   try {
-    var latency = 500;
+    // Latency will decrease progressively
+    var currentLatency = 500;
+    val minimumLatency = 10;
+
+    // Objects to compute the statistics
     val count = new AtomicInteger(0)
     val sum = new AtomicInteger(0)
-    val ns = (1 to 10000).toList
-    val futures = ns.map { n =>
-      Thread.sleep(latency)
-      latency = math.max(10, latency - (latency / 10))
-      val start = System.nanoTime()
-      val text = gen2()
-      val test1 = Queries.fourPlus(text, 10)
 
-      db.run(test1.map(rs => {
+    // Simulate a request
+    val futures = (1 to 1000000).toList.map { n =>
+      // at "latency" interval
+      Thread.sleep(currentLatency)
+      currentLatency = math.max(minimumLatency, currentLatency - (currentLatency / 10))
+
+      // generate the request itself
+      val start = System.nanoTime()
+      val text = getText()
+
+      db.run(Queries.getAction(text, 10).map(rs => {
         val elapsed = elapsedMs(start)
-        // Filter the outliers
+
+        // Filter a bit the outliers
         if(elapsed > 200) {
           println(s"....ok $text, avg= __, cur=" + elapsed)
         } else {
+          // Compute some statistics
           val n = count.incrementAndGet()
           val s = sum.addAndGet(elapsed)
-
           val avg = (s / n)
+
           println(s"....ok $text, avg= $avg, cur=" + elapsed)
         }
       })).recover({
@@ -71,7 +88,6 @@ object MysqlService extends App {
         }
       })
     }
-
 
     Await.result(Future.sequence(futures), Duration.Inf)
   } finally db.close
