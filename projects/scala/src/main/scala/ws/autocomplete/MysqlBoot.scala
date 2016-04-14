@@ -5,6 +5,7 @@ import akka.io.IO
 import akka.pattern.ask
 import akka.util.Timeout
 import spray.can.Http
+import utils.Settings
 import ws.autocomplete.spraythings.ServiceActor
 
 import scala.concurrent.duration._
@@ -18,6 +19,10 @@ object MysqlBoot extends App {
   val service = system.actorOf(Props[ServiceActor], "autocomplete-service")
   implicit val timeout = Timeout(500 milliseconds)
 
-  // start a new HTTP server on port 8080 with our service actor as the handler
-  IO(Http) ? Http.Bind(service, interface = "localhost", port = 8081)
+  // start a new HTTP server with our service actor as the handler
+  val settings = new Settings()
+  IO(Http) ? Http.Bind(
+    service,
+    interface = settings.Autocomplete.Spray.ip,
+    port = settings.Autocomplete.Spray.port)
 }

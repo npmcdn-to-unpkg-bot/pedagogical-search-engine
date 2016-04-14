@@ -1,3 +1,4 @@
+
 name := "scala"
 
 version := "1.0"
@@ -34,7 +35,15 @@ libraryDependencies ++= {
     "io.spray"            %%  "spray-can"     % sprayV,
     "io.spray"            %%  "spray-routing" % sprayV,
     "io.spray"            %%  "spray-json"    % sprayV,
-    //"io.spray"            %%  "spray-httpx"   % sprayV,
     "com.typesafe.akka"   %%  "akka-actor"    % akkaV
   )
 }
+
+lazy val root = (project in file(".")).
+  settings(
+    name := "autocomplete",
+    version := "1.0",
+    scalaVersion := "2.11.7",
+    mainClass in Compile := Some("ws.autocomplete.MysqlBoot")
+  )
+

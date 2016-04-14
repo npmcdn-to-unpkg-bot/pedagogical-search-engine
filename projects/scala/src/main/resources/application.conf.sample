@@ -18,6 +18,10 @@ wikichimp {
     }
   }
   autocomplete = {
+    spray {
+      ip = "???"
+      port = ???
+    }
     slick {
       driver = "com.mysql.jdbc.Driver"
       url = "jdbc:mysql://"?ip?"/tocpic"
