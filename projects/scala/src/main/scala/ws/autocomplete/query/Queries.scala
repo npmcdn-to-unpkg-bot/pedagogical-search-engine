@@ -33,9 +33,9 @@ object Queries {
    *   [.., 512] freq: 10ms - avg-resp: 55ms
    *   [512, 8k] freq: 10?-20?ms - avg-resp: 55ms
    */
-  val strPadding = 2^13
+  val strPadding = math.pow(2, 13).toInt
   // The added row is dropped before being returned with this "Limit 1, x" trick
-  val maxNbRows = 2^10
+  val maxNbRows = math.pow(2, 10).toInt
 
   // Create the query-action
   def getAction(text: String, n: Int) = text.size match {
@@ -150,10 +150,10 @@ object Queries {
     (
       SELECT
         #${Codes.ignore} as `Source`,
-        #$strPadding as `LabelA`,
-        #$strPadding as `LabelB`,
-        #$strPadding as `UriA`,
-        #$strPadding as `UriB`,
+        REPEAT('a', #$strPadding) as `LabelA`,
+        REPEAT('a', #$strPadding) as `LabelB`,
+        REPEAT('a', #$strPadding) as `UriA`,
+        REPEAT('a', #$strPadding) as `UriB`,
         1 as `InB`
     ) UNION (
       SELECT
@@ -209,7 +209,7 @@ object Queries {
       LIMIT #$n
     ) UNION (
       SELECT
-        #${Codes.Exact.title} as `Source`,
+        #${Codes.Prefix.title} as `Source`,
         NULL as `LabelA`,
         d.`Label` as `LabelB`,
         NULL as `UriA`,
@@ -221,7 +221,7 @@ object Queries {
       LIMIT #$n
     ) UNION (
       SELECT
-        #${Codes.Exact.redirect} as `Source`,
+        #${Codes.Prefix.redirect} as `Source`,
         d.`LabelA` as `LabelA`,
         d.`LabelB` as `LabelB`,
         NULL as `UriA`,
@@ -242,10 +242,10 @@ object Queries {
     (
       SELECT
         #${Codes.ignore} as `Source`,
-        #$strPadding as `LabelA`,
-        #$strPadding as `LabelB`,
-        #$strPadding as `UriA`,
-        #$strPadding as `UriB`,
+        REPEAT('a', #$strPadding) as `LabelA`,
+        REPEAT('a', #$strPadding) as `LabelB`,
+        REPEAT('a', #$strPadding) as `UriA`,
+        REPEAT('a', #$strPadding) as `UriB`,
         1 as `InB`
     ) UNION (
       SELECT
