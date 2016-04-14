@@ -3,7 +3,8 @@ package rsc.mit.layouts.table
 import org.jsoup.nodes.{Element, Document}
 import rsc.extraction.LayoutExtractor
 import rsc.toc.{Toc, Node}
-import utils.Conversions._
+import utils.Conversions.{textOf, l}
+import utils.StringUtils.normalize
 
 object Topical extends LayoutExtractor[Toc] {
   override def getOrFail(doc: Document): Toc = {

@@ -3,6 +3,7 @@ package ws.autocomplete.results
 trait Result {
   def prettyPrint(): String = toString
   def searchLabel(): String
+  def displayLabel(): String
   def pageUri(): String
 
   def isContainedIn(xs: List[Result]): Boolean = xs match {

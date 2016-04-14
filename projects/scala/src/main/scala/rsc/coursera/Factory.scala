@@ -4,7 +4,7 @@ import rsc.Resource
 import rsc.attributes._
 import rsc.coursera.Types.Course
 import rsc.coursera.layouts._
-import utils.Conversions.textOf
+import utils.StringUtils.textOf
 
 class Factory extends rsc.extraction.Factory[Course]() {
 

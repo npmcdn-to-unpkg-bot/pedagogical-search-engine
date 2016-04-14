@@ -1,13 +1,10 @@
 package ws.autocomplete
-
-import java.util.concurrent.Executors
-
 import slick.jdbc.JdbcBackend._
 import ws.autocomplete.fetcher.Jdbc
-import ws.autocomplete.results.Result
+import ws.autocomplete.results.PublicResponse
 import ws.autocomplete.strategy.Basic
-import scala.concurrent.ExecutionContext.Implicits.global
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class MysqlService {
@@ -19,30 +16,19 @@ class MysqlService {
   val maximum = 10
   val minimum = 5
 
-  def search(text: String): Future[List[Result]] = {
-    if(text.trim().size == 0) {
-      // todo: discard the query
+  def search(t: String): Future[List[PublicResponse]] = {
+    val text = t.trim()
+
+    // Check the minimal conditions for the query to be valid
+    if(text.size < 1 || text.size > 256) {
+      Future.successful(Nil)
+    } else {
+      // Launch the search
+      val sc = new SearchContext(text, minimum, maximum)
+      val processed = Basic.process(fetcher, sc)
+
+      // Return the results
+      processed.map(formatters.Basic.format(_))
     }
-
-    // Launch the search
-    val sc = new SearchContext(text, minimum, maximum)
-    val processed = Basic.process(fetcher, sc)
-
-    // todo: remove this post-processing
-    val postProcessed = processed.map {
-      results => {
-        //println(s"Completed: nbRes=${results.size}, ranking:")
-        //results.map(r => println(r.prettyPrint()))
-        results
-      }
-    }.recover({
-      // If anything goes wrong
-      case e => {
-        println(s"failed: $text, reason: ${e.getMessage}")
-        e.printStackTrace()
-        Nil
-      }
-    })
-    postProcessed
   }
 }

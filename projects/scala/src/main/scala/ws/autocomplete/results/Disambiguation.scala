@@ -14,4 +14,5 @@ case class Disambiguation(uriA: String,
   }
   override def searchLabel(): String = labelA
   override def pageUri(): String = uriA
+  override def displayLabel(): String = labelA
 }

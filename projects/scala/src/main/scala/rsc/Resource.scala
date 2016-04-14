@@ -10,7 +10,7 @@ import rsc.attributes.Source.Source
 import rsc.attributes._
 import rsc.indexers.Indexer.Indexer
 import rsc.snippets.Snippetizer.Snippetizer
-import utils.Conversions.{hash, normalize}
+import utils.StringUtils.{hash, normalize}
 
 case class Resource(
                      // Metadata
