@@ -17,7 +17,7 @@ object SearchJsonSupport extends DefaultJsonProtocol with SprayJsonSupport {
   implicit val PersonFormat = jsonFormat1(Search)
 }
 
-trait Service extends HttpService {
+trait Service extends HttpService with CORSSupport {
 
   val mysqlService = new MysqlService()
   import SearchJsonSupport._
@@ -25,15 +25,17 @@ trait Service extends HttpService {
 
   val myRoute =
     path("autocomplete") {
-      post {
-        entity(as[Search]) { search =>
-          respondWithMediaType(`application/json`) {
-            onComplete(mysqlService.search(search.text)) {
-              case Success(value) => complete {
-                write(value)
-              }
-              case Failure(e) => complete {
-                "{}"
+      respondWithCORS() {
+        post {
+          entity(as[Search]) { search =>
+            respondWithMediaType(`application/json`) {
+              onComplete(mysqlService.search(search.text)) {
+                case Success(value) => complete {
+                  write(value)
+                }
+                case Failure(e) => complete {
+                  "{}"
+                }
               }
             }
           }
