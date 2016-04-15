@@ -1,5 +1,6 @@
 # Project files
-project/
+project/*
+!project/assembly.sbt
 target/
 
 # IDE files
