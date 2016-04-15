@@ -2,25 +2,17 @@ package ws.autocomplete.spraythings
 
 import org.json4s._
 import org.json4s.native.Serialization.write
-import spray.httpx.SprayJsonSupport
-import spray.json.DefaultJsonProtocol
-import spray.routing.HttpService
 import spray.http.MediaTypes.`application/json`
+import spray.routing.HttpService
 import ws.autocomplete.MysqlService
+import ws.autocomplete.spraythings.JsonSupport._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
 
-case class Search(text: String)
-
-object SearchJsonSupport extends DefaultJsonProtocol with SprayJsonSupport {
-  implicit val PersonFormat = jsonFormat1(Search)
-}
-
 trait Service extends HttpService with CORSSupport {
 
   val mysqlService = new MysqlService()
-  import SearchJsonSupport._
   implicit val formats = DefaultFormats
 
   val myRoute =
