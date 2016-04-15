@@ -1,7 +1,10 @@
 import {bootstrap} from "angular2/platform/browser";
 import {HTTP_PROVIDERS} from "angular2/http";
 import {AppComponent} from "./app.component";
+import {provide} from "angular2/core";
+import {AppSettings} from "./config";
 
 bootstrap(AppComponent, [
-    HTTP_PROVIDERS
+    HTTP_PROVIDERS,
+    provide('SETTINGS', {useValue: AppSettings.settings})
 ]);
