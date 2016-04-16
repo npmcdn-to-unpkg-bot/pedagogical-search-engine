@@ -3,7 +3,6 @@ import {CompletionService} from "./completion.service";
 import {Completion} from "./completion";
 import {SimpleCompletionService} from "./simple-completion.service";
 import {Result} from "./result/result";
-import {Disambiguation} from "./result/disambiguation";
 import {Proposition} from "./proposition";
 
 @Component({
@@ -19,6 +18,10 @@ import {Proposition} from "./proposition";
     (click)="select()"
     (mouseover)="_setAndApplyCursor(i)">
     <span [textContent]="proposition.getResult().label | json"></span>
+</div>
+<div class="wc-sb-c-entry"
+    *ngIf="!hasPropositions()">
+    <span>No results</span>
 </div>
     
     `,
@@ -46,12 +49,8 @@ export class CompletionCmp {
     // Custom angular
     public ngOnChanges(changes: {_text: SimpleChange}) {
         if(!changes._text.isFirstChange()) {
-            let newText = changes._text.currentValue;
-
-            if(newText.length > 0) {
-                this._clearTimeout();
-                this._setTimeout();
-            }
+            this._clearTimeout();
+            this._setTimeout();
         }
     }
 
@@ -62,6 +61,9 @@ export class CompletionCmp {
         } else {
             return this._completion.getPropositions();
         }
+    }
+    public hasPropositions(): boolean {
+        return (this._disambiguationCompletion.hasPropositions() || this._completion.hasPropositions());
     }
 
     public getSelectedResult(): Result {
