@@ -1,6 +1,6 @@
 import {Component, ViewChild} from "angular2/core";
-import {CompletionCmp} from "./completion.component";
-import {Resource} from "./resource";
+import {CompletionCmp} from "./completion/completion.component";
+import {Result} from "./completion/result/result";
 
 enum keys {Tab, Enter, Down, Up};
 
@@ -39,7 +39,7 @@ enum keys {Tab, Enter, Down, Up};
 })
 export class SearchBarCmp {
     private _text: String = '';
-    private _resources: Array<Resource> = [];
+    private _resources: Array<Result> = [];
 
     private _KEYS = keys;
 
@@ -56,7 +56,7 @@ export class SearchBarCmp {
             this.goSearching();
         }
     }
-    private _itemSelected(item: Resource) {
+    private _itemSelected(item: Result) {
         if(this._resources.indexOf(item) === -1) {
             this._resources.push(item);
         }

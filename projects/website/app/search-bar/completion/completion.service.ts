@@ -5,5 +5,5 @@ import {OpaqueToken} from "angular2/core";
 export const CompletionService = new OpaqueToken("CompletionService");
 
 export interface CompletionService {
-    list(): Observable<Completion>
+    list(text: String): Observable<Completion>
 }

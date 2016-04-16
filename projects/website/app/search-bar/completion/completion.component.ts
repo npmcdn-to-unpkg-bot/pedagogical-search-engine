@@ -1,36 +1,40 @@
 import {Component, provide, Output, EventEmitter, Inject, Input, SimpleChange} from "angular2/core";
 import {CompletionService} from "./completion.service";
-import {MockCompletionService} from "./mock-completion.service";
 import {Completion} from "./completion";
-import {Resource} from "./resource";
+import {SimpleCompletionService} from "./simple-completion.service";
+import {Result} from "./result/result";
+import {Disambiguation} from "./result/disambiguation";
+import {Proposition} from "./proposition";
 
 @Component({
     selector: 'wc-completion',
     template: `
 
-<h2>Completion of {{ _text }}, cursor {{ _cursor }}</h2>
+<h2>Completion of {{ _text }}</h2>
 
 <div class="wc-sb-c-entry"
-    *ngFor="#proposition of _completion.getPropositions(); #i = index"
+    *ngFor="#proposition of getPropositions(); #i = index"
     [class.wc-sb-c-selected]="proposition.isSelected()"
+    [class.wc-sb-c-disambiguation]="proposition.getResult().isDisambiguation()"
     (click)="select()"
     (mouseover)="_setAndApplyCursor(i)">
-    <span [textContent]="proposition | json"></span>
+    <span [textContent]="proposition.getResult().label | json"></span>
 </div>
     
     `,
     providers: [
-        provide(CompletionService, {useClass: MockCompletionService})
+        provide(CompletionService, {useClass: SimpleCompletionService})
     ]
 })
 export class CompletionCmp {
 
-    @Input("text") private _text = ''
+    @Input("text") private _text = '';
     @Output("emptySelect") private _esEmitter = new EventEmitter();
-    @Output("itemSelected") private _isEmitter = new EventEmitter<Resource>();
+    @Output("itemSelected") private _isEmitter = new EventEmitter<Result>();
 
     private _timeout: number;
     private _completion: Completion = new Completion();
+    private _disambiguationCompletion: Completion = new Completion();
     private _latency: number = 500;
     private _cursor: number = 0;
 
@@ -52,10 +56,33 @@ export class CompletionCmp {
     }
 
     // Public methods
-    public select(event = null) {
+    public getPropositions(): Array<Proposition> {
+        if(this._disambiguationCompletion.hasPropositions()) {
+            return this._disambiguationCompletion.getPropositions();
+        } else {
+            return this._completion.getPropositions();
+        }
+    }
+
+    public getSelectedResult(): Result {
+        if(this._disambiguationCompletion.hasPropositions()) {
+            return this._disambiguationCompletion.getProposition(this._cursor).getResult();
+        } else {
+            return this._completion.getProposition(this._cursor).getResult();
+        }
+    }
+
+    public select(event = null): void {
         let clearThings: boolean = true;
         if(this._completion.hasPropositions()) {
-            this._isEmitter.emit(this._completion.getProposition(this._cursor).getResource());
+            let selected = this.getSelectedResult();
+            if(selected.isDisambiguation()) {
+                this._disambiguationCompletion = new Completion(selected.asDisambiguation().entities);
+                this._setAndApplyCursor(0);
+                clearThings = false;
+            } else {
+                this._isEmitter.emit(selected);
+            }
         } else {
             if(this._text.length == 0) {
                 this._esEmitter.emit(event);
@@ -67,7 +94,7 @@ export class CompletionCmp {
         if(clearThings) {
             // Reset everything
             this._clearTimeout();
-            this._newCompletion();
+            this._newCompletions();
             this._resetCursor();
         }
     }
@@ -93,17 +120,27 @@ export class CompletionCmp {
         console.log('start');
         let currentRef = this._completion;
 
-        this._completionService.list().map(newRef => {
+        this._completionService.list(this._text).map(newRef => {
             return {'currentRef': currentRef, 'newRef': newRef}
         }).subscribe(t => {
             t.currentRef.update(t.newRef.getPropositions());
             this._setAndApplyCursor(this._reframeCursorToClosest(this._cursor));
         })
     }
-    private _newCompletion(completion: Completion = new Completion()) {
+    private _newCompletions(
+        completion: Completion = new Completion(),
+        disambiguationCompletion: Completion = new Completion()) {
+        // Clear the completions
         this._completion.clear();
-        delete this._completion; // help GC
+        this._disambiguationCompletion.clear();
+
+        // Help the GC
+        delete this._completion;
+        delete this._disambiguationCompletion;
+
+        // Assign the new completions
         this._completion = completion;
+        this._disambiguationCompletion = disambiguationCompletion;
     }
     private _isSelected(index: number): boolean {
         return this._completion.getProposition(index).isSelected();
@@ -112,7 +149,11 @@ export class CompletionCmp {
         this._cursor = 0;
     }
     private _applyCursor(): void {
-        this._completion.select(this._cursor);
+        if(this._disambiguationCompletion.hasPropositions() > 0) {
+            this._disambiguationCompletion.select(this._cursor);
+        } else {
+            this._completion.select(this._cursor);
+        }
     }
     private _reframeCursorToClosest(pos: number): number {
         if(pos < 0) {

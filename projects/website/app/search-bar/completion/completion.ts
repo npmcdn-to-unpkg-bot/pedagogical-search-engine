@@ -1,11 +1,11 @@
+import {Result} from "./result/result";
 import {Proposition} from "./proposition";
-import {Resource} from "./resource";
 
 export class Completion {
     private _propositions: Array<Proposition> = [];
 
-    constructor(resources: Array<Resource> = []) {
-        for(let res of resources) {
+    constructor(results: Array<Result> = []) {
+        for(let res of results) {
             this._propositions.push(new Proposition(res, false))
         }
     }

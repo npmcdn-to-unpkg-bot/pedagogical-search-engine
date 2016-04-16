@@ -21,3 +21,7 @@ body, input[text], button {
 .wc-sb-c-selected {
     border: 2px solid #0066bb;
 }
+
+.wc-sb-c-disambiguation {
+    background-color: powderblue;
+}
