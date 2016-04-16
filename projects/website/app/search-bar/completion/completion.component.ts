@@ -104,6 +104,10 @@ export class CompletionCmp {
     public up() {
         this._setAndApplyCursor(this._reframeCursorToClosest(this._cursor - 1));
     }
+    public escape() {
+        this._disambiguationCompletion.clear();
+        this._cursor = this._completion.selectedIndex();
+    }
 
     // Private
     private _clearTimeout() {

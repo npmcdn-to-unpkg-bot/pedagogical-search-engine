@@ -2,7 +2,7 @@ import {Component, ViewChild} from "angular2/core";
 import {CompletionCmp} from "./completion/completion.component";
 import {Result} from "./completion/result/result";
 
-enum keys {Tab, Enter, Down, Up};
+enum keys {Tab, Enter, Down, Up, Escape};
 
 @Component({
     selector: 'wc-search-bar',
@@ -19,7 +19,8 @@ enum keys {Tab, Enter, Down, Up};
                 (keydown.tab)="_specialKeydown($event, _KEYS.Tab)"
                 (keydown.enter)="_specialKeydown($event, _KEYS.Enter)"
                 (keydown.ArrowDown)="_specialKeydown($event, _KEYS.Down)"
-                (keydown.ArrowUp)="_specialKeydown($event, _KEYS.Up)">
+                (keydown.ArrowUp)="_specialKeydown($event, _KEYS.Up)"
+                (keydown.Escape)="_specialKeydown($event, _KEYS.Escape)">
         </div>
     </div>
     <div class="wc-sb-div3">
@@ -77,6 +78,9 @@ export class SearchBarCmp {
             }
             if(type === keys.Up) {
                 this._completionObj.up();
+            }
+            if(type === keys.Escape) {
+                this._completionObj.escape();
             }
         }
     }

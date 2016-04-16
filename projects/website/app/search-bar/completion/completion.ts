@@ -22,7 +22,11 @@ export class Completion {
         return this._propositions[index];
     }
     public nbOfPropositions(): number {
-        return this._propositions.length;
+        if(this._propositions) {
+            return this._propositions.length;
+        } else {
+            return 0;
+        }
     }
     public hasPropositions(): boolean {
         return (this.nbOfPropositions() > 0);
@@ -31,12 +35,24 @@ export class Completion {
         delete this._propositions; // help GC
     }
     public select(index): void {
-        for(let i = 0; i < this._propositions.length; i++) {
-            if(i === index) {
-                this._propositions[i].select();
-            } else {
-                this._propositions[i].unselect();
+        if(this._propositions) {
+            for(let i = 0; i < this._propositions.length; i++) {
+                if(i === index) {
+                    this._propositions[i].select();
+                } else {
+                    this._propositions[i].unselect();
+                }
             }
         }
+    }
+    public selectedIndex(): number {
+        if(this._propositions) {
+            for(let i = 0; i < this._propositions.length; i++) {
+                if(this._propositions[i].isSelected()) {
+                    return i;
+                }
+            }
+        }
+        return -1;
     }
 }
