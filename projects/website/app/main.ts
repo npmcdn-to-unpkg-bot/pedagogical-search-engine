@@ -6,5 +6,6 @@ import {AppSettings} from "./config";
 
 bootstrap(AppComponent, [
     HTTP_PROVIDERS,
+    provide(Window, {useValue: window}),
     provide('SETTINGS', {useValue: AppSettings.settings})
 ]);

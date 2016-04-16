@@ -9,8 +9,6 @@ import {Proposition} from "./proposition";
     selector: 'wc-completion',
     template: `
 
-<h2>Completion of {{ _text }}</h2>
-
 <div class="wc-sb-c-entry"
     *ngFor="#proposition of getPropositions(); #i = index"
     [class.wc-sb-c-selected]="proposition.isSelected()"

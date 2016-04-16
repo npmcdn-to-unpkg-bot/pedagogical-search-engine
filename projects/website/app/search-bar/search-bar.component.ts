@@ -20,7 +20,8 @@ enum keys {Tab, Enter, Down, Up, Escape};
                 (keydown.enter)="_specialKeydown($event, _KEYS.Enter)"
                 (keydown.ArrowDown)="_specialKeydown($event, _KEYS.Down)"
                 (keydown.ArrowUp)="_specialKeydown($event, _KEYS.Up)"
-                (keydown.Escape)="_specialKeydown($event, _KEYS.Escape)">
+                (keydown.Escape)="_specialKeydown($event, _KEYS.Escape)"
+                #inputObj>
         </div>
     </div>
     <div class="wc-sb-div3">
@@ -45,6 +46,17 @@ export class SearchBarCmp {
     private _KEYS = keys;
 
     @ViewChild('completionObj') private _completionObj;
+    @ViewChild('inputObj') private _input;
+
+    // Init logic
+    constructor(private _window: Window) {}
+
+    public ngAfterViewInit(): void {
+        let input = this._input;
+        this._window.addEventListener("keydown", function(event){
+            input.nativeElement.focus();
+        });
+    }
 
     // Public
     public goSearching() {
