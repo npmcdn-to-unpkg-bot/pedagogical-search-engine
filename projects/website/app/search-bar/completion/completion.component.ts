@@ -123,6 +123,10 @@ export class CompletionCmp {
         this._completionService.list(this._text).map(newRef => {
             return {'currentRef': currentRef, 'newRef': newRef}
         }).subscribe(t => {
+            // Clear the disambiguation-navigator
+            this._disambiguationCompletion.update([]);
+
+            // Update the normal-navigator
             t.currentRef.update(t.newRef.getPropositions());
             this._setAndApplyCursor(this._reframeCursorToClosest(this._cursor));
         })
