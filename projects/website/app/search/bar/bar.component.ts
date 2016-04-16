@@ -63,7 +63,8 @@ export class SearchBarCmp {
     // Public
     public goSearching() {
         if(this._results.length > 0) {
-            this._router.navigate(['Search']);
+            let searchParameters = encodeURI(JSON.stringify(this._results));
+            this._router.navigate(['SearchPage', {q: searchParameters}]);
         }
     }
 

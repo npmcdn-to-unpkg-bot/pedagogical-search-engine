@@ -1,24 +1,18 @@
-import {Component, provide} from "angular2/core";
-import {SearchBarCmp} from "./bar/bar.component";
-import {FactoryService} from "./search-terms/factory.service";
-import {ResultsCmp} from "./results/results.component";
+import {Component} from "angular2/core";
+import {RouteConfig, ROUTER_DIRECTIVES} from "angular2/router";
+import {SearchPageCmp} from "./search-page.component";
 
 @Component({
-    selector: 'wc-search',
     template: `
     
-    <h1>Search:</h1>
-    
-    <wc-search-bar></wc-search-bar>
-    
-    <wc-search-results></wc-search-results>
+    <router-outlet></router-outlet>
     
     `,
-    directives: [SearchBarCmp, ResultsCmp],
-    providers: [
-        provide(FactoryService, {useClass: FactoryService})
-    ]
+    directives: [ROUTER_DIRECTIVES]
 })
+@RouteConfig([
+    {path: '/', name: 'SearchPage', component: SearchPageCmp, useAsDefault: true}
+])
 export class SearchCmp {
 
 }
