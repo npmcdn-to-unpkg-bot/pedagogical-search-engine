@@ -1,4 +1,5 @@
 import {Component, ViewChild} from "angular2/core";
+import {Router} from "angular2/router";
 import {CompletionCmp} from "./completion/completion.component";
 import {Result} from "./completion/result/result";
 
@@ -10,7 +11,7 @@ enum keys {Tab, Enter, Down, Up, Escape};
 
 <div class="wc-sb-div1">
     <div class="wc-sb-div2">
-        <div class="wc-sb-div2l" *ngFor="#resource of _resources; #i = index">
+        <div class="wc-sb-div2l" *ngFor="#resource of _results; #i = index">
             <span [textContent]="resource | json"></span>
             <span (click)="_remove(i)">&#x2715;</span>
         </div>
@@ -25,7 +26,7 @@ enum keys {Tab, Enter, Down, Up, Escape};
         </div>
     </div>
     <div class="wc-sb-div3">
-        <button [disabled]="_resources.length < 1"
+        <button [disabled]="_results.length < 1"
         (click)="goSearching()">Search</button>
     </div>
     <wc-completion
@@ -41,7 +42,7 @@ enum keys {Tab, Enter, Down, Up, Escape};
 })
 export class SearchBarCmp {
     private _text: String = '';
-    private _resources: Array<Result> = [];
+    private _results: Array<Result> = [];
 
     private _KEYS = keys;
 
@@ -49,7 +50,8 @@ export class SearchBarCmp {
     @ViewChild('inputObj') private _input;
 
     // Init logic
-    constructor(private _window: Window) {}
+    constructor(private _window: Window,
+                private _router: Router) {}
 
     public ngAfterViewInit(): void {
         let input = this._input;
@@ -60,7 +62,9 @@ export class SearchBarCmp {
 
     // Public
     public goSearching() {
-        console.log('go Searching!');
+        if(this._results.length > 0) {
+            this._router.navigate(['Search']);
+        }
     }
 
     // Private
@@ -70,8 +74,8 @@ export class SearchBarCmp {
         }
     }
     private _itemSelected(item: Result) {
-        if(this._resources.indexOf(item) === -1) {
-            this._resources.push(item);
+        if(this._results.indexOf(item) === -1) {
+            this._results.push(item);
         }
         this._text = '';
     }
@@ -97,6 +101,6 @@ export class SearchBarCmp {
         }
     }
     private _remove(i) {
-        this._resources.splice(i, 1);
+        this._results.splice(i, 1);
     }
 }
