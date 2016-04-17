@@ -1,4 +1,4 @@
-package ws.tables
+package mysql.slick.tables
 
 import slick.driver.MySQLDriver.api._
 

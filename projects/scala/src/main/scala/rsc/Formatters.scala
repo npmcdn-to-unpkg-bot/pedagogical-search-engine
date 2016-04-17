@@ -5,6 +5,7 @@ import org.json4s.{DefaultFormats, ShortTypeHints}
 import rsc.annotators.Annotator
 import rsc.attributes.Candidate.Spotlight
 import rsc.attributes.{Level, Source}
+import rsc.importers.Importer
 import rsc.indexers.Indexer
 
 trait Formatters {
@@ -12,6 +13,7 @@ trait Formatters {
     new EnumNameSerializer(Source),
     new EnumNameSerializer(Level),
     new EnumNameSerializer(Annotator),
-    new EnumNameSerializer(Indexer)
+    new EnumNameSerializer(Indexer),
+    new EnumNameSerializer(Importer)
   ) + ShortTypeHints(List(classOf[Spotlight]))
 }
