@@ -1,4 +1,4 @@
-import {Component, provide, ViewChild, ChangeDetectorRef} from "angular2/core";
+import {Component, provide, ChangeDetectorRef} from "angular2/core";
 import {SearchBarCmp} from "./bar/bar.component";
 import {ResultsCmp} from "./results/results.component";
 import {FactoryService} from "./search-terms/factory.service";
@@ -8,8 +8,8 @@ import {RouteParams, Router, ROUTER_DIRECTIVES} from "angular2/router";
     template: `
     
     <h2>Search page</h2>
-    <wc-search-bar #searchBar (searchTermsChange)="_searchTermsChange($event)"></wc-search-bar>
-    <wc-search-results></wc-search-results>
+    <wc-search-bar (searchTermsChange)="_searchTermsChange($event)"></wc-search-bar>
+    <wc-search-results [searchTerms]="_searchTerms"></wc-search-results>
     
     `,
     directives: [SearchBarCmp, ResultsCmp, ROUTER_DIRECTIVES],
@@ -18,8 +18,8 @@ import {RouteParams, Router, ROUTER_DIRECTIVES} from "angular2/router";
     ]
 })
 export class SearchCmp {
-    
-    @ViewChild('searchBar') private _searchBar;
+
+    private _searchTerms = [];
     
     constructor(private _router: Router,
                 private _routeParams: RouteParams,
@@ -29,6 +29,6 @@ export class SearchCmp {
 
     // Private
     private _searchTermsChange(stc) {
-        console.log('Change in search-terms: ' + stc.length);
+        this._searchTerms = stc;
     }
 }

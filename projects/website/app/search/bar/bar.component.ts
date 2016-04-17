@@ -27,10 +27,6 @@ enum keys {Tab, Enter, Down, Up, Escape};
                 #inputObj>
         </div>
     </div>
-    <div class="wc-sb-div3">
-        <button [disabled]="_entities.length < 1"
-        (click)="goSearching()">Search</button>
-    </div>
     <wc-completion
         #completionObj
         [text]="_text"

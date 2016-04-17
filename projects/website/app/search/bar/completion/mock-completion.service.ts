@@ -1,5 +1,4 @@
 import {Injectable} from "angular2/core";
-import {Http} from "angular2/http";
 import {Observable} from "rxjs/Rx";
 import {Completion} from "./completion";
 import {CompletionService} from "./completion.service";
@@ -8,9 +7,9 @@ import {Entity} from "./result/entity";
 
 @Injectable()
 export class MockCompletionService extends CompletionService {
-    constructor(private _http: Http) {}
+    constructor() {}
 
-    public latencyMs = 500
+    public latencyMs = 500;
 
     list(text: String): Observable<Completion> {
         let completion: Completion = new Completion([
