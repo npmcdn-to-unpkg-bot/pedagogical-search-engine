@@ -8,11 +8,12 @@ import rsc.{Formatters, Resource}
 import rsc.indexers.Indexer
 import utils.{Files, Logger, Settings}
 import rsc.importers.Importer.{Importer, SlickMysql}
+import rsc.importers.SlickMysql
 import rsc.writers.Json
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
-import scala.util.Success
+import scala.util.{Failure, Success}
 
 object IndicesToMysqlWithSlick extends App with Formatters {
 
@@ -31,7 +32,7 @@ object IndicesToMysqlWithSlick extends App with Formatters {
     fromExecutor(Executors.newFixedThreadPool(nbTasks * 10))
 
   // The indices are imported through an importer
-  lazy val importer = ??? // todo: use importerQueue
+  lazy val importer = new SlickMysql(importerQueue)
 
   // Explore the resources
   val futures = Files.explore(
@@ -57,7 +58,7 @@ object IndicesToMysqlWithSlick extends App with Formatters {
       val imported = r.oImporters match {
         case None => false
         case Some(xs) => xs.contains(SlickMysql) match {
-          case true => true
+          case true => false // todo: true
           case false => false
         }
       }
@@ -79,38 +80,32 @@ object IndicesToMysqlWithSlick extends App with Formatters {
             // Import the indices of the resource
             try {
               // Launch the import for the current resource
-              // in [importerQueue]
-              // todo: importer.import(r)
-              val process: Future[Option[Resource]] = Future { Some(r) }(importerQueue)
+              val process: Future[Resource] = importer.importResource(r)
 
-              Await.result(process, Duration.Inf) match {
-                case Some(newR) => {
-                  // todo: move these lines into the importer
-                  val existingImporters = r.oImporters match {
-                    case None => Nil
-                    case Some(xs) => xs
-                  }
-                  val newOImporters: Option[List[Importer]] =
-                    Some(SlickMysql::existingImporters)
-
-                  // Update the resource file
-                  Json.write(
-                    newR.copy(oImporters = newOImporters),
-                    Some(file.file.getAbsolutePath)
-                  )
+              // Handle the response
+              val handle: Future[Boolean] = process.map {
+                newR => {
+                  // Log that the import was a success
+                  Json.write(newR, Some(file.file.getAbsolutePath))
                   Logger.info(s"OK: $name")
                   true
                 }
-                case None => {
-                  Logger.error(s"Cannot import: $name")
+              }(tasksQueue).recover {
+                case e => {
+                  val error = e.getClass.getName
+                  Logger.error(s"Soft-Failed($error): $name")
                   false
                 }
-              }
+              }(tasksQueue)
+
+              // The process only returns when the task is complete
+              Await.result(handle, Duration.Inf)
+
             } catch {
               case e: Throwable => {
                 val error = e.getClass.getName
                 e.printStackTrace()
-                Logger.error(s"Failed($error): $name")
+                Logger.error(s"Hard-Failed($error): $name")
                 false
               }
             }
