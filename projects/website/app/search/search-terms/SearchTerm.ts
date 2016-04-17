@@ -1,4 +1,4 @@
 
 export class SearchTerm {
-    constructor(label: String, uri: String) {}
+    constructor(public label: String, public uri: String) {}
 }

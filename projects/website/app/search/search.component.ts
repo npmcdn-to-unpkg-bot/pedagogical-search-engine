@@ -1,18 +1,34 @@
-import {Component} from "angular2/core";
-import {RouteConfig, ROUTER_DIRECTIVES} from "angular2/router";
-import {SearchPageCmp} from "./search-page.component";
+import {Component, provide, ViewChild, ChangeDetectorRef} from "angular2/core";
+import {SearchBarCmp} from "./bar/bar.component";
+import {ResultsCmp} from "./results/results.component";
+import {FactoryService} from "./search-terms/factory.service";
+import {RouteParams, Router, ROUTER_DIRECTIVES} from "angular2/router";
 
 @Component({
     template: `
     
-    <router-outlet></router-outlet>
+    <h2>Search page</h2>
+    <wc-search-bar #searchBar (searchTermsChange)="_searchTermsChange($event)"></wc-search-bar>
+    <wc-search-results></wc-search-results>
     
     `,
-    directives: [ROUTER_DIRECTIVES]
+    directives: [SearchBarCmp, ResultsCmp, ROUTER_DIRECTIVES],
+    providers: [
+        provide(FactoryService, {useClass: FactoryService})
+    ]
 })
-@RouteConfig([
-    {path: '/', name: 'SearchPage', component: SearchPageCmp, useAsDefault: true}
-])
 export class SearchCmp {
+    
+    @ViewChild('searchBar') private _searchBar;
+    
+    constructor(private _router: Router,
+                private _routeParams: RouteParams,
+                private _changeDetectionRef : ChangeDetectorRef){
 
+    }
+
+    // Private
+    private _searchTermsChange(stc) {
+        console.log('Change in search-terms: ' + stc.length);
+    }
 }

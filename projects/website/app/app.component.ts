@@ -13,7 +13,7 @@ import {SearchCmp} from "./search/search.component";
     directives: [ROUTER_DIRECTIVES]
 })
 @RouteConfig([
-    {path:'/search/...', name: 'Search', component: SearchCmp, useAsDefault: true}
+    {path:'/search', name: 'Search', component: SearchCmp, useAsDefault: true}
 ])
 export class AppComponent {
 }
