@@ -1,10 +1,9 @@
-package ws.autocomplete.spraythings
+package ws.spraythings
 
-import spray.http.{StatusCodes}
+import spray.http.{AllOrigins, StatusCodes}
 import spray.http.HttpHeaders.{`Access-Control-Allow-Credentials`, `Access-Control-Allow-Headers`, `Access-Control-Allow-Methods`, `Access-Control-Allow-Origin`}
 import spray.http.HttpMethods._
 import spray.routing.{Directives, Route}
-import spray.http.AllOrigins
 
 
 trait CORSSupport extends Directives {

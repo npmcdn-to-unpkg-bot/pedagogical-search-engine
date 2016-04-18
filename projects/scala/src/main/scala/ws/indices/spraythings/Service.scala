@@ -1,11 +1,11 @@
-package ws.autocomplete.spraythings
+package ws.indices.spraythings
 
 import org.json4s._
 import org.json4s.native.Serialization.write
 import spray.http.MediaTypes.`application/json`
 import spray.routing.HttpService
-import ws.autocomplete.MysqlService
-import ws.autocomplete.spraythings.JsonSupport._
+import ws.indices.MysqlService
+import ws.indices.spraythings.JsonSupport._
 import ws.spraythings.CORSSupport
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -17,12 +17,12 @@ trait Service extends HttpService with CORSSupport {
   implicit val formats = DefaultFormats
 
   val myRoute =
-    path("autocomplete") {
+    path("indices") {
       respondWithCORS() {
         post {
           entity(as[Search]) { search =>
             respondWithMediaType(`application/json`) {
-              onComplete(mysqlService.search(search.text)) {
+              onComplete(mysqlService.search(search.uris.toSet)) {
                 case Success(value) => complete {
                   write(value)
                 }

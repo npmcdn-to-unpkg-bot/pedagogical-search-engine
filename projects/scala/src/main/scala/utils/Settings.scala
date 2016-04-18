@@ -38,6 +38,14 @@ class Settings(config: Config) {
       val port = getInt("autocomplete.spray.port")
     }
   }
+  object Indices {
+    object Ws {
+      object Spray {
+        val ip = getString("indices.ws.spray.ip")
+        val port = getInt("indices.ws.spray.port")
+      }
+    }
+  }
   object Resources {
     val folder = getString("resources.folder")
     object Coursera {

@@ -18,20 +18,39 @@ wikichimp {
     }
   }
   indices {
-    slick {
-      driver = "com.mysql.jdbc.Driver"
-      url = "jdbc:mysql://"?ip?"/tocpic"
+    import {
+      slick {
+        driver = "com.mysql.jdbc.Driver"
+        url = "jdbc:mysql://"?ip?"/tocpic"
 
-      databaseName = ???
-      user = ???
-      password = ???
+        databaseName = ???
+        user = ???
+        password = ???
 
-      connectionPool = "slick.jdbc.hikaricp.HikariCPJdbcDataSource$"
-      numThreads = 20
-      queueSize = 10
-      connectionTimeout = 10000
+        connectionPool = "slick.jdbc.hikaricp.HikariCPJdbcDataSource$"
+        numThreads = 20
+        queueSize = 10
+        connectionTimeout = 10000
 
-      keepAliveConnection = true
+        keepAliveConnection = true
+      }
+    }
+    ws {
+      slick {
+        driver = "com.mysql.jdbc.Driver"
+        url = "jdbc:mysql://"?ip?"/tocpic"
+
+        databaseName = ???
+        user = ???
+        password = ???
+
+        connectionPool = "slick.jdbc.hikaricp.HikariCPJdbcDataSource$"
+        numThreads = 20
+        queueSize = 10
+        connectionTimeout = 1500
+
+        keepAliveConnection = true
+      }
     }
   }
   autocomplete = {

@@ -33,7 +33,7 @@ object IndicesToMysqlWithSlick extends App with Formatters {
     fromExecutor(Executors.newFixedThreadPool(nbTasks * 10))
 
   // Create the connection to the database
-  val db = Database.forConfig("wikichimp.indices.slick")
+  val db = Database.forConfig("wikichimp.indices.import.slick")
 
   // The indices are imported through an importer
   lazy val importer = new SlickMysql(importerQueue, db)
