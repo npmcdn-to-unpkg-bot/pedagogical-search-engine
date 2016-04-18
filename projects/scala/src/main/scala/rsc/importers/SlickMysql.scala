@@ -1,6 +1,6 @@
 package rsc.importers
 
-import mysql.slick.tables.{Details, Indices, Types}
+import mysql.slick.tables.{Details, Indices, Types, DictionaryDisambiguations, DictionaryRedirects, DictionaryTitles}
 import rsc.{Formatters, Resource}
 import rsc.attributes.Source._
 import rsc.importers.Importer.{Importer, SlickMysql}
@@ -13,38 +13,84 @@ class SlickMysql(_ec: ExecutionContext, db: Database) extends Formatters {
 
   implicit val ec: ExecutionContext = _ec
 
+  //
+  val indicesTQ = TableQuery[Indices]
+  val detailsTQ = TableQuery[Details]
+
+  //
+  val disambiguationsTQ = TableQuery[DictionaryDisambiguations]
+  val redirectsTQ = TableQuery[DictionaryRedirects]
+  val titlesTQ = TableQuery[DictionaryTitles]
+
   def importResource(r: Resource)
   : Future[Resource] = {
-    //
-    val indicesTQ = TableQuery[Indices]
-    val detailsTQ = TableQuery[Details]
 
     //
     val indices = titleIndices(r) ++ nodesIndices(r)
     val details = titleDetail(r) ++ nodesDetails(r)
 
-    // Transcationally: If it fails, no writes are perfomed
-    // This way, at retry-time, no "duplicate-primary-key exception" will be thrown
-    // We could also "insert-ignore" in mysql, but slick does not have this option [2016.04.18]
-    val inserts = DBIO.seq(
-      indicesTQ ++= indices,
-      detailsTQ ++= details
-    ).transactionally
-
-    // todo: updates
-
-
     //
-    db.run(inserts).map(_ => {
-      // Write in the resource that we imported it
-      val existingImporters = r.oImporters match {
-        case None => Nil
-        case Some(xs) => xs
+    val allUris = indices.map(_._1).toSet
+    val titleUris = for {
+      t <- titlesTQ if t.uri inSetBind allUris
+    } yield t.uri
+    val redirectsUris = for {
+      r <- redirectsTQ if r.uriB inSetBind allUris
+    } yield r.uriB
+    val disambiguationsUris = for {
+      d <- disambiguationsTQ if d.b inSetBind allUris
+    } yield d.b
+
+    val filteredUris = titleUris union redirectsUris union disambiguationsUris
+
+    db.run(filteredUris.result).flatMap {
+      case uris => {
+        val updatesTitles = updateTitlesAvailability(uris).update(1)
+        val updatesRedirects = updateRedirectsAvailability(uris).update(1)
+        val updatesDisambiguations = updateDisambiguationsAvailability(uris).update(1)
+
+        // Transcationally: If it fails, no writes are perfomed
+        // This way, at retry-time, no "duplicate-primary-key exception" will be thrown
+        // We could also "insert-ignore" in mysql, but slick does not have this option [2016.04.18]
+        val inserts = DBIO.seq(
+          indicesTQ ++= indices,
+          detailsTQ ++= details,
+          updatesTitles,
+          updatesRedirects,
+          updatesDisambiguations
+        ).transactionally
+
+        //
+        db.run(inserts).map(_ => {
+          // Write in the resource that we imported it
+          val existingImporters = r.oImporters match {
+            case None => Nil
+            case Some(xs) => xs
+          }
+          val newOImporters: Option[List[Importer]] =
+            Some(SlickMysql::existingImporters)
+          r.copy(oImporters = newOImporters)
+        })(ec)
       }
-      val newOImporters: Option[List[Importer]] =
-        Some(SlickMysql::existingImporters)
-      r.copy(oImporters = newOImporters)
-    })(ec)
+    }(ec)
+  }
+
+  def updateTitlesAvailability(uris: Seq[String]) = {
+    for {
+      t <- titlesTQ if t.uri inSetBind uris
+    } yield t.available
+  }
+
+  def updateRedirectsAvailability(uris: Seq[String]) = {
+    for {
+      r <- redirectsTQ if r.uriB inSetBind uris
+    } yield r.available
+  }
+
+  def updateDisambiguationsAvailability(uris: Seq[String]) = {
+    for {
+      d <- disambiguationsTQ if d.b inSetBind uris
+    } yield d.available
   }
 
   def titleIndices(r: Resource)
