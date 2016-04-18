@@ -1,6 +1,7 @@
 package utils
 
 import java.lang.Math._
+import java.util.UUID
 
 import scala.util.hashing.MurmurHash3
 
@@ -45,4 +46,6 @@ object StringUtils {
     case n if n < 0 => "0" + abs(n)
     case p => "1" + p
   }
+
+  def uuid36(): String = UUID.randomUUID().toString
 }

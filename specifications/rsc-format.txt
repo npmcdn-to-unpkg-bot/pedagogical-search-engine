@@ -79,6 +79,9 @@ Brackets-References
 			(finalScore)
 
 [indices]
+	(entryId) A unique-id (among all entries of all resources)
+		format: 36-char string in the format of java uuid.toString()
+		i.e. see https://docs.oracle.com/javase/7/docs/api/java/util/UUID.html
 	(o:snippet)
 		(lines)
 			(text)

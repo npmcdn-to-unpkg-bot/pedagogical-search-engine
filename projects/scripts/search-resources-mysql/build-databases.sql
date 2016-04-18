@@ -16,7 +16,7 @@ CREATE TABLE `indices` (
   `Uri` VARCHAR(255) CHARACTER SET 'utf8' NOT NULL,
   INDEX uri_idx (`Uri`(20)),
   
-  `EntryId` VARCHAR(255) CHARACTER SET 'utf8' NULL,
+  `EntryId` CHAR(36) CHARACTER SET 'utf8' NULL,
   `Score` DOUBLE NULL,
 PRIMARY KEY (`Uri`, `EntryId`));
 
@@ -26,7 +26,7 @@ Drop
 
 # Create a table
 CREATE TABLE `details` (
-  `EntryId` VARCHAR(255) CHARACTER SET 'utf8' NOT NULL,
+  `EntryId` CHAR(36) CHARACTER SET 'utf8' NOT NULL,
   `Title` VARCHAR(255) CHARACTER SET 'utf8' NULL,
   `Type` VARCHAR(255) CHARACTER SET 'utf8' NULL,
   `Href` TEXT CHARACTER SET 'utf8' NULL,
