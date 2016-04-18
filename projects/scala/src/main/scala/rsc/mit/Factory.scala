@@ -1,9 +1,11 @@
 package rsc.mit
 
+import java.io.File
+
 import org.jsoup.nodes.Document
 import rsc.Resource
 import rsc.Resource._
-import rsc.attributes.{Title, Level, Source}
+import rsc.attributes.{Level, Source, Title}
 import rsc.mit.Types.{Course, Page}
 import rsc.mit.layouts.table.Topical
 import rsc.mit.layouts.title.Basic
@@ -37,5 +39,9 @@ class Factory extends rsc.extraction.Factory[Course] {
       oTocs = Some(toc::Nil))
   }
 
-  def openPage(page: Page): Document = openWeird(settings.Resources.Mit.pages, page.localPath)
+  def openPage(page: Page): Document = {
+    val file = new File(page.localPath)
+    val relativePath = file.getParentFile.getName + "/" + file.getName
+    open(settings.Resources.Mit.pages + "/" + relativePath)
+  }
 }
