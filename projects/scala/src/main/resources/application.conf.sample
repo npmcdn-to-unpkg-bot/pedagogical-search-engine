@@ -29,6 +29,7 @@ wikichimp {
       connectionPool = "slick.jdbc.hikaricp.HikariCPJdbcDataSource$"
       numThreads = 20
       queueSize = 10
+      connectionTimeout = 10000
 
       keepAliveConnection = true
     }
@@ -49,6 +50,7 @@ wikichimp {
       connectionPool = "slick.jdbc.hikaricp.HikariCPJdbcDataSource$"
       numThreads = 20
       queueSize = 10
+      connectionTimeout = 1000
 
       keepAliveConnection = true
     }

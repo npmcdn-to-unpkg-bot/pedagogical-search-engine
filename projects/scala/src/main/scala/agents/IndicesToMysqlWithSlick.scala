@@ -94,7 +94,7 @@ object IndicesToMysqlWithSlick extends App with Formatters {
                   Logger.info(s"OK: $name")
                   true
                 }
-              }(tasksQueue).recover {
+              }(importerQueue).recover {
                 case e => {
                   val error = e.getClass.getName
                   Logger.error(s"Soft-Failed($error): $name")
@@ -102,7 +102,7 @@ object IndicesToMysqlWithSlick extends App with Formatters {
                   e.printStackTrace()
                   false
                 }
-              }(tasksQueue)
+              }(importerQueue)
 
               // The process only returns when the task is complete
               Await.result(handle, Duration.Inf)

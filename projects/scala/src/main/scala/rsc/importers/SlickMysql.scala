@@ -21,13 +21,15 @@ class SlickMysql(_ec: ExecutionContext, db: Database) extends Formatters {
 
     //
     val indices = titleIndices(r) ++ nodesIndices(r)
-    val details = Seq(titleDetail(r)) ++ nodesDetails(r)
+    val details = titleDetail(r) ++ nodesDetails(r)
 
-    //
+    // Transcationally: If it fails, no writes are perfomed
+    // This way, at retry-time, no "duplicate-primary-key exception" will be thrown
+    // We could also "insert-ignore" in mysql, but slick does not have this option [2016.04.18]
     val inserts = DBIO.seq(
       indicesTQ ++= indices,
       detailsTQ ++= details
-    )
+    ).transactionally
 
     // todo: updates
 
@@ -47,25 +49,27 @@ class SlickMysql(_ec: ExecutionContext, db: Database) extends Formatters {
 
   def titleIndices(r: Resource)
   : Seq[Types.Indices] = {
-    val entryId = "-1" // todo: fill the correct one
     r.title.oIndices match {
       case None => Nil
       case Some(indices) => indices.values.map {
-        case index => (index.uri, entryId, index.score)
+        case index => (index.uri, indices.entryId, index.score)
       }
     }
   }
 
   def titleDetail(r: Resource)
-  : Types.Details = {
-    // Collect the details
-    val entryId = "-1" // todo: fill the correct one
-    val title = r.title.label
-    val typeVal = typeDetail(r)
-    val href = hrefDetail(r)
-    val snippet = getSnippetText(r.title.oIndices)
-    (entryId, title, typeVal, href, snippet)
-  }
+  : Seq[Types.Details] =
+    r.title.oIndices match {
+      case None => Nil
+      case Some(indices) => {
+        // Collect the details
+        val title = r.title.label
+        val typeVal = typeDetail(r)
+        val href = hrefDetail(r)
+        val snippet = getSnippetText(r.title.oIndices)
+        Seq((indices.entryId, title, typeVal, href, snippet))
+      }
+    }
 
   def getSnippetText(oIndices: Option[rsc.indexers.Indices])
   : String = oIndices match {
@@ -85,17 +89,19 @@ class SlickMysql(_ec: ExecutionContext, db: Database) extends Formatters {
   def tocDetails(toc: Toc, r: Resource)
   : Seq[Types.Details] = toc.nodesRec() match {
     case Nil => Nil
-    case nodes => nodes.map(nodeDetail(_, r))
+    case nodes => nodes.flatMap(nodeDetail(_, r))
   }
 
   def nodeDetail(node: Node, r: Resource)
-  : Types.Details = {
-    val entryId = "-1" // todo: fill the correct one
-    val title = r.title.label
-    val typeVal = typeDetail(r)
-    val href = hrefDetail(r)
-    val snippet = getSnippetText(node.oIndices)
-    (entryId, title, typeVal, href, snippet)
+  : Seq[Types.Details] = node.oIndices match {
+    case None => Nil
+    case Some(indices) => {
+      val title = r.title.label
+      val typeVal = typeDetail(r)
+      val href = hrefDetail(r)
+      val snippet = getSnippetText(node.oIndices)
+      Seq((indices.entryId, title, typeVal, href, snippet))
+    }
   }
 
   def nodesIndices(r: Resource)
@@ -117,10 +123,9 @@ class SlickMysql(_ec: ExecutionContext, db: Database) extends Formatters {
       case None => Nil
       case Some(indices) => indices.values.map {
         case index => {
-          val entryId = "-1" // todo: fill the correct one
           val uri = index.uri
           val score = index.score
-          (uri, entryId, score)
+          (uri, indices.entryId, score)
         }
       }
     }
