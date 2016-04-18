@@ -10,6 +10,7 @@ import utils.{Files, Logger, Settings}
 import rsc.importers.Importer.{Importer, SlickMysql}
 import rsc.importers.SlickMysql
 import rsc.writers.Json
+import slick.jdbc.JdbcBackend._
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
@@ -31,8 +32,11 @@ object IndicesToMysqlWithSlick extends App with Formatters {
   val importerQueue = ExecutionContext.
     fromExecutor(Executors.newFixedThreadPool(nbTasks * 10))
 
+  // Create the connection to the database
+  val db = Database.forConfig("wikichimp.indices.slick")
+
   // The indices are imported through an importer
-  lazy val importer = new SlickMysql(importerQueue)
+  lazy val importer = new SlickMysql(importerQueue, db)
 
   // Explore the resources
   val futures = Files.explore(
@@ -94,6 +98,8 @@ object IndicesToMysqlWithSlick extends App with Formatters {
                 case e => {
                   val error = e.getClass.getName
                   Logger.error(s"Soft-Failed($error): $name")
+                  // todo: delete
+                  e.printStackTrace()
                   false
                 }
               }(tasksQueue)
