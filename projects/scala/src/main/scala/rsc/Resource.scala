@@ -12,9 +12,11 @@ import rsc.importers.Importer.Importer
 import rsc.indexers.Indexer.Indexer
 import rsc.snippets.Snippetizer.Snippetizer
 import utils.StringUtils.{hash, normalize}
+import utils.StringUtils.uuid36
 
 case class Resource(
                      // Metadata
+                     resourceId: String = uuid36(),
                      oAnnotator: Option[Annotator] = None,
                      oIndexer: Option[Indexer] = None,
                      oSnippetizer: Option[Snippetizer] = None,

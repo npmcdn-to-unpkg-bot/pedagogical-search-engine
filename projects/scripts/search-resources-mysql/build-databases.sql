@@ -31,4 +31,5 @@ CREATE TABLE `details` (
   `Type` VARCHAR(255) CHARACTER SET 'utf8' NULL,
   `Href` TEXT CHARACTER SET 'utf8' NULL,
   `Snippet` TEXT CHARACTER SET 'utf8' NULL,
+  `ResourceId` CHAR(36) CHARACTER SET 'utf8' NOT NULL,
 PRIMARY KEY (`EntryId`));

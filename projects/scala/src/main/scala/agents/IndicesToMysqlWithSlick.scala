@@ -62,7 +62,7 @@ object IndicesToMysqlWithSlick extends App with Formatters {
       val imported = r.oImporters match {
         case None => false
         case Some(xs) => xs.contains(SlickMysql) match {
-          case true => false // todo: true
+          case true => true
           case false => false
         }
       }
@@ -98,8 +98,6 @@ object IndicesToMysqlWithSlick extends App with Formatters {
                 case e => {
                   val error = e.getClass.getName
                   Logger.error(s"Soft-Failed($error): $name")
-                  // todo: delete
-                  e.printStackTrace()
                   false
                 }
               }(importerQueue)

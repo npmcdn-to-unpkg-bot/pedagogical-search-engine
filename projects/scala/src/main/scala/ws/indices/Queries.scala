@@ -25,7 +25,7 @@ object Queries {
     // Prepare the statement
     val q = for {
       d <-detailsTQ if d.entryId inSetBind entryIds
-    } yield (d.entryId, d.title, d.typeCol, d.href, d.snippet)
+    } yield (d.entryId, d.title, d.typeCol, d.href, d.snippet, d.resourceId)
 
     // Return an "slick-action"
     q.result

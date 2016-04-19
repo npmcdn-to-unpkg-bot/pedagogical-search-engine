@@ -9,6 +9,7 @@ extends Table[Types.Details](tag, "details"){
   def typeCol = column[String]("Type")
   def href = column[Option[String]]("Href")
   def snippet = column[String]("Snippet")
+  def resourceId = column[String]("ResourceId")
 
-  override def * = (entryId, title, typeCol, href, snippet)
+  override def * = (entryId, title, typeCol, href, snippet, resourceId)
 }

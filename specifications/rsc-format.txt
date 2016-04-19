@@ -3,6 +3,9 @@ Format specifications of a pedagogical [ReSourCe] (.rsc)
 ================================
 
 Structure [o: Optional, v: Value]
+	(resourceId) A unique-id (among all resources)
+		format: 36-char string in the format of java uuid.toString()
+		i.e. see https://docs.oracle.com/javase/7/docs/api/java/util/UUID.html
 	(o:annotator)
 		(v:spotlight-0.7.2-wiki-20160113)
 	(o:indexer)

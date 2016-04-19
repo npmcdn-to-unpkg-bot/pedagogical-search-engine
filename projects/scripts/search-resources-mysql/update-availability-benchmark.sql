@@ -1,3 +1,12 @@
+
+# --------------------------------------------------------------------
+If launched, this script will crash because of this line :p
+;
+
+TRUNCATE TABLE `active-uris-tmp`;
+TRUNCATE TABLE `indices`;
+TRUNCATE TABLE `details`;
+
 # Slick-based availability-update of uris from indices of 127 resources
 # time:
 #   34s    mark all with a single SQL query(10s) & [insert indices & details](24s)
@@ -36,7 +45,8 @@ WHERE available = 1;
 
 
 
-# [Slower] Mysql-based update
+# Mysql-based update
+# Create tables
 CREATE TEMPORARY table ActiveUris (
 	SELECT DISTINCT Uri as Uri
     FROM `indices`

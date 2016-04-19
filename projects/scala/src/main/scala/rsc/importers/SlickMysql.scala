@@ -65,7 +65,7 @@ class SlickMysql(_ec: ExecutionContext, db: Database) extends Formatters {
         val typeVal = typeDetail(r)
         val href = hrefDetail(r)
         val snippet = getSnippetText(r.title.oIndices)
-        Seq((indices.entryId, title, typeVal, href, snippet))
+        Seq((indices.entryId, title, typeVal, href, snippet, r.resourceId))
       }
     }
 
@@ -98,7 +98,7 @@ class SlickMysql(_ec: ExecutionContext, db: Database) extends Formatters {
       val typeVal = typeDetail(r)
       val href = hrefDetail(r)
       val snippet = getSnippetText(node.oIndices)
-      Seq((indices.entryId, title, typeVal, href, snippet))
+      Seq((indices.entryId, title, typeVal, href, snippet, r.resourceId))
     }
   }
 
