@@ -22,7 +22,7 @@ class MysqlService extends Formatters {
   // Define the search-strategy
   def search(uris: Set[String], from: Int = 0, to: Int = 9): Future[List[PublicResponse]] = {
     // Some validation
-    val validatedUris = uris.map(_.trim).filter(_.length > 0).toSet
+    val validatedUris = uris.map(_.trim.toLowerCase).filter(_.length > 0).toSet
     val validatedFrom = math.min(from, to)
     val validatedTo = math.max(from, to)
     val distance = (validatedTo - validatedFrom) + 1
