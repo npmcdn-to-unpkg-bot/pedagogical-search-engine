@@ -1,5 +1,9 @@
 package rsc.snippets
 
-case class Line(text: String, indices: List[Index]) {
+import Source.Source
+
+case class Line(source: Source,
+                text: String,
+                indices: List[Index]) {
 
 }

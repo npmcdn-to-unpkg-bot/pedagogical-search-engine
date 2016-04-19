@@ -1,5 +1,8 @@
 package rsc.snippets
 
-case class Snippet(lines: List[Line]) {
+import Source.Source
+
+case class Snippet(topLine: Line,
+                   otherLines: List[Line]) {
 
 }

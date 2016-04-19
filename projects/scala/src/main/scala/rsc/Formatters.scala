@@ -4,16 +4,17 @@ import org.json4s.ext.EnumNameSerializer
 import org.json4s.{DefaultFormats, ShortTypeHints}
 import rsc.annotators.Annotator
 import rsc.attributes.Candidate.Spotlight
-import rsc.attributes.{Level, Source}
+import rsc.attributes.Level
 import rsc.importers.Importer
 import rsc.indexers.Indexer
 
 trait Formatters {
   implicit val formats = DefaultFormats ++ Seq(
-    new EnumNameSerializer(Source),
+    new EnumNameSerializer(attributes.Source),
     new EnumNameSerializer(Level),
     new EnumNameSerializer(Annotator),
     new EnumNameSerializer(Indexer),
-    new EnumNameSerializer(Importer)
+    new EnumNameSerializer(Importer),
+    new EnumNameSerializer(snippets.Source)
   ) + ShortTypeHints(List(classOf[Spotlight]))
 }

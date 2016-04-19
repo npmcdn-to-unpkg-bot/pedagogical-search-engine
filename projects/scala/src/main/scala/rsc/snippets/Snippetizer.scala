@@ -3,5 +3,5 @@ package rsc.snippets
 object Snippetizer extends Enumeration {
   type Snippetizer = Value
 
-  val PatternsDeducer = Value("PatternsDeducer")
+  val Simple = Value("Simple")
 }

@@ -11,7 +11,7 @@ Structure [o: Optional, v: Value]
 	(o:indexer)
 		(v:spotlight-0.7.2-wiki-20160113)
 	(o:snippetizer)
-		(v:PatternsDeducer)
+		(v:Simple)
 	(source) Identify where does the resource come from
 		(v:coursera)
 		(v:khan) khan-academy
@@ -86,15 +86,28 @@ Brackets-References
 		format: 36-char string in the format of java uuid.toString()
 		i.e. see https://docs.oracle.com/javase/7/docs/api/java/util/UUID.html
 	(o:snippet)
-		(lines)
-			(text)
-			(indices)
-				(uri)
-				(start)
-				(stop)
+		(topLine)
+			[line]
+		(otherLines)
+			[line]
 	(values)
 		(uri) sense Wikipedia URI
 		(score) double precision
+
+[line]
+	(text)
+	(source) Where does this line come from?
+		(v:title)
+		(v:toc)
+		(v:description)
+		(v:keywords)
+		(v:categories)
+		(v:domains)
+		(v:subdomains)
+	(indices)
+		(uri)
+		(start)
+		(stop)
 
 ----------------------------
 Notes about (tocs)
