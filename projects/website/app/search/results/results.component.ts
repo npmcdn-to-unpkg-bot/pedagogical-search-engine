@@ -1,27 +1,30 @@
 import {Component, Input, provide, Inject, SimpleChange} from "angular2/core";
 import {SearchTerm} from "../search-terms/SearchTerm";
 import {EntriesService} from "./entries.service";
-import {MockEntriesService} from "./mock-entries.service";
 import {Entry} from "./entry";
+import {SimpleEntriesService} from "./simple-entries.service";
 
 @Component({
     selector: 'wc-search-results',
     template: `
     
-    <div *ngFor="#entry of _entries">
+    <div *ngFor="#entry of _entries" style="padding: 5px;">
         <div>
             <a [href]="entry.href">
                 <b [textContent]="entry.title"></b>
             </a>
-            <i [textContent]="entry.type"></i>
+            <i [textContent]="entry.typeText"></i>
+            (<span [textContent]="entry.score"></span>)
         </div>
-        <div [textContent]="entry.snippet"></div>
+        <div *ngFor="#line of entry.snippet.lines">
+            <div [textContent]="line.text"></div>
+        </div>
     </div>
     
     `,
     directives: [],
     providers: [
-        provide(EntriesService, {useClass: MockEntriesService})
+        provide(EntriesService, {useClass: SimpleEntriesService})
     ]
 })
 export class ResultsCmp {
@@ -46,7 +49,6 @@ export class ResultsCmp {
     private _fetchEntries(): void {
         let entriesObs = this._entriesService.list(this._searchTerms);
         entriesObs.subscribe(res => {
-            console.log('fetched');
             this._entries = res;
         });
     }
