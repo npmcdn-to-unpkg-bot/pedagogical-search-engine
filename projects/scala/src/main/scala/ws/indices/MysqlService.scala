@@ -11,20 +11,20 @@ class MysqlService {
   val db = Database.forConfig("wikichimp.indices.ws.slick")
   val fetcher = new Jdbc(db)
 
-  // The strategy tries to have the number of results in this window
-  val maximum = 10
-  val minimum = 5
-
-  def search(uris: Set[String]): Future[List[PublicResponse]] = {
-    // todo: Some validation
+  // Define the search-strategy
+  def search(uris: Set[String], from: Int = 0, to: Int = 9): Future[List[PublicResponse]] = {
+    // Some validation
+    val validatedUris = uris.map(_.trim).filter(_.length > 0).toSet
+    val validatedFrom = math.min(from, to)
+    val validatedTo = math.max(from, to)
+    val distance = (validatedTo - validatedFrom) + 1
 
     // Check the minimal conditions for the query to be valid
-    if(false) { // todo: minimal conditions
+    if(validatedUris.isEmpty || distance > 20 || distance < 1) {
       Future.successful(Nil)
     } else {
-      // todo: Separate this into its own module
       // Search for the uris
-      db.run(Queries.paged(uris)).flatMap(rows => {
+      db.run(Queries.paged(validatedUris, validatedFrom, validatedTo)).flatMap(rows => {
         // Get the different entryIds
         val entryIds = rows.map {
           case row => row._1
@@ -49,7 +49,7 @@ class MysqlService {
           rows.map {
             // Produce the response
             case (score, (entryId, title, typeCol, href, snippet)) =>
-              PublicResponse(title, typeCol, href.getOrElse(""), score)
+              PublicResponse(title, typeCol, href.getOrElse(""), snippet, score)
           }.toList
         }
       }
