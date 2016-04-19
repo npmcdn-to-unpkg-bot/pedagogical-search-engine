@@ -15,6 +15,7 @@ trait Formatters {
     new EnumNameSerializer(Annotator),
     new EnumNameSerializer(Indexer),
     new EnumNameSerializer(Importer),
-    new EnumNameSerializer(snippets.Source)
+    new EnumNameSerializer(snippets.Source),
+    new EnumNameSerializer(snippets.Snippetizer)
   ) + ShortTypeHints(List(classOf[Spotlight]))
 }

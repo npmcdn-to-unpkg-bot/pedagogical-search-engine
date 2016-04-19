@@ -8,7 +8,7 @@ import rsc.indexers.Indexer
 import rsc.writers.Json
 import rsc.{Formatters, Resource}
 import utils.{Files, Logger, Settings}
-import rsc.snippets.Simple
+import rsc.snippets.{Simple, Snippetizer}
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, Future}
@@ -47,14 +47,25 @@ object Snippetize extends Formatters {
             case _ => false
           }
         }
+        val snippetized = r.oSnippetizer match {
+          case None => false
+          case Some(i) => i match {
+            case Snippetizer.Simple => true
+            case _ => false
+          }
+        }
 
         // Test minimal conditions
-        indexed match {
-          case false => {
+        (indexed, snippetized) match {
+          case (false, _) => {
             Logger.info(s"Skipping - Resource not indexed: $name")
             Nil
           }
-          case  true => {
+          case (_, true) => {
+            Logger.info(s"Skipping - Resource already snippetized: $name")
+            Nil
+          }
+          case (true, false) => {
             val future = Future {
               Logger.info(s"Processing ${file.file.getAbsolutePath}")
 

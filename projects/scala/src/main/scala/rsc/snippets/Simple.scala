@@ -29,7 +29,7 @@ class Simple {
     }
 
     // Return the snippetized resource
-    r2
+    r2.copy(oSnippetizer = Some(Snippetizer.Simple))
   }
 
   def snippetizeTitle(r: Resource): Resource = r.title.oIndices match {
