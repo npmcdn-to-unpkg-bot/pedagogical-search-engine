@@ -4,7 +4,7 @@ import ws.autocomplete.results.{Disambiguation, PageElement, PublicResponse, Res
 
 object Basic extends Formatter {
   def format(results: List[Result]): List[PublicResponse] = {
-    results.map {
+    val responses = results.map {
       case result => result match {
         case Disambiguation(uriA, labelA, bs) => bs match {
           case one::Nil => {
@@ -31,6 +31,19 @@ object Basic extends Formatter {
         }
       }
     }
+
+    // Flattening could have introduced duplicates
+    val filtered = responses.foldLeft(List[PublicResponse]()) {
+      case (acc, response) => {
+        val uris = acc.map(_.uri)
+        uris.contains(response.uri) match {
+          case true => acc
+          case false => acc ::: List(response)
+        }
+      }
+    }
+
+    filtered
   }
 
   def getNiceLabel(label: String, uri: String)

@@ -22,9 +22,11 @@ object SizeFirst extends  Ranking {
       }
     }.foldLeft(List[Result]()) {
       // Filter out duplicate "uri"s
-      case (acc, result) => result.isContainedIn(acc) match {
-        case true => acc
-        case false => acc ::: List(result)
+      case (acc, result) => {
+        result.isContainedIn(acc) match {
+          case true => acc
+          case false => acc ::: List(result)
+        }
       }
     }
   }
