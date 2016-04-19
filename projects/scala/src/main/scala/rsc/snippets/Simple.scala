@@ -166,36 +166,10 @@ class Simple {
 
         // Create the new node
         val snippet = Snippet(topLine, otherLines)
-        val extended = extendNodeSnippet(snippet, oParent, node, level)
-        val newIndices = indices.copy(oSnippet = Some(extended))
+        val newIndices = indices.copy(oSnippet = Some(snippet))
 
         node.copy(oIndices = Some(newIndices))
       }
-    }
-  }
-
-  val minimum = 3
-  def extendNodeSnippet(snippet: Snippet, oParent: Option[Node], node: Node, level: Int)
-  : Snippet = (minimum - snippet.size()) match {
-    case zeroOrLess if zeroOrLess <= 0 => snippet
-    case gap => {
-      // Find $gap elements in the siblings
-      val before = (gap / 2)
-      val after = gap - before
-      val (pre, post) = oParent match {
-        case None => (Nil, Nil)
-        case Some(parent) => {
-          val (preNodes, postNodes) = parent.nSiblingsAround(gap, node)
-
-          val preLines = preNodes.map(n => Line(Source.toc, n.label, Nil, 2 + level))
-          val postLines = postNodes.map(n => Line(Source.toc, n.label, Nil, 2 + level))
-          (preLines, postLines)
-        }
-      }
-
-      // todo: We could search below if we avoid to duplicate entries already in the snippet
-      // todo: We could search above also
-      snippet.copy(otherLines = pre:::snippet.otherLines:::post)
     }
   }
 
