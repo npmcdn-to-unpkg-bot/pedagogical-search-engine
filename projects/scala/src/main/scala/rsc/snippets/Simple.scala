@@ -19,7 +19,7 @@ class Simple {
           case toc => {
             // Snippetize the nodes
             val newNodes = toc.nodes.map {
-              case node => snippetizeNode(node)
+              case node => snippetizeNodeRec(node, 0, None)
             }
             toc.copy(nodes = newNodes)
           }
@@ -39,7 +39,7 @@ class Simple {
       val uris = extractUris(indices)
 
       // Collect the top-line
-      val topLine = Line(Source.title, r.title.label, collectThere(r.title.oSpots, uris))
+      val topLine = Line(Source.title, r.title.label, collectThere(r.title.oSpots, uris), 1)
 
       // Collect the other-lines
       // From tocs
@@ -47,7 +47,7 @@ class Simple {
         case None => Nil
         case Some(tocs) => tocs.flatMap {
           case toc => toc.nodes.flatMap {
-            case node => collectThereAndBelow(node, uris)
+            case node => collectThereAndBelow(node, uris, 0)
           }
         }
       }
@@ -60,7 +60,9 @@ class Simple {
             Line(
               Source.description,
               description.text,
-              collectThere(description.oSpots, uris))
+              collectThere(description.oSpots, uris),
+              1
+            )
           }
         }
       }
@@ -73,7 +75,8 @@ class Simple {
             Line(
               Source.keywords,
               keyword.label,
-              collectThere(keyword.oSpots, uris)
+              collectThere(keyword.oSpots, uris),
+              1
             )
           }
         }
@@ -87,7 +90,8 @@ class Simple {
             Line(
               Source.categories,
               category.label,
-              collectThere(category.oSpots, uris)
+              collectThere(category.oSpots, uris),
+              1
             )
           }
         }
@@ -101,7 +105,8 @@ class Simple {
             Line(
               Source.domains,
               domain.label,
-              collectThere(domain.oSpots, uris)
+              collectThere(domain.oSpots, uris),
+              1
             )
           }
         }
@@ -115,7 +120,8 @@ class Simple {
             Line(
               Source.subdomains,
               subdomain.label,
-              collectThere(subdomain.oSpots, uris)
+              collectThere(subdomain.oSpots, uris),
+              1
             )
           }
         }
@@ -133,7 +139,17 @@ class Simple {
   def extractUris(indices: Indices): Set[String] =
     indices.values.map(_.uri).toSet
 
-  def snippetizeNode(node: Node): Node = {
+  def snippetizeNodeRec(node: Node, level: Int, oParent: Option[Node])
+  : Node = {
+    val newNode = snippetizeNode(node, level, oParent)
+    val newChildren = newNode.children.map {
+      case child => snippetizeNodeRec(child, level + 1, Some(newNode))
+    }
+    newNode.copy(children = newChildren)
+  }
+
+  def snippetizeNode(node: Node, level: Int, oParent: Option[Node])
+    : Node = {
     node.oIndices match {
       case None => node
       case Some(indices) => {
@@ -141,19 +157,45 @@ class Simple {
         val uris: Set[String] = extractUris(indices)
 
         // Collect the top-line
-        val topLine = Line(Source.toc, node.label, collectThere(node.oSpots, uris))
+        val topLine = Line(Source.toc, node.label, collectThere(node.oSpots, uris), 2 + level)
 
-        // Collect the other-lines
+        // Collect the other-lines "depth-first"
         val otherLines: List[Line] = node.children.flatMap {
-          case child => collectThereAndBelow(child, uris)
+          case child => collectThereAndBelow(child, uris, level + 1)
         }
 
         // Create the new node
         val snippet = Snippet(topLine, otherLines)
-        val newIndices = indices.copy(oSnippet = Some(snippet))
+        val extended = extendNodeSnippet(snippet, oParent, node, level)
+        val newIndices = indices.copy(oSnippet = Some(extended))
 
         node.copy(oIndices = Some(newIndices))
       }
+    }
+  }
+
+  val minimum = 3
+  def extendNodeSnippet(snippet: Snippet, oParent: Option[Node], node: Node, level: Int)
+  : Snippet = (minimum - snippet.size()) match {
+    case zeroOrLess if zeroOrLess <= 0 => snippet
+    case gap => {
+      // Find $gap elements in the siblings
+      val before = (gap / 2)
+      val after = gap - before
+      val (pre, post) = oParent match {
+        case None => (Nil, Nil)
+        case Some(parent) => {
+          val (preNodes, postNodes) = parent.nSiblingsAround(gap, node)
+
+          val preLines = preNodes.map(n => Line(Source.toc, n.label, Nil, 2 + level))
+          val postLines = postNodes.map(n => Line(Source.toc, n.label, Nil, 2 + level))
+          (preLines, postLines)
+        }
+      }
+
+      // todo: We could search below if we avoid to duplicate entries already in the snippet
+      // todo: We could search above also
+      snippet.copy(otherLines = pre:::snippet.otherLines:::post)
     }
   }
 
@@ -163,17 +205,17 @@ class Simple {
     case Some(spots) => spots.flatMap(collectIndices(_, uris))
   }
 
-  def collectThereAndBelow(node: Node, uris: Set[String])
+  def collectThereAndBelow(node: Node, uris: Set[String], level: Int)
   : List[Line] = {
     // Collect the indices from the candidates of this entry
     val xs = collectThere(node.oSpots, uris) match {
       case Nil => Nil
-      case indices => List(Line(Source.toc, node.label, indices))
+      case indices => List(Line(Source.toc, node.label, indices, 2 + level))
     }
 
     // Collect below
     xs:::node.children.flatMap {
-      case child => collectThereAndBelow(child, uris)
+      case child => collectThereAndBelow(child, uris, level + 1)
     }
   }
 

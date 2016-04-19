@@ -104,6 +104,9 @@ Brackets-References
 		(v:categories)
 		(v:domains)
 		(v:subdomains)
+	(priority) An integer priority level - lowest-integer = highest-priority
+		(v:1) Title, Description & co
+		(v:2+x) toc nodes of level x, root node is at level 0
 	(indices)
 		(uri)
 		(start)

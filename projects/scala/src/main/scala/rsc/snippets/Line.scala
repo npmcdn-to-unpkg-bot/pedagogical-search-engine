@@ -4,6 +4,7 @@ import Source.Source
 
 case class Line(source: Source,
                 text: String,
-                indices: List[Index]) {
+                indices: List[Index],
+                priority: Int) {
 
 }

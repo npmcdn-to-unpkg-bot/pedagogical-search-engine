@@ -1,8 +1,6 @@
 package rsc.snippets
 
-import Source.Source
-
 case class Snippet(topLine: Line,
                    otherLines: List[Line]) {
-
+  def size(): Int = 1 + otherLines.size
 }
