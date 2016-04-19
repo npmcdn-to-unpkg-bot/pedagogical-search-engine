@@ -103,41 +103,44 @@ object Queries {
     ) UNION (
       SELECT
         #${Codes.Exact.disambiguation} as `Source`,
-        MIN(d.`LabelA`) as `LabelA`,
-        GROUP_CONCAT(d.`LabelB` ORDER BY d.`InB` DESC SEPARATOR '#$separator') as `LabelB`,
-        d.`A` as `UriA`,
-        GROUP_CONCAT(d.`B` ORDER BY d.`InB` DESC SEPARATOR '#$separator') as `UriB`,
-        GROUP_CONCAT(d.`InB` ORDER BY d.`InB` DESC SEPARATOR '#$separator') as `InB`
-      FROM `dictionary-disambiguation` d
+        MIN(`LabelA`) as `LabelA`,
+        GROUP_CONCAT(`LabelB` ORDER BY `InB` DESC SEPARATOR '#$separator') as `LabelB`,
+        `A` as `UriA`,
+        GROUP_CONCAT(`B` ORDER BY `InB` DESC SEPARATOR '#$separator') as `UriB`,
+        GROUP_CONCAT(`InB` ORDER BY `InB` DESC SEPARATOR '#$separator') as `InB`
+      FROM `dictionary-disambiguation`
       WHERE
-        d.`LabelA` LIKE $text
-      GROUP BY d.`A`
+        `LabelA` LIKE $text AND
+        `Available` = 1
+      GROUP BY `A`
       LIMIT #$n
     ) UNION (
       SELECT
         #${Codes.Exact.title} as `Source`,
         NULL as `LabelA`,
-        d.`Label` as `LabelB`,
+        `Label` as `LabelB`,
             NULL as `UriA`,
-        d.`Uri` as `UriB`,
-        d.`In` as `InB`
-      FROM `dictionary-titles` d
+        `Uri` as `UriB`,
+        `In` as `InB`
+      FROM `dictionary-titles`
       WHERE
-        d.`Label` LIKE $text
-      ORDER BY d.`In` DESC
+        `Label` LIKE $text AND
+        `Available` = 1
+      ORDER BY `In` DESC
       LIMIT #$n
     ) UNION (
       SELECT
         #${Codes.Exact.redirect} as `Source`,
-        d.`LabelA` as `LabelA`,
-        d.`LabelB` as `LabelB`,
+        `LabelA` as `LabelA`,
+        `LabelB` as `LabelB`,
         NULL as `UriA`,
-        d.`UriB` as `UriB`,
-        d.`InB` as `InB`
-      FROM `dictionary-redirects` d
+        `UriB` as `UriB`,
+        `InB` as `InB`
+      FROM `dictionary-redirects`
       WHERE
-        d.`LabelA` LIKE $text
-      ORDER BY d.`InB` DESC
+        `LabelA` LIKE $text AND
+        `Available` = 1
+      ORDER BY `InB` DESC
       LIMIT #$n
     ) ORDER BY `Source` ASC LIMIT 1, #$maxNbRows;
     """.as[Result]
@@ -158,78 +161,84 @@ object Queries {
     ) UNION (
       SELECT
         #${Codes.Exact.disambiguation} as `Source`,
-        MIN(d.`LabelA`) as `LabelA`,
-        GROUP_CONCAT(d.`LabelB` ORDER BY d.`InB` DESC SEPARATOR '#$separator') as `LabelB`,
-        d.`A` as `UriA`,
-        GROUP_CONCAT(d.`B` ORDER BY d.`InB` DESC SEPARATOR '#$separator') as `UriB`,
-        GROUP_CONCAT(d.`InB` ORDER BY d.`InB` DESC SEPARATOR '#$separator') as `InB`
-      FROM `dictionary-disambiguation` d
+        MIN(`LabelA`) as `LabelA`,
+        GROUP_CONCAT(`LabelB` ORDER BY `InB` DESC SEPARATOR '#$separator') as `LabelB`,
+        `A` as `UriA`,
+        GROUP_CONCAT(`B` ORDER BY `InB` DESC SEPARATOR '#$separator') as `UriB`,
+        GROUP_CONCAT(`InB` ORDER BY `InB` DESC SEPARATOR '#$separator') as `InB`
+      FROM `dictionary-disambiguation`
       WHERE
-        d.`LabelA` LIKE $text
-      GROUP BY d.`A`
+        `LabelA` LIKE $text AND
+        `Available` = 1
+      GROUP BY `A`
       LIMIT #$n
     ) UNION (
       SELECT
         #${Codes.Exact.title} as `Source`,
         NULL as `LabelA`,
-        d.`Label` as `LabelB`,
+        `Label` as `LabelB`,
         NULL as `UriA`,
-        d.`Uri` as `UriB`,
-        d.`In` as `InB`
-      FROM `dictionary-titles` d
+        `Uri` as `UriB`,
+        `In` as `InB`
+      FROM `dictionary-titles`
       WHERE
-        d.`Label` LIKE $text
-      ORDER BY d.`In` DESC
+        `Label` LIKE $text AND
+        `Available` = 1
+      ORDER BY `In` DESC
       LIMIT #$n
     ) UNION (
       SELECT
         #${Codes.Exact.redirect} as `Source`,
-        d.`LabelA` as `LabelA`,
-        d.`LabelB` as `LabelB`,
+        `LabelA` as `LabelA`,
+        `LabelB` as `LabelB`,
         NULL as `UriA`,
-        d.`UriB` as `UriB`,
-        d.`InB` as `InB`
-      FROM `dictionary-redirects` d
+        `UriB` as `UriB`,
+        `InB` as `InB`
+      FROM `dictionary-redirects`
       WHERE
-        d.`LabelA` LIKE $text
-      ORDER BY d.`InB` DESC
+        `LabelA` LIKE $text AND
+        `Available` = 1
+      ORDER BY `InB` DESC
       LIMIT #$n
     ) UNION (
       SELECT
         #${Codes.Prefix.disambiguation} as `Source`,
-        MIN(d.`LabelA`) as `LabelA`,
-        GROUP_CONCAT(d.`LabelB` ORDER BY d.`InB` DESC SEPARATOR '#$separator') as `LabelB`,
-        d.`A` as `UriA`,
-        GROUP_CONCAT(d.`B` ORDER BY d.`InB` DESC SEPARATOR '#$separator') as `UriB`,
-        GROUP_CONCAT(d.`InB` ORDER BY d.`InB` DESC SEPARATOR '#$separator') as `InB`
-      FROM `dictionary-disambiguation` d
+        MIN(`LabelA`) as `LabelA`,
+        GROUP_CONCAT(`LabelB` ORDER BY `InB` DESC SEPARATOR '#$separator') as `LabelB`,
+        `A` as `UriA`,
+        GROUP_CONCAT(`B` ORDER BY `InB` DESC SEPARATOR '#$separator') as `UriB`,
+        GROUP_CONCAT(`InB` ORDER BY `InB` DESC SEPARATOR '#$separator') as `InB`
+      FROM `dictionary-disambiguation`
       WHERE
-        d.`LabelA` LIKE $textPercent
-      GROUP BY d.`A`
+        `LabelA` LIKE $textPercent AND
+        `Available` = 1
+      GROUP BY `A`
       LIMIT #$n
     ) UNION (
       SELECT
         #${Codes.Prefix.title} as `Source`,
         NULL as `LabelA`,
-        d.`Label` as `LabelB`,
+        `Label` as `LabelB`,
         NULL as `UriA`,
-        d.`Uri` as `UriB`,
-        d.`In` as `InB`
-      FROM `dictionary-titles` d
+        `Uri` as `UriB`,
+        `In` as `InB`
+      FROM `dictionary-titles`
       WHERE
-        d.`Label` LIKE $textPercent
+        `Label` LIKE $textPercent AND
+        `Available` = 1
       LIMIT #$n
     ) UNION (
       SELECT
         #${Codes.Prefix.redirect} as `Source`,
-        d.`LabelA` as `LabelA`,
-        d.`LabelB` as `LabelB`,
+        `LabelA` as `LabelA`,
+        `LabelB` as `LabelB`,
         NULL as `UriA`,
-        d.`UriB` as `UriB`,
-        d.`InB` as `InB`
-      FROM `dictionary-redirects` d
+        `UriB` as `UriB`,
+        `InB` as `InB`
+      FROM `dictionary-redirects`
       WHERE
-        d.`LabelA` LIKE $textPercent
+        `LabelA` LIKE $textPercent AND
+        `Available` = 1
       LIMIT #$n
     ) ORDER BY `Source` ASC LIMIT 1, #$maxNbRows;
     """.as[Result]
@@ -250,81 +259,87 @@ object Queries {
     ) UNION (
       SELECT
         #${Codes.Exact.disambiguation} as `Source`,
-        MIN(d.`LabelA`) as `LabelA`,
-        GROUP_CONCAT(d.`LabelB` ORDER BY d.`InB` DESC SEPARATOR '#$separator') as `LabelB`,
-        d.`A` as `UriA`,
-        GROUP_CONCAT(d.`B` ORDER BY d.`InB` DESC SEPARATOR '#$separator') as `UriB`,
-        GROUP_CONCAT(d.`InB` ORDER BY d.`InB` DESC SEPARATOR '#$separator') as `InB`
-      FROM `dictionary-disambiguation` d
+        MIN(`LabelA`) as `LabelA`,
+        GROUP_CONCAT(`LabelB` ORDER BY `InB` DESC SEPARATOR '#$separator') as `LabelB`,
+        `A` as `UriA`,
+        GROUP_CONCAT(`B` ORDER BY `InB` DESC SEPARATOR '#$separator') as `UriB`,
+        GROUP_CONCAT(`InB` ORDER BY `InB` DESC SEPARATOR '#$separator') as `InB`
+      FROM `dictionary-disambiguation`
       WHERE
-        d.`LabelA` LIKE $text
-      GROUP BY d.`A`
+        `LabelA` LIKE $text AND
+        `Available` = 1
+      GROUP BY `A`
       LIMIT #$n
     ) UNION (
       SELECT
         #${Codes.Exact.title} as `Source`,
         NULL as `LabelA`,
-        d.`Label` as `LabelB`,
+        `Label` as `LabelB`,
         NULL as `UriA`,
-        d.`Uri` as `UriB`,
-        d.`In` as `InB`
-      FROM `dictionary-titles` d
+        `Uri` as `UriB`,
+        `In` as `InB`
+      FROM `dictionary-titles`
       WHERE
-        d.`Label` LIKE $text
-      ORDER BY d.`In` DESC
+        `Label` LIKE $text AND
+        `Available` = 1
+      ORDER BY `In` DESC
       LIMIT #$n
     ) UNION (
       SELECT
         #${Codes.Exact.redirect} as `Source`,
-        d.`LabelA` as `LabelA`,
-        d.`LabelB` as `LabelB`,
+        `LabelA` as `LabelA`,
+        `LabelB` as `LabelB`,
         NULL as `UriA`,
-        d.`UriB` as `UriB`,
-        d.`InB` as `InB`
-      FROM `dictionary-redirects` d
+        `UriB` as `UriB`,
+        `InB` as `InB`
+      FROM `dictionary-redirects`
       WHERE
-        d.`LabelA` LIKE $text
-      ORDER BY d.`InB` DESC
+        `LabelA` LIKE $text AND
+        `Available` = 1
+      ORDER BY `InB` DESC
       LIMIT #$n
     ) UNION (
       SELECT
         #${Codes.Prefix.disambiguation} as `Source`,
-        MIN(d.`LabelA`) as `LabelA`,
-        GROUP_CONCAT(d.`LabelB` ORDER BY d.`InB` DESC SEPARATOR '#$separator') as `LabelB`,
-        d.`A` as `UriA`,
-        GROUP_CONCAT(d.`B` ORDER BY d.`InB` DESC SEPARATOR '#$separator') as `UriB`,
-        GROUP_CONCAT(d.`InB` ORDER BY d.`InB` DESC SEPARATOR '#$separator') as `InB`
-      FROM `dictionary-disambiguation` d
+        MIN(`LabelA`) as `LabelA`,
+        GROUP_CONCAT(`LabelB` ORDER BY `InB` DESC SEPARATOR '#$separator') as `LabelB`,
+        `A` as `UriA`,
+        GROUP_CONCAT(`B` ORDER BY `InB` DESC SEPARATOR '#$separator') as `UriB`,
+        GROUP_CONCAT(`InB` ORDER BY `InB` DESC SEPARATOR '#$separator') as `InB`
+      FROM `dictionary-disambiguation`
       WHERE
-        d.`LabelA` LIKE $textPercent
-      GROUP BY d.`A`
-      ORDER BY length(d.`LabelA`) ASC
+        `LabelA` LIKE $textPercent AND
+        `Available` = 1
+      GROUP BY `A`
+      ORDER BY length(`LabelA`) ASC
       LIMIT #$n
     ) UNION (
       SELECT
         #${Codes.Prefix.title} as `Source`,
         NULL as `LabelA`,
-        d.`Label` as `LabelB`,
+        `Label` as `LabelB`,
         NULL as `UriA`,
-        d.`Uri` as `UriB`,
-        d.`In` as `InB`
-      FROM `dictionary-titles` d
+        `Uri` as `UriB`,
+        `In` as `InB`
+      FROM `dictionary-titles`
       WHERE
-        d.`Label` LIKE $textPercent
-      ORDER BY length(d.`Label`) ASC, d.`In` DESC
+        `Label` LIKE $textPercent AND
+        `Available` = 1
+      ORDER BY length(`Label`) ASC, `In` DESC
       LIMIT #$n
     ) UNION (
       SELECT
         #${Codes.Prefix.redirect} as `Source`,
-        d.`LabelA` as `LabelA`,
-        d.`LabelB` as `LabelB`,
+        `LabelA` as `LabelA`,
+        `LabelB` as `LabelB`,
         NULL as `UriA`,
-        d.`UriB` as `UriB`,
-        d.`InB` as `InB`
-      FROM `dictionary-redirects` d
+        `UriB` as `UriB`,
+        `InB` as `InB`
+      FROM `dictionary-redirects`
       WHERE
-        d.`LabelA` LIKE $textPercent
-      ORDER BY length(d.`LabelA`) ASC, d.`InB` DESC
+        `LabelA` LIKE $textPercent AND
+        `Available` = 1
+      ORDER BY length(`LabelA`) ASC, `InB` DESC
       LIMIT #$n
     ) ORDER BY `Source` ASC LIMIT 1, #$maxNbRows;
     """.as[Result]
