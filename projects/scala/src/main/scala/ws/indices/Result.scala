@@ -7,7 +7,5 @@ case class Result(resourceId: String,
                   typeCol: String,
                   href: String,
                   snippet: String) {
-  def toPublicResponse() =
-    PublicResponse(title, typeCol, href, snippet, score)
 
 }

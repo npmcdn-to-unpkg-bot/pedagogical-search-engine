@@ -1,12 +1,20 @@
 package ws.indices
 
+
+import org.json4s.{DefaultFormats, FieldSerializer}
+import rsc.Formatters
 import slick.jdbc.JdbcBackend._
 import ws.autocomplete.fetcher.Jdbc
+import org.json4s.native.JsonMethods.parse
+import rsc.snippets.{Line, Source}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class MysqlService {
+class MysqlService extends Formatters {
+
+  implicit val formatter = formats
+
   // Create the service itself
   val db = Database.forConfig("wikichimp.indices.ws.slick")
   val fetcher = new Jdbc(db)
@@ -30,7 +38,15 @@ class MysqlService {
       val filtered = filterDuplicates(allResults)
 
       // Produce the public responses
-      filtered.map(results => results.map(_.toPublicResponse()).toList)
+      filtered.map(results => results.map(toPublicResponse(_, validatedUris)).toList)
+    }
+  }
+
+  def toPublicResponse(result: Result, uris: Set[String])
+  : PublicResponse = result match {
+    case Result(resourceId, entryId, score, title, typeCol, href, snippet) => {
+      PublicResponse(title, typeCol, href,
+        instantiateSnippet(snippet, uris), score)
     }
   }
 
@@ -62,7 +78,8 @@ class MysqlService {
         rows.map {
           // Produce the response
           case (score, (entryId, title, typeCol, href, snippet, resourceId)) =>
-            Result(resourceId, entryId, score, title, typeCol, href.getOrElse(""), snippet)
+            Result(resourceId, entryId, score, title,
+              typeCol, href.getOrElse(""), snippet)
         }.toSet
       }
     }
@@ -76,4 +93,43 @@ class MysqlService {
     }
     skimmed.toSet
   })
+
+  def instantiateSnippet(snippetStr: String, uris: Set[String])
+  : String = {
+    // Extract the snippet
+    val json = parse(snippetStr)
+    val snippet = json.extract[rsc.snippets.Snippet]
+
+    //
+    val topLine = snippet.topLine
+    val topSnippet = (topLine.source == Source.title) match {
+      case true => Nil
+      case false => List(snippetFromLine(topLine, uris))
+    }
+    val remaining = 3 - topSnippet.size
+    val pumped = pumpNSnippets(remaining, snippet.otherLines, uris)
+
+    org.json4s.native.Serialization.write(topSnippet:::pumped)
+  }
+
+  def pumpNSnippets(n: Int, lines: List[Line], uris: Set[String])
+  : List[Snippet] = {
+    val filtered = lines.filterNot {
+      case line => {
+        val matched = line.indices.filter(index => uris.contains(index.uri))
+        matched.isEmpty
+      }
+    }
+    val tocLines = filtered.filter(_.priority != 1)
+    val ordered = tocLines.sortBy(_.priority)
+    val topN = ordered.take(n)
+    topN.map(snippetFromLine(_, uris))
+  }
+
+  def snippetFromLine(line: Line, uris: Set[String])
+  : Snippet = {
+    val matched = line.indices.filter(index => uris.contains(index.uri))
+    val spots = matched.map(index => Spot(index.start, index.stop, index.uri))
+    Snippet(line.text, spots)
+  }
 }
