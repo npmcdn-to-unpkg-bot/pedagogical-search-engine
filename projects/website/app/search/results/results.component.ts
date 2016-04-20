@@ -4,6 +4,7 @@ import {EntriesService} from "./entries.service";
 import {Entry} from "./entry";
 import {SimpleEntriesService} from "./simple-entries.service";
 import {Response} from "./response";
+import {Router, RouteParams} from "angular2/router";
 
 @Component({
     selector: 'wc-search-results',
@@ -43,8 +44,17 @@ export class ResultsCmp {
     private _step: number = 10;
 
     constructor(
-        @Inject(EntriesService) private _entriesService: EntriesService
-    ) {}
+        @Inject(EntriesService) private _entriesService: EntriesService,
+        private _router: Router,
+        private _routeParams: RouteParams
+    ) {
+        console.log("constructor!");
+        // Is there any page-no in the url?
+        let pageNo = +_routeParams.get('pageNo');
+        if(pageNo) {
+            this.goToPage(pageNo);
+        }
+    }
 
     // Life-cycle hooks
     ngOnChanges(changes: {_searchTerms: SimpleChange}) {
@@ -52,6 +62,12 @@ export class ResultsCmp {
         if(sts && sts.length > 0) {
             this._fetchEntries();
         }
+    }
+
+    // Public
+    public goToPage(pageNo: number): void {
+        this._from = (pageNo - 1) * this._step;
+        this._fetchEntries();
     }
 
     // Private
@@ -90,7 +106,14 @@ export class ResultsCmp {
         return b;
     }
     private _goPage(event, pageNo: number): void {
-        this._from = (pageNo - 1) * this._step;
-        this._fetchEntries();
+        // Stop the event
+        event.preventDefault();
+        event.stopPropagation();
+
+        // Reflect the page in the url
+        let params = this._routeParams.params;
+        params['page'] = pageNo.toString();
+        this._router.navigate(['Search', params]);
+        this.goToPage(pageNo);
     }
 }
