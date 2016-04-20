@@ -4,6 +4,7 @@ import {Completion} from "./completion";
 import {SimpleCompletionService} from "./simple-completion.service";
 import {Result} from "./result/result";
 import {Proposition} from "./proposition";
+import {MockCompletionService} from "./mock-completion.service";
 
 @Component({
     selector: 'wc-completion',
@@ -121,7 +122,7 @@ export class CompletionCmp {
         }, this._latency, this);
     }
     private _autoComplete() {
-        console.log('start');
+        console.log(`fetch completion of "${this._text}"`);
         let currentRef = this._completion;
 
         this._completionService.list(this._text).map(newRef => {

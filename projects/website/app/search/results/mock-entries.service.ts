@@ -10,7 +10,7 @@ import {Line} from "./line";
 @Injectable()
 export class MockEntriesService extends EntriesService {
 
-    public latencyMs = 500;
+    public latencyMs = 1500;
 
     constructor(){}
 

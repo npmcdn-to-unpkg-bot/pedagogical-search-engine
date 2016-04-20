@@ -73,7 +73,19 @@ export class ResultsCmp {
     // Private
     private _fetchEntries(): void {
         if(this._searchTerms.length > 0) {
-            console.log(`fetch: ${this._from} ${this._searchTerms.length}`);
+            // Log the fetch
+            let sts = "";
+            for(let st of this._searchTerms) {
+                if(sts.length > 0) {
+                    sts = `${sts}, ${st.uri}`;
+                } else {
+                    sts = st.uri;
+                }
+            }
+            let pageNo = Math.floor(this._from / this._step) + 1;
+            console.log(`fetch ${this._step} entries of {${sts}} from ${this._from} (page ${pageNo})`);
+
+            // Perform the fetch
             let entriesObs = this._entriesService.list(
                 this._searchTerms,
                 this._from,

@@ -9,7 +9,7 @@ import {Entity} from "./result/entity";
 export class MockCompletionService extends CompletionService {
     constructor() {}
 
-    public latencyMs = 500;
+    public latencyMs = 1500;
 
     list(text: String): Observable<Completion> {
         let completion: Completion = new Completion([
