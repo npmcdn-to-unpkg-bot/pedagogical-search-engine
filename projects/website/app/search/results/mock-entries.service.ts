@@ -3,6 +3,9 @@ import {Entry} from "./entry";
 import {Observable} from "rxjs/Observable";
 import {SearchTerm} from "../search-terms/SearchTerm";
 import {Injectable} from "angular2/core";
+import {Response} from "./response";
+import {Snippet} from "./snippet";
+import {Line} from "./line";
 
 @Injectable()
 export class MockEntriesService extends EntriesService {
@@ -11,18 +14,14 @@ export class MockEntriesService extends EntriesService {
 
     constructor(){}
 
-    list(searchTerms:Array<SearchTerm>):Observable<Array<Entry>> {
-        let entries = [
-            this._newEntry(),
-            this._newEntry(),
-            this._newEntry(),
-            this._newEntry(),
-            this._newEntry(),
-            this._newEntry(),
-            this._newEntry()
-        ];
+    list(searchTerms:Array<SearchTerm>, from: number, to: number):Observable<Response> {
+        let entries = [];
+        for(let i = from; i <= to; i++) {
+            entries.push(this._newEntry());
+        }
+        let response = new Response(entries, 43);
 
-        return Observable.of(entries).delay(this.latencyMs);
+        return Observable.of(response).delay(this.latencyMs);
     }
 
     private _newEntry(): Entry {
@@ -31,6 +30,6 @@ export class MockEntriesService extends EntriesService {
         let type = 'Book';
         let href = 'http://example.com';
         let snippet = 'Week 1: Chaos magnifico est.';
-        return new Entry(title, type, href, snippet);
+        return new Entry(title, type, href, new Snippet([new Line(snippet, [])]), n / 10);
     }
 }

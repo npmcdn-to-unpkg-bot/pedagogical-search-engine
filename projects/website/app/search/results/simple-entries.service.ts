@@ -7,6 +7,7 @@ import {Http, Headers, RequestOptions} from "angular2/http";
 import {Snippet} from "./snippet";
 import {Spot} from "./spot";
 import {Line} from "./line";
+import {Response} from "./response";
 
 @Injectable()
 export class SimpleEntriesService extends EntriesService {
@@ -18,7 +19,7 @@ export class SimpleEntriesService extends EntriesService {
         @Inject('SETTINGS') private _settings
     ){}
 
-    list(searchTerms:Array<SearchTerm>):Observable<Array<Entry>> {
+    list(searchTerms:Array<SearchTerm>, from: number, to: number):Observable<Response> {
         // Extract the uris
         let uris: Array<String> = [];
         for(let st of searchTerms) {
@@ -30,16 +31,24 @@ export class SimpleEntriesService extends EntriesService {
         let headers = new Headers({ 'Content-Type': 'application/json' });
         let options = new RequestOptions({ headers: headers });
         let body = JSON.stringify({
-            "uris": uris
+            "uris": uris,
+            "from": from,
+            "to": to
         });
 
         return this._http.post(url, body, options)
             .map(res => {
                 let json = res.json();
 
+                // Check for entries
+                let jsonEntries = json["entries"];
+                if(jsonEntries.length == 0) {
+                    return new Response([], 0);
+                }
+
                 // Extract the entries
                 let entries: Array<Entry> = [];
-                for(let e of json) {
+                for(let e of jsonEntries) {
                     // Extract basic information
                     let title = e["title"];
                     let typeText = e["typeText"];
@@ -85,7 +94,7 @@ export class SimpleEntriesService extends EntriesService {
                     }
                 })
 
-                return entries;
+                return new Response(entries, json["nbResults"]);
             })
             .catch(res => {
                 console.log("Error with entries-service:");
