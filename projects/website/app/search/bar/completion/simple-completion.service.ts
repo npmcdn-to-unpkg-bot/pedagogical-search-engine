@@ -31,7 +31,7 @@ export class SimpleCompletionService extends CompletionService {
                         let disambiguations = [];
                         for(let e2 of disambiguating) {
                             let label2 = e2["label"];
-                            let uri2 = e2["label"];
+                            let uri2 = e2["uri"];
                             disambiguations.push(new Entity(label2, uri2));
                         }
                         results.push(new Disambiguation(label, uri, disambiguations));
