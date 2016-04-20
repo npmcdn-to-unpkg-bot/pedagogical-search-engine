@@ -34,14 +34,14 @@ class MysqlService extends Formatters {
 
     // Check the minimal conditions for the query to be valid
     if(validatedUris.isEmpty || distance > 10 || distance < 1) {
-      Future.successful(PublicResponse(Nil, true))
+      Future.successful(PublicResponse(Nil, 0))
     } else {
       // Get the results
       val pair = getAllResults(validatedUris, validatedFrom, validatedTo)
 
       // Produce the server responses
       pair.map {
-        case (results, lastPage) => {
+        case (results, nbResults) => {
           // Collect the entries
           val entries = results.map {
             case Result(resourceId, entryId, score, title, typeCol, href, oSnippet) => {
@@ -55,14 +55,14 @@ class MysqlService extends Formatters {
           }.toList
 
           //
-          PublicResponse(entries, lastPage)
+          PublicResponse(entries, nbResults)
         }
       }
     }
   }
 
   def getAllResults(uris: Set[String], from: Int, to: Int)
-  : Future[(Set[Result], Boolean)] = {
+  : Future[(Set[Result], Int)] = {
     val start = System.nanoTime()
 
     // Search for the uris
@@ -84,7 +84,7 @@ class MysqlService extends Formatters {
 
     }).flatMap(ranked => {
       // Are there other indices after?
-      val lastPage = (ranked.size - 1 <= to)
+      val nbResults = ranked.size
 
       // Take the indices of interest
       val indices = ranked.drop(from).take(to - from + 1)
@@ -114,7 +114,7 @@ class MysqlService extends Formatters {
             }
           }).toSet
 
-          (results, lastPage)
+          (results, nbResults)
         }
       }
     })
