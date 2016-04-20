@@ -1,7 +1,6 @@
 package ws.indices
 
-case class PublicResponse(title: String,
-                          typeText: String,
-                          href: String,
-                          snippet: String,
-                          score: Double) {}
+case class PublicResponse(entries: List[PublicEntry],
+                          lastPage: Boolean) {
+
+}

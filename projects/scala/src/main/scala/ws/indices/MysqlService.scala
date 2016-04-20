@@ -21,7 +21,7 @@ class MysqlService extends Formatters {
 
   // Define the search-strategy
   def search(uris: Set[String], oFrom: Option[Int] = None, oTo: Option[Int] = None)
-  : Future[List[PublicResponse]] = {
+  : Future[PublicResponse] = {
     // defaults
     val from = oFrom.getOrElse(0)
     val to = oTo.getOrElse(from + 9)
@@ -34,35 +34,39 @@ class MysqlService extends Formatters {
 
     // Check the minimal conditions for the query to be valid
     if(validatedUris.isEmpty || distance > 10 || distance < 1) {
-      Future.successful(Nil)
+      Future.successful(PublicResponse(Nil, true))
     } else {
       // Get the results
-      val allResults = getAllResults(validatedUris, validatedFrom, validatedTo)
+      val pair = getAllResults(validatedUris, validatedFrom, validatedTo)
 
       // Produce the server responses
-      allResults.map(results => {
-        results.map {
-          case Result(resourceId, entryId, score, title, typeCol, href, oSnippet) => {
-            val snippet = oSnippet match {
-              case None => ""
-              case Some(s) => instantiateSnippet(s, uris)
+      pair.map {
+        case (results, lastPage) => {
+          // Collect the entries
+          val entries = results.map {
+            case Result(resourceId, entryId, score, title, typeCol, href, oSnippet) => {
+              val noSnippet = ""
+              val snippet = oSnippet match {
+                case None => noSnippet
+                case Some(s) => instantiateSnippet(s, uris).getOrElse(noSnippet)
+              }
+              PublicEntry(title, typeCol, href, snippet, score)
             }
-            PublicResponse(title, typeCol, href ,snippet, score)
-          }
-        }.toList
-      })
+          }.toList
+
+          //
+          PublicResponse(entries, lastPage)
+        }
+      }
     }
   }
 
   def getAllResults(uris: Set[String], from: Int, to: Int)
-  : Future[Set[Result]] = {
+  : Future[(Set[Result], Boolean)] = {
     val start = System.nanoTime()
 
     // Search for the uris
-    db.run(Queries.paged(uris, 0, 500)).map(rs => {
-      println("scores: " + utils.Utils.elapsedMs(start) + ", size=" + rs.size)
-      rs
-    }).map(rows => {
+    db.run(Queries.paged(uris, 0, 500)).map(rows => {
       // Extract the indices
       val indices = rows.map {
         case (entryId, oScore, oResourceId) =>
@@ -81,7 +85,6 @@ class MysqlService extends Formatters {
     }).flatMap(ranked => {
       // Are there other indices after?
       val lastPage = (ranked.size - 1 <= to)
-      // todo: Add this to a context object
 
       // Take the indices of interest
       val indices = ranked.drop(from).take(to - from + 1)
@@ -93,30 +96,32 @@ class MysqlService extends Formatters {
 
       // Fetch the details
       val entryIds = indices.map(_.entryId)
-      db.run(Queries.details(entryIds)).map(rs => {
-        println("details: " + utils.Utils.elapsedMs(start) + ", size=" + rs.size)
-        rs
-      }).map {
-        case rows => rows.map(row => row match {
-          case (entryId, title, typeText, oHref, snippet) => {
-            // Get the corresponding (sumScore, resourceId) information
-            val (sumScore, resourceId) = eiMap(entryId)
+      db.run(Queries.details(entryIds)).map {
+        case rows => {
+          // Create the results
+          val results = rows.map(row => row match {
+            case (entryId, title, typeText, oHref, snippet) => {
+              // Get the corresponding (sumScore, resourceId) information
+              val (sumScore, resourceId) = eiMap(entryId)
 
-            // Produce a result
-            val oSnippet = (snippet.size == 0) match {
-              case true => None
-              case false => Some(snippet)
+              // Produce a result
+              val oSnippet = (snippet.size == 0) match {
+                case true => None
+                case false => Some(snippet)
+              }
+              Result(resourceId, entryId, sumScore,
+                title, typeText, oHref.getOrElse(""), oSnippet)
             }
-            Result(resourceId, entryId, sumScore,
-              title, typeText, oHref.getOrElse(""), oSnippet)
-          }
-        }).toSet
+          }).toSet
+
+          (results, lastPage)
+        }
       }
     })
   }
 
   def instantiateSnippet(snippetStr: String, uris: Set[String])
-  : String = {
+  : Option[String] = {
     // Extract the snippet
     val json = parse(snippetStr)
     val snippet = json.extract[rsc.snippets.Snippet]
@@ -130,7 +135,10 @@ class MysqlService extends Formatters {
     val remaining = 3 - topSnippet.size
     val pumped = pumpNSnippets(remaining, snippet.otherLines, uris)
 
-    org.json4s.native.Serialization.write(topSnippet:::pumped)
+    (topSnippet:::pumped) match {
+      case Nil => None
+      case snippets => Some(org.json4s.native.Serialization.write(snippets))
+    }
   }
 
   def pumpNSnippets(n: Int, lines: List[Line], uris: Set[String])

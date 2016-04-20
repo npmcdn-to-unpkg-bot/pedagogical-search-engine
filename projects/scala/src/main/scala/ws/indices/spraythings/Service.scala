@@ -22,7 +22,7 @@ trait Service extends HttpService with CORSSupport {
         post {
           entity(as[Search]) { search =>
             respondWithMediaType(`application/json`) {
-              onComplete(mysqlService.search(search.uris.toSet, search.mildFrom, search.mildTo)) {
+              onComplete(mysqlService.search(search.uris.toSet, search.from, search.to)) {
                 case Success(value) => complete {
                   write(value)
                 }

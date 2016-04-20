@@ -1,5 +1,5 @@
 package ws.indices.spraythings
 
 case class Search(uris: List[String],
-                  mildFrom: Option[Int],
-                  mildTo: Option[Int]) {}
+                  from: Option[Int],
+                  to: Option[Int]) {}
