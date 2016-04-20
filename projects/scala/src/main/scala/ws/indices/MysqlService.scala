@@ -20,7 +20,12 @@ class MysqlService extends Formatters {
   val fetcher = new Jdbc(db)
 
   // Define the search-strategy
-  def search(uris: Set[String], from: Int = 0, to: Int = 9): Future[List[PublicResponse]] = {
+  def search(uris: Set[String], oFrom: Option[Int] = None, oTo: Option[Int] = None)
+  : Future[List[PublicResponse]] = {
+    // defaults
+    val from = oFrom.getOrElse(0)
+    val to = oTo.getOrElse(from + 9)
+
     // Some validation
     val validatedUris = uris.map(_.trim.toLowerCase).filter(_.length > 0).toSet
     val validatedFrom = math.min(from, to)
@@ -28,7 +33,7 @@ class MysqlService extends Formatters {
     val distance = (validatedTo - validatedFrom) + 1
 
     // Check the minimal conditions for the query to be valid
-    if(validatedUris.isEmpty || distance > 20 || distance < 1) {
+    if(validatedUris.isEmpty || distance > 1000 || distance < 1) {
       Future.successful(Nil)
     } else {
       // Gather the results
@@ -52,8 +57,13 @@ class MysqlService extends Formatters {
 
   def getAllResults(uris: Set[String], from: Int, to: Int)
   : Future[Set[Result]] = {
+    val start = System.nanoTime()
+
     // Search for the uris
-    db.run(Queries.paged(uris, from, to)).flatMap(rows => {
+    db.run(Queries.paged(uris, from, to)).map(rs => {
+      println("scores: " + utils.Utils.elapsedMs(start))
+      rs
+    }).flatMap(rows => {
       // Get the different entryIds
       val entryIds = rows.map {
         case row => row._1
@@ -66,7 +76,10 @@ class MysqlService extends Formatters {
       }.toMap
 
       // Fetch the details
-      db.run(Queries.details(entryIds)).map {
+      db.run(Queries.details(entryIds)).map(rs => {
+        println("details: " + utils.Utils.elapsedMs(start))
+        rs
+      }).map {
         case details => details.map {
           case detail =>
             // Extand the entry with its score

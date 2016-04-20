@@ -31,3 +31,19 @@ GROUP BY i.`EntryId`
 ORDER BY `TotalScore` DESC
 LIMIT 0, 10
 ;
+
+# Limit benchmark
+# Avg: 0.05 not dependance with limit size..
+select
+	`EntryId`,
+    sum(`Score`)
+from `indices`
+where
+	`Uri` in ("slavery", "music", "biology", "history", "jews", "culture")
+group by `EntryId`
+order by sum(`Score`) desc
+limit 0,1000;
+
+
+
+

@@ -16,4 +16,8 @@ object Utils {
     }
     mergeRec(List(), os: _*)
   }
+  def elapsedMs(start: Long): Int = {
+    val stop = System.nanoTime()
+    ((stop - start) / 1000 / 1000).toInt
+  }
 }
