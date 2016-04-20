@@ -15,7 +15,8 @@ object Queries {
     val sumed = matchedIndices.groupBy(_.entryId).map {
       case (entryId, group) => (entryId, group.map(_.score).sum)
     }
-    val skimmed = sumed.sortBy(p => p._2.desc).drop(from).take(to)
+    val quantity = to - from + 1
+    val skimmed = sumed.sortBy(p => p._2.desc).drop(from).take(quantity)
 
     // Return an "slick-action"
     skimmed.result
