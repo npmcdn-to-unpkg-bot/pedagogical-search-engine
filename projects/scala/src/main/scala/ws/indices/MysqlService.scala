@@ -27,31 +27,30 @@ class MysqlService extends Formatters {
     val to = oTo.getOrElse(from + 9)
 
     // Some validation
-    val validatedUris = uris.map(_.trim.toLowerCase).filter(_.length > 0).toSet
+    val validatedUris = uris.map(_.trim.toLowerCase).filter(_.length > 0)
     val validatedFrom = math.min(from, to)
     val validatedTo = math.max(from, to)
     val distance = (validatedTo - validatedFrom) + 1
 
     // Check the minimal conditions for the query to be valid
-    if(validatedUris.isEmpty || distance > 1000 || distance < 1) {
+    if(validatedUris.isEmpty || distance > 10 || distance < 1) {
       Future.successful(Nil)
     } else {
-      // Gather the results
+      // Get the results
       val allResults = getAllResults(validatedUris, validatedFrom, validatedTo)
 
-      // Ensure that not two entries (in the results) belong to the same resource
-      val filtered = filterDuplicates(allResults)
-
-      // Produce the public responses
-      filtered.map(results => results.map(toPublicResponse(_, validatedUris)).toList)
-    }
-  }
-
-  def toPublicResponse(result: Result, uris: Set[String])
-  : PublicResponse = result match {
-    case Result(resourceId, entryId, score, title, typeCol, href, snippet) => {
-      PublicResponse(title, typeCol, href,
-        instantiateSnippet(snippet, uris), score)
+      // Produce the server responses
+      allResults.map(results => {
+        results.map {
+          case Result(resourceId, entryId, score, title, typeCol, href, oSnippet) => {
+            val snippet = oSnippet match {
+              case None => ""
+              case Some(s) => instantiateSnippet(s, uris)
+            }
+            PublicResponse(title, typeCol, href ,snippet, score)
+          }
+        }.toList
+      })
     }
   }
 
@@ -60,52 +59,61 @@ class MysqlService extends Formatters {
     val start = System.nanoTime()
 
     // Search for the uris
-    db.run(Queries.paged(uris, from, to)).map(rs => {
-      println("scores: " + utils.Utils.elapsedMs(start))
+    db.run(Queries.paged(uris, 0, 500)).map(rs => {
+      println("scores: " + utils.Utils.elapsedMs(start) + ", size=" + rs.size)
       rs
-    }).flatMap(rows => {
-      // Get the different entryIds
-      val entryIds = rows.map {
-        case row => row._1
+    }).map(rows => {
+      // Extract the indices
+      val indices = rows.map {
+        case (entryId, oScore, oResourceId) =>
+          Index(entryId, oScore.get, oResourceId.get)
+      }
+
+      // Remove the duplicated resources
+      val grouped = indices.groupBy(_.resourceId)
+      val filtered = grouped.map {
+        case (resourceId, group) => group.sortBy(-_.sumScore).head
       }.toList
 
-      // Associate each entryId to its score
-      // No key-collision since no two identical entryIds there
-      val entryToScores: Map[String, Double] = rows.map {
-        case (entryId, oScore) => entryId -> oScore.get
+      // Rank the indices
+      filtered.sortBy(-_.sumScore)
+
+    }).flatMap(ranked => {
+      // Are there other indices after?
+      val lastPage = (ranked.size - 1 <= to)
+      // todo: Add this to a context object
+
+      // Take the indices of interest
+      val indices = ranked.drop(from).take(to - from + 1)
+
+      // Build a map between entryIds and (sumScore, resourceId)
+      val eiMap = indices.map {
+        case Index(eId, sumScore, rId) => eId ->(sumScore, rId)
       }.toMap
 
       // Fetch the details
+      val entryIds = indices.map(_.entryId)
       db.run(Queries.details(entryIds)).map(rs => {
-        println("details: " + utils.Utils.elapsedMs(start))
+        println("details: " + utils.Utils.elapsedMs(start) + ", size=" + rs.size)
         rs
       }).map {
-        case details => details.map {
-          case detail =>
-            // Extand the entry with its score
-            (entryToScores(detail._1), detail)
-        }
-      }
-    }).map {
-      case rows  => {
-        rows.map {
-          // Produce the response
-          case (score, (entryId, title, typeCol, href, snippet, resourceId)) =>
-            Result(resourceId, entryId, score, title,
-              typeCol, href.getOrElse(""), snippet)
-        }.toSet
-      }
-    }
-  }
+        case rows => rows.map(row => row match {
+          case (entryId, title, typeText, oHref, snippet) => {
+            // Get the corresponding (sumScore, resourceId) information
+            val (sumScore, resourceId) = eiMap(entryId)
 
-  def filterDuplicates(future: Future[Set[Result]])
-  : Future[Set[Result]] = future.map(results => {
-    val grouped = results.groupBy(_.resourceId)
-    val skimmed = grouped.map {
-      case (resourceId, setOfResults) => setOfResults.maxBy(_.score)
-    }
-    skimmed.toSet
-  })
+            // Produce a result
+            val oSnippet = (snippet.size == 0) match {
+              case true => None
+              case false => Some(snippet)
+            }
+            Result(resourceId, entryId, sumScore,
+              title, typeText, oHref.getOrElse(""), oSnippet)
+          }
+        }).toSet
+      }
+    })
+  }
 
   def instantiateSnippet(snippetStr: String, uris: Set[String])
   : String = {

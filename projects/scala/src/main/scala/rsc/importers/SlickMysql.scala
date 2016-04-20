@@ -50,7 +50,7 @@ class SlickMysql(_ec: ExecutionContext, db: Database) extends Formatters {
     r.title.oIndices match {
       case None => Nil
       case Some(indices) => indices.values.map {
-        case index => (index.uri, indices.entryId, index.score)
+        case index => (index.uri, indices.entryId, index.score, r.resourceId)
       }
     }
   }
@@ -65,7 +65,7 @@ class SlickMysql(_ec: ExecutionContext, db: Database) extends Formatters {
         val typeVal = typeDetail(r)
         val href = hrefDetail(r)
         val snippet = getSnippetText(r.title.oIndices)
-        Seq((indices.entryId, title, typeVal, href, snippet, r.resourceId))
+        Seq((indices.entryId, title, typeVal, href, snippet))
       }
     }
 
@@ -98,23 +98,23 @@ class SlickMysql(_ec: ExecutionContext, db: Database) extends Formatters {
       val typeVal = typeDetail(r)
       val href = hrefDetail(r)
       val snippet = getSnippetText(node.oIndices)
-      Seq((indices.entryId, title, typeVal, href, snippet, r.resourceId))
+      Seq((indices.entryId, title, typeVal, href, snippet))
     }
   }
 
   def nodesIndices(r: Resource)
   : Seq[Types.Indices] = r.oTocs match {
     case None => Nil
-    case Some(tocs) => tocs.flatMap(tocIndices(_))
+    case Some(tocs) => tocs.flatMap(tocIndices(_, r))
   }
 
-  def tocIndices(toc: Toc)
+  def tocIndices(toc: Toc, r: Resource)
   : Seq[Types.Indices] = toc.nodesRec() match {
     case Nil => Nil
-    case nodes => nodes.flatMap(nodeIndices(_))
+    case nodes => nodes.flatMap(nodeIndices(_, r))
   }
 
-  def nodeIndices(node: Node)
+  def nodeIndices(node: Node, r: Resource)
   : Seq[Types.Indices] = {
     val snippet = getSnippetText(node.oIndices)
     node.oIndices match {
@@ -123,7 +123,7 @@ class SlickMysql(_ec: ExecutionContext, db: Database) extends Formatters {
         case index => {
           val uri = index.uri
           val score = index.score
-          (uri, indices.entryId, score)
+          (uri, indices.entryId, score, r.resourceId)
         }
       }
     }

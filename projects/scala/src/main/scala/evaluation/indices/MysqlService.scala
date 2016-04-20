@@ -41,11 +41,11 @@ object MysqlService extends App {
     // generate the request itself
     val start = System.nanoTime()
 
-    service.search(uris.toSet, Some(0), Some(999)).map(rs => {
+    service.search(uris.toSet, Some(30), Some(39)).map(rs => {
       val elapsed = elapsedMs(start)
 
       // Filter a bit the outliers
-      if(elapsed > 500) {
+      if(elapsed > 200) {
         println(s"....ok avg= __, cur=" + elapsed)
       } else {
         // Compute some statistics

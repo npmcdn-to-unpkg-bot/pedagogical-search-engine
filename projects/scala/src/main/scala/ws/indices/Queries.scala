@@ -13,7 +13,7 @@ object Queries {
       i <- indicesTQ if i.uri inSetBind uris
     } yield i
     val sumed = matchedIndices.groupBy(_.entryId).map {
-      case (entryId, group) => (entryId, group.map(_.score).sum)
+      case (entryId, group) => (entryId, group.map(_.score).sum, group.map(_.resourceId).min)
     }
     val quantity = to - from + 1
     val skimmed = sumed.sortBy(p => p._2.desc).drop(from).take(quantity)
@@ -26,7 +26,7 @@ object Queries {
     // Prepare the statement
     val q = for {
       d <-detailsTQ if d.entryId inSetBind entryIds
-    } yield (d.entryId, d.title, d.typeCol, d.href, d.snippet, d.resourceId)
+    } yield (d.entryId, d.title, d.typeCol, d.href, d.snippet)
 
     // Return an "slick-action"
     q.result

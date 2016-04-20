@@ -6,6 +6,6 @@ case class Result(resourceId: String,
                   title: String,
                   typeCol: String,
                   href: String,
-                  snippet: String) {
+                  snippet: Option[String]) {
 
 }
