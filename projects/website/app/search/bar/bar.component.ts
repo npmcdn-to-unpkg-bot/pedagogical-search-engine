@@ -63,7 +63,6 @@ export class SearchBarCmp {
                 for(let searchTerm of searchTerms) {
                     this._entities.push(new Entity(searchTerm.label, searchTerm.uri));
                 }
-                this._reflectChangesinUrl();
             }
         }
     }

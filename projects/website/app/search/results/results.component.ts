@@ -5,6 +5,7 @@ import {Entry} from "./entry";
 import {SimpleEntriesService} from "./simple-entries.service";
 import {Response} from "./response";
 import {Router, RouteParams} from "angular2/router";
+import {MockEntriesService} from "./mock-entries.service";
 
 @Component({
     selector: 'wc-search-results',
@@ -25,14 +26,14 @@ import {Router, RouteParams} from "angular2/router";
 <div *ngIf="_hasMultiplePages()">
     <div *ngFor="#pageNo of _pages()">
         <a [textContent]="pageNo"
-        (click)="_goPage($event, pageNo)">a</a>
+        (click)="_goPage($event, pageNo)"></a>
     </div>
 </div>
     
     `,
     directives: [],
     providers: [
-        provide(EntriesService, {useClass: SimpleEntriesService})
+        provide(EntriesService, {useClass: MockEntriesService})
     ]
 })
 export class ResultsCmp {
@@ -48,9 +49,8 @@ export class ResultsCmp {
         private _router: Router,
         private _routeParams: RouteParams
     ) {
-        console.log("constructor!");
         // Is there any page-no in the url?
-        let pageNo = +_routeParams.get('pageNo');
+        let pageNo = +_routeParams.get('page');
         if(pageNo) {
             this.goToPage(pageNo);
         }
@@ -72,14 +72,17 @@ export class ResultsCmp {
 
     // Private
     private _fetchEntries(): void {
-        let entriesObs = this._entriesService.list(
-            this._searchTerms,
-            this._from,
-            this._to()
-        );
-        entriesObs.subscribe(res => {
-            this._response = res;
-        });
+        if(this._searchTerms.length > 0) {
+            console.log(`fetch: ${this._from} ${this._searchTerms.length}`);
+            let entriesObs = this._entriesService.list(
+                this._searchTerms,
+                this._from,
+                this._to()
+            );
+            entriesObs.subscribe(res => {
+                this._response = res;
+            });
+        }
     }
     private _hasMultiplePages(): boolean {
         if(this._response) {
@@ -111,9 +114,10 @@ export class ResultsCmp {
         event.stopPropagation();
 
         // Reflect the page in the url
-        let params = this._routeParams.params;
-        params['page'] = pageNo.toString();
-        this._router.navigate(['Search', params]);
-        this.goToPage(pageNo);
+        let newParams = {
+            q: this._routeParams.get("q"),
+            page: pageNo
+        };
+        this._router.navigate(['Search', newParams]);
     }
 }
