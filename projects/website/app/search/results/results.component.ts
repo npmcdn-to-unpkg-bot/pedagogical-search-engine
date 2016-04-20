@@ -33,7 +33,7 @@ import {MockEntriesService} from "./mock-entries.service";
     `,
     directives: [],
     providers: [
-        provide(EntriesService, {useClass: MockEntriesService})
+        provide(EntriesService, {useClass: SimpleEntriesService})
     ]
 })
 export class ResultsCmp {
@@ -51,8 +51,8 @@ export class ResultsCmp {
     ) {
         // Is there any page-no in the url?
         let pageNo = +_routeParams.get('page');
-        if(pageNo) {
-            this.goToPage(pageNo);
+        if(pageNo > 0) {
+            this._from = (pageNo - 1) * this._step;
         }
     }
 
@@ -62,12 +62,6 @@ export class ResultsCmp {
         if(sts && sts.length > 0) {
             this._fetchEntries();
         }
-    }
-
-    // Public
-    public goToPage(pageNo: number): void {
-        this._from = (pageNo - 1) * this._step;
-        this._fetchEntries();
     }
 
     // Private
@@ -92,7 +86,13 @@ export class ResultsCmp {
                 this._to()
             );
             entriesObs.subscribe(res => {
-                this._response = res;
+                // Debug case: there are no results
+                if(res.entries.length > 0) {
+                    this._response = res;
+                } else {
+                    // Navigate to page 1
+                    this._navigateToPage(1);
+                }
             });
         }
     }
@@ -125,7 +125,9 @@ export class ResultsCmp {
         event.preventDefault();
         event.stopPropagation();
 
-        // Reflect the page in the url
+        this._navigateToPage(pageNo);
+    }
+    private _navigateToPage(pageNo: number): void {
         let newParams = {
             q: this._routeParams.get("q"),
             page: pageNo

@@ -37,7 +37,7 @@ export class CompletionCmp {
     private _timeout: number;
     private _completion: Completion = new Completion();
     private _disambiguationCompletion: Completion = new Completion();
-    private _latency: number = 500;
+    private _latency: number = 50;
     private _cursor: number = 0;
 
     // Constructor
