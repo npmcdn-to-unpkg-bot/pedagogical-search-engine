@@ -6,6 +6,8 @@ import {provide, enableProdMode} from "angular2/core";
 import {AppSettings} from "./config";
 import {AngularFixService} from "./utils/angular-fix.service";
 
+enableProdMode();
+
 bootstrap(AppComponent, [
     HTTP_PROVIDERS,
     ROUTER_PROVIDERS,
