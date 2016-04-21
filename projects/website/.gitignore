@@ -1,9 +1,11 @@
 
 # tools folders
 node_modules/
-.idea/
+.idea/*
+!.idea/watcherTasks.xml
 
 # outputs
+dev/
 dist/
 typings/
 
