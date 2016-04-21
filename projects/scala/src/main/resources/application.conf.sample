@@ -1,3 +1,11 @@
+spray.can {
+  server {
+    server-header = ""
+    parsing {
+      max-content-length = 1k
+    }
+  }
+}
 wikichimp {
   workingDir = "???"
   spotlight {
