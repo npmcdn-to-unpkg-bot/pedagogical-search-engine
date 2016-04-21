@@ -19,44 +19,57 @@ class MysqlService extends Formatters {
   val db = Database.forConfig("wikichimp.indices.ws.slick")
   val fetcher = new Jdbc(db)
 
+  // Some constants
+  val N_MAX = 500
+
   // Define the search-strategy
-  def search(uris: Set[String], oFrom: Option[Int] = None, oTo: Option[Int] = None)
+  def search(uris: List[String], oFrom: Option[Int] = None, oTo: Option[Int] = None)
   : Future[PublicResponse] = {
     // defaults
     val from = oFrom.getOrElse(0)
     val to = oTo.getOrElse(from + 9)
+    val distance = to - from + 1
 
-    // Some validation
-    val validatedUris = uris.map(_.trim.toLowerCase).filter(_.length > 0)
-    val validatedFrom = math.min(from, to)
-    val validatedTo = math.max(from, to)
-    val distance = (validatedTo - validatedFrom) + 1
-
-    // Check the minimal conditions for the query to be valid
-    if(validatedUris.isEmpty || distance > 10 || distance < 1) {
+    // First validations: discard huge inputs
+    if(uris.size > 10 ||
+      from > to || from < 0 || to >= N_MAX ||
+      distance < 1 || distance > 10) {
       Future.successful(PublicResponse(Nil, 0))
+
     } else {
-      // Get the results
-      val pair = getAllResults(validatedUris, validatedFrom, validatedTo)
+      // The input sounds reasonable but perform a in-depth check
+      val validatedUris = uris.map(_.trim.toLowerCase).filter(_.length > 0).toSet
 
-      // Produce the server responses
-      pair.map {
-        case (results, nbResults) => {
-          // Collect the entries
-          val entries = results.map {
-            case Result(resourceId, entryId, score, title, typeCol, href, oSnippet) => {
-              val noSnippet = ""
-              val snippet = oSnippet match {
-                case None => noSnippet
-                case Some(s) => instantiateSnippet(s, uris).getOrElse(noSnippet)
-              }
-              PublicEntry(title, typeCol, href, snippet, score)
+      if(validatedUris.isEmpty) {
+        Future.successful(PublicResponse(Nil, 0))
+      } else {
+        process(validatedUris, from, to)
+      }
+    }
+  }
+
+  def process(uris: Set[String], from: Int, to: Int)
+  : Future[PublicResponse] = {
+    // Get the results
+    val pair = getAllResults(uris, from, to)
+
+    // Produce the server responses
+    pair.map {
+      case (results, nbResults) => {
+        // Collect the entries
+        val entries = results.map {
+          case Result(resourceId, entryId, score, title, typeCol, href, oSnippet) => {
+            val noSnippet = ""
+            val snippet = oSnippet match {
+              case None => noSnippet
+              case Some(s) => instantiateSnippet(s, uris).getOrElse(noSnippet)
             }
-          }.toList
+            PublicEntry(title, typeCol, href, snippet, score)
+          }
+        }.toList
 
-          //
-          PublicResponse(entries, nbResults)
-        }
+        //
+        PublicResponse(entries, nbResults)
       }
     }
   }
@@ -66,7 +79,7 @@ class MysqlService extends Formatters {
     val start = System.nanoTime()
 
     // Search for the uris
-    db.run(Queries.paged(uris, 0, 500)).map(rows => {
+    db.run(Queries.paged(uris, 0, N_MAX)).map(rows => {
       // Extract the indices
       val indices = rows.map {
         case (entryId, oScore, oResourceId) =>
