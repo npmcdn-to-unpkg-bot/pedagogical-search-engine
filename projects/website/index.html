@@ -3,7 +3,7 @@
     <base href="/">
     <title>Wiki chimp</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="dev/css/main.css">
 
     <!-- 1. Load libraries -->
     <!-- IE required polyfills, in this exact order -->
@@ -22,15 +22,16 @@
     <script>
         System.config({
             packages: {
-                dist: {
-                    format: 'register',
-                    defaultExtension: 'js',
-                    defaultJSExtensions: true
-
+                dev: {
+                    js: {
+                        format: 'register',
+                        defaultExtension: 'js',
+                        defaultJSExtensions: true
+                    }
                 }
             }
         });
-        System.import('dist/main')
+        System.import('dev/js/main')
                 .then(null, console.error.bind(console));
     </script>
 </head>
