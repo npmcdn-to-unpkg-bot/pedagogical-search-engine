@@ -311,7 +311,7 @@ object Queries {
         `LabelA` LIKE $textPercent AND
         `Available` = 1
       GROUP BY `A`
-      ORDER BY length(`LabelA`) ASC
+      ORDER BY length(MIN(`LabelA`)) ASC
       LIMIT #$n
     ) UNION (
       SELECT
