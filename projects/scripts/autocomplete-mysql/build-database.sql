@@ -9,15 +9,23 @@
 
 # --------------------------------------------------------------------
 If launched, this script will crash because of this line :p
+;
 
-# todo: Add "CHARACTER SET 'utf8'" everywhere
+
 # todo: Int -> MEDIUMINT or even smallest if possible
 # todo: shrink VARCHAR length
 # todo: rename the tables in a smart way
 
+# General information
+# Check at any time the status of a running operation (e.g. a big insert)
+# by running "SHOW ENGINE INNODB STATUS;"
+# The "ROW OPERATIONS" section is especially interesting
+# with "x inserts/s" and "Number of rows inserted x"
+# There is also the "SHOW FULL PROCESSLIST;" command
+
 # Tune MySQL in order to make it faster.
 # (1:manually) sudo /etc/init.d/mysql stop
-# (2:manually) sudo vim /etc/mysql/my.cnf
+# (2:manually) sudo vim /etc/mysql/mysql.conf.d/mysqld.cnf (or /etc/mysql/my.cnf), there should by a [mysqlld] entry
 # (3:manually) add the following lines
 #   # From the following guide
 #   # https://www.percona.com/blog/2007/11/01/innodb-performance-optimization-basics/
@@ -25,31 +33,62 @@ If launched, this script will crash because of this line :p
 #   innodb_thread_concurrency = 8
 # (4:manually) sudo /etc/init.d/mysql start
 
-# Create a table `existing-uris` with
-# a Uri (Varchar(255)) table utf-8-general_ci
+# On recent servers [2016.04], the mysql installation package is built
+# using "secure_file_priv" flag which forces the load of rows from a
+# data-file ("infile") on disk to be located in a particular root-folder.
+# For the following commands to work, perform them with a root connection
+# in the folder given by the query
+# SHOW VARIABLES LIKE "secure_file_priv";
 
-# 63 Millions [2016.04.07]
+# On recent servers [2016.04], the direct connection to a mysql console
+# using "mysql -u User -pPassword" is considered as insecured and yields
+# errors. To make the following queries work, create a "login-path" using
+# mysql_config_editor set --login-path=local --host=localhost --user=USER --password
+# [Type in your "USER" password]
+# You can then connect to the mysql console using
+# mysql --login-path=local DB_NAME
+
+# Create table
+CREATE TABLE `wlm-all` (
+  `A` VARCHAR(255) CHARACTER SET 'utf8',
+  INDEX a_idx (`A`(10)),
+  
+  `B` VARCHAR(255) CHARACTER SET 'utf8',
+  `Complete` DOUBLE,
+  `InLinks` DOUBLE,
+  `OutLinks` DOUBLE,
+  PRIMARY KEY (`A`, `B`));
+
+Drop
+	index `PRIMARY`
+	ON `wlm-all`;
+    
+# (1:manually) Download wlm-all.tsv
+# (2:bash) mkfifo wlm-all.fifo
+# (3:bash-blocking) pv wlm-all.tsv > wlm-all.fifo
+# (4:bash) FILE='wlm-all.fifo'; WORKDIR=`pwd`; mysql --login-path=local DB_NAME --execute="START TRANSACTION; LOAD DATA INFILE '$WORKDIR/$FILE' IGNORE INTO TABLE \`wlm-all\` FIELDS TERMINATED BY '\\t' ENCLOSED BY ''; COMMIT; SHOW WARNINGS" > wlm-all.warnings.log &
+# [2016.04] Time: 2h50min, 128'789'870 rows
 SELECT COUNT(*) FROM `wlm-all`;
 
-# On server-disconnect, you can check status with
-# SHOW ENGINE INNODB STATUS;
-# You should see the thread active in the "TRANSACTIONS" section
-INSERT INTO `existing-uris` (Uri)
-	SELECT A
-    FROM `wlm-all`
-;
+# Create table
+CREATE TABLE `existing-uris` (
+  `Uri` VARCHAR(255) CHARACTER SET 'utf8' NOT NULL,
+  PRIMARY KEY (`Uri`));
 
-# 1.561 Million [2016.04.07]
+START TRANSACTION;
+INSERT INTO `existing-uris` (Uri) SELECT A FROM `wlm-all`;
+COMMIT;
+
+# [2016.04] 1.561 Million
 SELECT COUNT(*) FROM `existing-uris`;
 
 # Just to have a look
 SELECT * FROM `existing-uris` LIMIT 10;
 
 # Same for B..
-INSERT IGNORE INTO `existing-uris` (Uri)
-	SELECT B
-    FROM `wlm-all`
-;
+START TRANSACTION;
+INSERT IGNORE INTO `existing-uris` (Uri) SELECT B FROM `wlm-all`;
+COMMIT;
 
 # 111 rows added.. [2016.04.07]
 # these where links with no out-links.. aka dangling nodes
@@ -60,9 +99,15 @@ SELECT * FROM `existing-uris` LIMIT 10;
 
 # Create table
 CREATE TABLE `labels` (
-  `Uri` VARCHAR(255) NOT NULL,
+  `Uri` VARCHAR(255) CHARACTER SET 'utf8' NOT NULL,
+  INDEX uri_idx (`Uri`(10)),
+  
   `Label` VARCHAR(255) CHARACTER SET 'utf8' NOT NULL,
   PRIMARY KEY (`Uri`, `Label`));
+  
+Drop
+	index `PRIMARY`
+	ON `labels`;
   
 # Note: Labels are a bit tricky to import because they contain
 # "escaped unicodes" (e.g. \u00A3) that need to be converted into
@@ -92,15 +137,20 @@ CREATE TABLE `labels` (
 # (5:bash) native2ascii -encoding UTF-8 -reverse labels.csv labels.utf8.csv
 # (6:bash) mkfifo labels.utf8.fifo
 # (7:bash-blocking) pv labels.utf8.csv > labels.utf8.fifo
-# (8:bash) FILE='labels.utf8.fifo'; WORKDIR=`pwd`; mysql -u YOUR_USER -pYOUR_PASSWORD YOUR_DB_NAME --execute="START TRANSACTION; LOAD DATA INFILE '$WORKDIR/$FILE' IGNORE INTO TABLE labels CHARACTER SET UTF8 FIELDS TERMINATED BY ',' ENCLOSED BY '\"'; COMMIT; SHOW WARNINGS" > labels.utf8.warnings.log &
+# (8:bash) FILE='labels.utf8.fifo'; WORKDIR=`pwd`; mysql --login-path=local DB_NAME --execute="START TRANSACTION; LOAD DATA INFILE '$WORKDIR/$FILE' IGNORE INTO TABLE labels CHARACTER SET UTF8 FIELDS TERMINATED BY ',' ENCLOSED BY '\"'; COMMIT; SHOW WARNINGS" > labels.utf8.warnings.log &
+# [2016.04] It takes ~[33,53]min
 
 # Create table
 CREATE TABLE `transitive-redirects` (
-  `A` VARCHAR(255) NOT NULL,
   `B` VARCHAR(255) CHARACTER SET 'utf8' NOT NULL,
+  INDEX b_idx (`B`(10)),
+  
+  `A` VARCHAR(255) CHARACTER SET 'utf8' NOT NULL,
   PRIMARY KEY (`A`));
 
-# (1:workbench) Create an index on column `B` manually with mysql-workbench
+Drop
+	index `PRIMARY`
+	ON `transitive-redirects`;
 
 # (1:manually) Download transitive-redirects_en.nt from the dbpedia project
 # (2:bash) cp transitive-redirects_en.nt transitive-redirects_en.csv
@@ -109,26 +159,26 @@ CREATE TABLE `transitive-redirects` (
 # (4.2:bash) if necessary(discard last line): sed -i '$ d' transitive-redirects.csv
 # (5:bash) mkfifo transitive-redirects.fifo
 # (6:bash-blocking) pv transitive-redirects.csv > transitive-redirects.fifo
-# (7:bash) FILE='transitive-redirects.fifo'; WORKDIR=`pwd`; mysql -u YOUR_USER -pYOUR_PASSWORD YOUR_DB_NAME --execute="START TRANSACTION; LOAD DATA INFILE '$WORKDIR/$FILE' IGNORE INTO TABLE transitive-redirects FIELDS TERMINATED BY ',' ENCLOSED BY '\"'; COMMIT; SHOW WARNINGS" > transitive-redirects.warnings.log &
+# (7:bash) FILE='transitive-redirects.fifo'; WORKDIR=`pwd`; mysql --login-path=local DB_NAME --execute="START TRANSACTION; LOAD DATA INFILE '$WORKDIR/$FILE' IGNORE INTO TABLE \`transitive-redirects\` FIELDS TERMINATED BY ',' ENCLOSED BY '\"'; COMMIT; SHOW WARNINGS" > transitive-redirects.warnings.log &
+# [2016.04] It takes ~23min
 
 # Create table
 CREATE TABLE `transitive-redirects2` (
-  `A` VARCHAR(255) NOT NULL,
+  `A` VARCHAR(255) CHARACTER SET 'utf8' NOT NULL,
   `B` VARCHAR(255) CHARACTER SET 'utf8' NOT NULL,
   PRIMARY KEY (`A`));
   
-# On server-disconnect, you can check status with
-# SHOW ENGINE INNODB STATUS;
-# You should see the thread active in the "TRANSACTIONS" section
-# [2016.04.08] 2'551'129 rows "evicted"
+# [2016.04] Time: ~??, 2'551'129 rows "evicted"
 # i.e. that do not have their destination in our existing uris
 # details: (6'528'806 - 3'977'677)
+START TRANSACTION;
 INSERT INTO `transitive-redirects2` (A, B) 
 	SELECT tr.a, tr.b
 	FROM `transitive-redirects` tr
 		JOIN `existing-uris` eu
 			ON eu.Uri = tr.b
 ;
+COMMIT;
 
 # Create table
 CREATE TABLE `links-degree` (
@@ -147,13 +197,14 @@ CREATE TABLE `links-degree2` (
   `Out` INT NOT NULL,
   PRIMARY KEY (`Uri`));
 
-
+START TRANSACTION;
 INSERT IGNORE INTO `links-degree2` (`Uri`, `In`, `Out`)
 	SELECT ld.`Uri`, ld.`In`, ld.`Out`
 	FROM `links-degree` ld
 		JOIN `existing-uris` eu
 			ON ld.Uri = eu.Uri
 ;
+COMMIT;
 
 # Create table
 CREATE TABLE `dictionary-titles-init` (
@@ -169,7 +220,7 @@ Drop
 	index `PRIMARY`
 	ON `dictionary-titles-init`;
 
-# [2016.04.11] About 1 minute
+# [2016.04] About 1 minute
 INSERT IGNORE INTO `dictionary-titles-init` (`Uri`, `Label`, `In`) 
 	SELECT eu.`Uri`, l.`Label`, ld2.`In`
 	FROM `existing-uris` eu
@@ -221,14 +272,6 @@ INSERT IGNORE INTO `dictionary-titles-uri-idx` (`Uri`, `Label`, `In`)
 ;
 COMMIT;
 
-
-# Note: The following queries can be quiet long
-# You can check the status using `sudo top` in a console
-# Or issue these mysql commands in another mysql-process
-# The "ROW OPERATIONS" section is especially interesting
-# with "x inserts/s" and "Number of rows inserted x"
-SHOW ENGINE INNODB STATUS;
-SHOW FULL PROCESSLIST;
 
 # Create table
 CREATE TABLE `dictionary-redirects-seed` (
@@ -326,7 +369,7 @@ CREATE TABLE `disambiguations` (
 # (5:bash) mkfifo disambiguations.fifo
 # (6:bash-blocking) pv disambiguations.csv > disambiguations.fifo
 # (7:bash) FILE='disambiguations.fifo'; WORKDIR=`pwd`; mysql -u YOUR_USER -pYOUR_PASSWORD YOUR_DB_NAME --execute="START TRANSACTION; LOAD DATA INFILE '$WORKDIR/$FILE' IGNORE INTO TABLE disambiguations FIELDS TERMINATED BY ',' ENCLOSED BY '\"'; COMMIT; SHOW WARNINGS" > disambiguations.warnings.log &
-
+# [2016.04] Time: 3min
 
 # Create table
 CREATE TABLE `dictionary-disambiguation-seed1` (
@@ -338,9 +381,7 @@ CREATE TABLE `dictionary-disambiguation-seed1` (
 
 # Perform the following commands in a mysql console:
 # mysql -u YOUR_USER -pYOUR_PASSWORD YOUR_DB_NAME
-# [2016.04.11] Performance
-#   Query OK, 1'419'848 rows affected (41.89 sec)
-#   Records: 1'419'848  Duplicates: 0  Warnings: 0
+# [2016.04] Time: 12min, 1'419'848 rows
 START TRANSACTION;
 INSERT IGNORE INTO `dictionary-disambiguation-seed1` (`A`, `B`, `LabelA`) 
 	SELECT d.A, d.B, l.Label
@@ -360,9 +401,7 @@ CREATE TABLE `dictionary-disambiguation-seed2` (
 
 # Perform the following commands in a mysql console:
 # mysql -u YOUR_USER -pYOUR_PASSWORD YOUR_DB_NAME
-# [2016.04.11] Performance
-#   Query OK, 1419848 rows affected (6 min 31.94 sec)
-#   Records: 1419848  Duplicates: 0  Warnings: 0
+# [2016.04.11] Time: 4min
 START TRANSACTION;
 INSERT IGNORE INTO `dictionary-disambiguation-seed2` (`B`, `A`, `LabelA`) 
 	SELECT ds1.B, ds1.A, ds1.LabelA
