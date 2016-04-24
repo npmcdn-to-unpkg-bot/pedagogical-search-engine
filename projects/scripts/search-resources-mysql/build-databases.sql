@@ -16,7 +16,7 @@ CREATE TABLE `indices` (
   `Uri` VARCHAR(255) CHARACTER SET 'utf8' NOT NULL,
   INDEX uri_idx (`Uri`(20)),
   
-  `EntryId` CHAR(36) CHARACTER SET 'utf8' NULL,
+  `EntryId` CHAR(36) CHARACTER SET 'utf8' NOT NULL,
   `Score` DOUBLE NULL,
   `ResourceId` CHAR(36) CHARACTER SET 'utf8' NOT NULL,
 PRIMARY KEY (`Uri`, `EntryId`));
