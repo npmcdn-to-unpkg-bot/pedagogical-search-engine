@@ -3,5 +3,5 @@
  */
 
 SELECT A, B, Complete
-FROM `wlm-all-11G`
+FROM `wlm-all`
 WHERE A IN ($_1)
