@@ -23,6 +23,7 @@ libraryDependencies ++= Seq(
   // Pre-Factored Graph code dependencies
   // todo: review them
   "org.apache.commons" % "commons-lang3" % "3.4",
+  "org.apache.commons" % "commons-io" % "1.3.2",
   "org.json" % "json" % "20131018",
   "junit" % "junit" % "4.12",
   "mysql" % "mysql-connector-java" % "5.1.38"

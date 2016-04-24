@@ -39,8 +39,8 @@ class Settings(config: Config) {
     }
   }
   object Indices {
-    object Import {
-      val nbTasks = getInt("indices.import.nbTasks")
+    object Indexation {
+      val nbTasks = getInt("indices.indexation.nbTasks")
     }
     object Ws {
       object Spray {
