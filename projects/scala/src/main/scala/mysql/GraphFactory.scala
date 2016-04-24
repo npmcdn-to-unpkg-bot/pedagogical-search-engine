@@ -25,9 +25,11 @@ object GraphFactory {
 
     Future {
       // .. follow links once
-      QueriesUtils.execute(query)
+      val co: java.sql.Connection = Constants.database.getConnection()
+      val rs = co.createStatement().executeQuery(query)
+      (co, rs)
     } map {
-      case rs => {
+      case (co, rs) => {
         while (rs.next) {
           val a = rs.getString("A").toLowerCase
           val b = rs.getString("B").toLowerCase
@@ -41,6 +43,7 @@ object GraphFactory {
           }
         }
         rs.close()
+        co.close()
         digraph
       }
     }
@@ -59,9 +62,11 @@ object GraphFactory {
 
     Future {
       // .. follow links once
-      QueriesUtils.execute(query)
+      val co: java.sql.Connection = Constants.database.getConnection()
+      val rs = co.createStatement().executeQuery(query);
+      (co, rs)
     } map {
-      case rs => {
+      case (co, rs) => {
         val newNodes = rs.next match {
           case false => Set()
           case true => {
@@ -97,6 +102,7 @@ object GraphFactory {
           }
         }
         rs.close()
+        co.close()
 
         // .. follow the links a second time
         val fromIds = QueriesUtils.escapeAndJoin(newNodes.toList.asJava)
@@ -109,10 +115,12 @@ object GraphFactory {
       }
     } map {
       case query => {
-        QueriesUtils.execute(query)
+        val co: java.sql.Connection = Constants.database.getConnection()
+        val rs = co.createStatement().executeQuery(query);
+        (co, rs)
       }
     } map {
-      case rs => {
+      case (co, rs) => {
         while (rs.next) {
           val a = rs.getString("A").toLowerCase
           val b = rs.getString("B").toLowerCase
@@ -122,6 +130,7 @@ object GraphFactory {
           nodeA.addEdgeAttr(b, Constants.Graph.Edges.Attribute.completeWlm, score)
         }
         rs.close()
+        co.close()
         digraph
       }
     }
