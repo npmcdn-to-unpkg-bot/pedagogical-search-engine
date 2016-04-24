@@ -27,6 +27,7 @@ wikichimp {
   }
   indices {
     import {
+      nbTasks = ???
       slick {
         driver = "com.mysql.jdbc.Driver"
         url = "jdbc:mysql://"?ip?"/tocpic"
