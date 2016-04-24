@@ -43,7 +43,6 @@ lazy val root = (project in file(".")).
   settings(
     name := "autocomplete",
     version := "1.0",
-    scalaVersion := "2.11.7",
-    mainClass in Compile := Some("ws.autocomplete.MysqlBoot")
+    scalaVersion := "2.11.7"
   )
 
