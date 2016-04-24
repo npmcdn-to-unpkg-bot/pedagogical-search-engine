@@ -11,7 +11,7 @@ class Database(settings: Settings) {
   val password = settings.Wikipedia.Links.Mysql.password
   val user = settings.Wikipedia.Links.Mysql.user
 
-  val url = s"jdbc:mysql://$ip:$port/$database"
+  val url = s"jdbc:mysql://$ip:$port/$database?useSSL=false"
 
   def getConnection(): java.sql.Connection = {
     Class.forName("com.mysql.jdbc.Driver").newInstance()
