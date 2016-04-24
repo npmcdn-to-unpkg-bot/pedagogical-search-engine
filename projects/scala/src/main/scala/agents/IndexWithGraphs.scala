@@ -2,6 +2,7 @@ package agents
 
 import java.io.File
 import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicInteger
 
 import org.json4s.native.JsonMethods._
 import rsc.annotators.Annotator
@@ -22,13 +23,56 @@ object IndexWithGraphs extends Formatters {
 
     // Create the thread pools
     val cores: Int = Runtime.getRuntime().availableProcessors()
-    val nbTasks= math.floor(cores * 3).toInt
+    val nbTasks= settings.Indices.Import.nbTasks
     val tasksQueue = ExecutionContext.
       fromExecutor(Executors.newFixedThreadPool(nbTasks))
     val indexerQueue = ExecutionContext.
       fromExecutor(Executors.newFixedThreadPool(nbTasks * 10))
 
     Logger.info(s"Start indexing: #tasks=${nbTasks}")
+
+    // Create a monitoring system
+    val totCounter = new AtomicInteger(1)
+    val okCounter = new AtomicInteger(0)
+    val naCounter = new AtomicInteger(0) // na = Not annotated
+    val alreadyCounter = new AtomicInteger(0)
+    val rejectedCounter = new AtomicInteger(0)
+    val errorCounter = new AtomicInteger(0)
+
+    val totCounterLT = new AtomicInteger(-1) // LT = Long term
+    val okCounterLT = new AtomicInteger(0)
+    val naCounterLT = new AtomicInteger(0)
+    val alreadyCounterLT = new AtomicInteger(0)
+    val rejectedCounterLT = new AtomicInteger(0)
+    val errorCounterLT = new AtomicInteger(0)
+
+    val monitoring = Future {
+      while(totCounter.get() > 0) {
+        // Reset counters
+        val tot = totCounter.getAndSet(0)
+        val ok = okCounter.getAndSet(0)
+        val na = naCounter.getAndSet(0)
+        val already = alreadyCounter.getAndSet(0)
+        val rejected = rejectedCounter.getAndSet(0)
+        val error = errorCounter.getAndSet(0)
+
+        // Log for the long-term stats
+        val totLT = totCounterLT.addAndGet(tot)
+        val okLT = okCounterLT.addAndGet(ok)
+        val naLT = naCounterLT.addAndGet(na)
+        val alreadyLT = alreadyCounterLT.addAndGet(already)
+        val rejectedLT = rejectedCounterLT.addAndGet(rejected)
+        val errorLT = errorCounterLT.addAndGet(error)
+
+        // Log the stats
+        Logger.info(s"Monitoring(rsc/min): tot=${tot}, ok=${ok}, rejected=${rejected}, already=${already}, na=${na}, error=${error}")
+        Logger.info(s"Statistics(#rsc): tot=${totLT}, ok=${okLT}, rejected=${rejectedLT}, already=${alreadyLT}, na=${naLT}, error=${errorLT}")
+
+        // Sleep a bit
+        Thread.sleep(60 * 1000)
+      }
+      true
+    }(tasksQueue)
 
     // For each resource-file
     val futures = Files.explore(
@@ -63,10 +107,14 @@ object IndexWithGraphs extends Formatters {
         (annotated, indexed) match {
           case (false, _) => {
             Logger.info(s"Skipping - Resource not annotated: $name")
+            totCounter.incrementAndGet()
+            naCounter.incrementAndGet()
             Nil
           }
           case (_ ,true) => {
             Logger.info(s"Skipping - Resource already indexed: $name")
+            totCounter.incrementAndGet()
+            alreadyCounter.incrementAndGet()
             Nil
           }
           case  _ => {
@@ -95,10 +143,14 @@ object IndexWithGraphs extends Formatters {
                   case Some(newR) => {
                     Json.write(newR, Some(file.file.getAbsolutePath))
                     Logger.info(s"OK: $name")
+                    totCounter.incrementAndGet()
+                    okCounter.incrementAndGet()
                     true
                   }
                   case None => {
-                    Logger.error(s"Cannot index: $name")
+                    Logger.error(s"Rejected: $name")
+                    totCounter.incrementAndGet()
+                    rejectedCounter.incrementAndGet()
                     false
                   }
                 }
@@ -106,7 +158,9 @@ object IndexWithGraphs extends Formatters {
                 case e: Throwable => {
                   val error = e.getClass.getName
                   e.printStackTrace()
-                  Logger.error(s"Failed($error): $name")
+                  Logger.error(s"Error($error): $name")
+                  totCounter.incrementAndGet()
+                  errorCounter.incrementAndGet()
                   false
                 }
               }
@@ -117,13 +171,15 @@ object IndexWithGraphs extends Formatters {
         }
       } catch {
         case e => {
-          Logger.info(s"Cannot parse: $name")
+          Logger.info(s"Error: Cannot parse: $name")
+          totCounter.incrementAndGet()
+          errorCounter.incrementAndGet()
           Nil
         }
       }
     })
 
-    val merge = Future.sequence(futures)(implicitly, tasksQueue)
+    val merge = Future.sequence(monitoring::futures)(implicitly, tasksQueue)
     val finalize = merge.andThen({
       case Success(xs) => {
         // Measure execution time
