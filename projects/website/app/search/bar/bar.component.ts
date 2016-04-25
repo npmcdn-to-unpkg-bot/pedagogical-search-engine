@@ -78,7 +78,9 @@ export class SearchBarCmp {
     ngAfterViewInit(): void {
         let input = this._input;
         this._window.addEventListener("keydown", function(event){
-            input.nativeElement.focus();
+            if(!event.ctrlKey) {
+                input.nativeElement.focus();
+            }
         });
     }
     ngAfterContentInit() {
