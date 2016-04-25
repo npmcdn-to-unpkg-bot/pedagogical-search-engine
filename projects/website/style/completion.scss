@@ -11,7 +11,11 @@
     }
 
     &-disambiguation {
-      background-color: powderblue;
+      font-style: italic;
+
+      &-selected {
+        background-color: rgb(255,255,204);
+      }
     }
   }
 }

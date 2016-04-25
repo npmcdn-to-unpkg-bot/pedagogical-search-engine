@@ -14,6 +14,7 @@ import {MockCompletionService} from "./mock-completion.service";
     *ngFor="#proposition of getPropositions(); #i = index"
     [class.wc-com-completion-entry-selected]="proposition.isSelected()"
     [class.wc-com-completion-entry-disambiguation]="proposition.getResult().isDisambiguation()"
+    [class.wc-com-completion-entry-disambiguation-selected]="proposition.getResult().isDisambiguation() && proposition.isSelected()"
     (click)="select()"
     (mouseover)="_setAndApplyCursor(i)">
     <span [textContent]="proposition.getResult().label | json"></span>
