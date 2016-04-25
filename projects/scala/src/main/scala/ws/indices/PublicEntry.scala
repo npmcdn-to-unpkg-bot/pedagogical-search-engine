@@ -4,4 +4,5 @@ case class PublicEntry(title: String,
                        typeText: String,
                        href: String,
                        snippet: String,
-                       score: Double) {}
+                       quality: Quality.Quality,
+                       rank: Int) {}

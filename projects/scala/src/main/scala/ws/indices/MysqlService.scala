@@ -56,17 +56,26 @@ class MysqlService extends Formatters {
     // Produce the server responses
     pair.map {
       case (results, nbResults) => {
+        // Order the results
+        val ordered = results.toList.sortBy(-_.score).zipWithIndex
+
         // Collect the entries
-        val entries = results.map {
-          case Result(resourceId, entryId, score, title, typeCol, href, oSnippet) => {
+        val entries = ordered.map {
+          case (Result(resourceId, entryId, score, title, typeCol, href, oSnippet), index) => {
             val noSnippet = ""
             val snippet = oSnippet match {
               case None => noSnippet
               case Some(s) => instantiateSnippet(s, uris).getOrElse(noSnippet)
             }
-            PublicEntry(title, typeCol, href, snippet, score)
+            val quality = (score / uris.size.toDouble) match {
+              case small if small < 0.5 => Quality.low
+              case medium if medium < 0.8 => Quality.medium
+              case high => Quality.high
+            }
+
+            PublicEntry(title, typeCol, href, snippet, quality, index)
           }
-        }.toList
+        }
 
         //
         PublicResponse(entries, nbResults)

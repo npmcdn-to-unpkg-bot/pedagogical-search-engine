@@ -2,6 +2,7 @@ package ws.indices.spraythings
 
 import org.json4s._
 import org.json4s.native.Serialization.write
+import rsc.Formatters
 import spray.http.MediaTypes.`application/json`
 import spray.routing.HttpService
 import ws.indices.MysqlService
@@ -11,10 +12,9 @@ import ws.spraythings.CORSSupport
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
 
-trait Service extends HttpService with CORSSupport {
+trait Service extends HttpService with CORSSupport with Formatters {
 
   val mysqlService = new MysqlService()
-  implicit val formats = DefaultFormats
 
   val myRoute =
     path("indices") {
