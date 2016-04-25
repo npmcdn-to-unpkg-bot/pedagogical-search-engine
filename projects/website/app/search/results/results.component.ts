@@ -20,10 +20,18 @@ import {MockEntriesService} from "./mock-entries.service";
                   class="wc-com-results-link-good">
                 [Good match]
             </span>
-            <a class="wc-com-results-link wc-com-results-link-ok"
+            
+            <a *ngIf="entry.isBook()"
+                class="wc-com-results-link wc-com-results-link-ok"
+               [href]="entry.googleHref()">
+                <b [textContent]="entry.title"></b>
+            </a>
+            <a *ngIf="!entry.isBook()"
+                class="wc-com-results-link wc-com-results-link-ok"
                [href]="entry.href">
                 <b [textContent]="entry.title"></b>
             </a>
+            
             <span class="wc-com-results-link-source" 
                   [textContent]="entry.typeText"></span>
         </div>

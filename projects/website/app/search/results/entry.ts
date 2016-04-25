@@ -18,4 +18,15 @@ export class Entry {
     public isLowQuality(): boolean {
         return this.quality === Quality.low;
     }
+    public hasHref(): boolean {
+        return (this.href.length > 0);
+    }
+    public isBook(): boolean {
+        return (this.typeText.toLowerCase() === "book");
+    }
+    public googleHref(): String {
+        let query = encodeURI(this.title);
+
+        return `https://google.com/search?q=${query}`;
+    }
 }
