@@ -7,8 +7,16 @@ import {RouteParams, Router, ROUTER_DIRECTIVES} from "angular2/router";
 @Component({
     template: `
     
-    <h2>Search page</h2>
-    <wc-search-bar (searchTermsChange)="_searchTermsChange($event)"></wc-search-bar>
+    <div class="wc-com-search-topthings">
+        <h2 class="wc-com-search-minilogo">
+            Search
+        </h2>
+        
+        <wc-search-bar
+            class="wc-com-search-bar"
+            (searchTermsChange)="_searchTermsChange($event)"></wc-search-bar>
+    </div>
+    
     <wc-search-results [searchTerms]="_searchTerms"></wc-search-results>
     
     `,

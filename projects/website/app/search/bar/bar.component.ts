@@ -1,4 +1,4 @@
-import {Component, ViewChild, Output, EventEmitter, OnChanges, SimpleChange} from "angular2/core";
+import {Component, ViewChild, Output, EventEmitter, OnChanges, SimpleChange, Inject} from "angular2/core";
 import {Router, RouteParams} from "angular2/router";
 import {CompletionCmp} from "./completion/completion.component";
 import {SearchTerm} from "../search-terms/SearchTerm";
@@ -11,27 +11,34 @@ enum keys {Tab, Enter, Down, Up, Escape};
     selector: 'wc-search-bar',
     template: `
 
-<div class="wc-sb-div1">
-    <div class="wc-sb-div2">
-        <div class="wc-sb-div2l" *ngFor="#resource of _entities; #i = index">
-            <span [textContent]="resource | json"></span>
-            <span (click)="_remove(i)">&#x2715;</span>
-        </div>
-        <div class="wc-sb-div2r">
-            <input type="text" [(ngModel)]="_text"
-                (keydown.tab)="_specialKeydown($event, _KEYS.Tab)"
-                (keydown.enter)="_specialKeydown($event, _KEYS.Enter)"
-                (keydown.ArrowDown)="_specialKeydown($event, _KEYS.Down)"
-                (keydown.ArrowUp)="_specialKeydown($event, _KEYS.Up)"
-                (keydown.Escape)="_specialKeydown($event, _KEYS.Escape)"
-                #inputObj>
+<div class="wc-com-search-bar-container">
+    <div class="wc-com-search-bar-input-wrapper">
+    
+        <input type="text" [(ngModel)]="_text"
+            class="wc-com-search-bar-input"
+            (keydown.tab)="_specialKeydown($event, _KEYS.Tab)"
+            (keydown.enter)="_specialKeydown($event, _KEYS.Enter)"
+            (keydown.ArrowDown)="_specialKeydown($event, _KEYS.Down)"
+            (keydown.ArrowUp)="_specialKeydown($event, _KEYS.Up)"
+            (keydown.Escape)="_specialKeydown($event, _KEYS.Escape)"
+            #inputObj>
+        
+        <div class="wc-com-search-bar-input-bottom-container">
+            <wc-completion
+                class="wc-com-search-bar-suggestions"
+                #completionObj
+                [text]="_text"
+                (itemSelected)="_itemSelected($event)">
+            </wc-completion>
         </div>
     </div>
-    <wc-completion
-        #completionObj
-        [text]="_text"
-        (itemSelected)="_itemSelected($event)">
-    </wc-completion>
+        
+    <span class="wc-com-search-bar-st"
+          *ngFor="#resource of _entities; #i = index">
+        <span [textContent]="resource.label"></span>
+        <span class="wc-com-search-bar-st-close"
+              (click)="_remove(i)">&#x2715;</span>
+    </span>
 </div>
 
     `,
@@ -51,10 +58,10 @@ export class SearchBarCmp {
     @ViewChild('inputObj') private _input;
 
     // Init logic
-    constructor(private _window: Window,
-                private _router: Router,
-                private _routeParams: RouteParams,
-                private _angularFixes: AngularFixService) {
+    constructor(@Inject(Window) private _window: Window,
+                @Inject(Router) private _router: Router,
+                @Inject(RouteParams) private _routeParams: RouteParams,
+                @Inject(AngularFixService) private _angularFixes: AngularFixService) {
         // Load url search-terms
         let q = this._routeParams.get('q');
         if(q) {

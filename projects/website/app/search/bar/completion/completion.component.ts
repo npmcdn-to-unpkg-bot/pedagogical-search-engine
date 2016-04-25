@@ -10,17 +10,13 @@ import {MockCompletionService} from "./mock-completion.service";
     selector: 'wc-completion',
     template: `
 
-<div class="wc-sb-c-entry"
+<div class="wc-com-completion-entry"
     *ngFor="#proposition of getPropositions(); #i = index"
-    [class.wc-sb-c-selected]="proposition.isSelected()"
-    [class.wc-sb-c-disambiguation]="proposition.getResult().isDisambiguation()"
+    [class.wc-com-completion-entry-selected]="proposition.isSelected()"
+    [class.wc-com-completion-entry-disambiguation]="proposition.getResult().isDisambiguation()"
     (click)="select()"
     (mouseover)="_setAndApplyCursor(i)">
     <span [textContent]="proposition.getResult().label | json"></span>
-</div>
-<div class="wc-sb-c-entry"
-    *ngIf="!hasPropositions()">
-    <span>No results</span>
 </div>
     
     `,
@@ -37,7 +33,7 @@ export class CompletionCmp {
     private _timeout: number;
     private _completion: Completion = new Completion();
     private _disambiguationCompletion: Completion = new Completion();
-    private _latency: number = 50;
+    private _latency: number = 500;
     private _cursor: number = 0;
 
     // Constructor

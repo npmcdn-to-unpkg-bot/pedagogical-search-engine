@@ -6,7 +6,6 @@ import {SearchCmp} from "./search/search.component";
     selector: 'wc-app',
     template: `
 
-<h1>WikiChimp</h1> 
 <router-outlet></router-outlet>
 
 `,

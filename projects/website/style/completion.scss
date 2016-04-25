@@ -1,0 +1,17 @@
+
+.wc-com-completion- {
+  &entry {
+    background-color: white;
+    padding-left: 5px;
+    padding-right: 5px;
+    font-size: 1.1em;
+
+    &-selected {
+      background-color: rgb(231,231,231);
+    }
+
+    &-disambiguation {
+      background-color: powderblue;
+    }
+  }
+}
