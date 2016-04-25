@@ -56,7 +56,8 @@ CREATE TABLE `active-uris-tmp` (
   `Uri` VARCHAR(255) CHARACTER SET 'utf8' NOT NULL,
 PRIMARY KEY (`Uri`));
 
-# [2016.04] 5'090 resources, time: 3.5sec, 11'247 active uris
+# [2016.04] 5'090 resources, time: 3.5sec, 11,247 active uris
+# [2016.04] 24,293 resources, time: 9sec, 22,793 active uris
 START TRANSACTION;
 INSERT IGNORE INTO `active-uris-tmp`
 	(`Uri`) 
@@ -98,13 +99,18 @@ SET SQL_SAFE_UPDATES=1;
 # redirects: 6.5s
 # titles: 2.6s
 # ------------------------
-# total: 10.4s
-# [2016.04] 5'090 resources, time: 3.5sec, 11'247 active uris
+#
+# [2016.04] 11,247 active uris
 # disambiguations: 3s
 # redirects: 29s
 # titles: 6s
 # ------------------------
-# total: 39s
+#
+# [2016.04] 22,793 active uris
+# disambiguations: 4s
+# redirects: 48s
+# titles: 8s
+# ------------------------
 SET SQL_SAFE_UPDATES=0;
 
 UPDATE `dictionary-disambiguation` dd
