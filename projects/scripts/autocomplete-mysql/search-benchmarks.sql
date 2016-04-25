@@ -185,7 +185,7 @@ SET @sep = ',,,';
 	WHERE
 		d.`LabelA` LIKE CONCAT(@search, "%")
 	GROUP BY d.`A`
-	ORDER BY length(d.`LabelA`) ASC
+	ORDER BY length(MIN(d.`LabelA`)) ASC
 	LIMIT 10
 ) UNION (
 	SELECT
@@ -221,7 +221,7 @@ SET @sep = ',,,';
 # Final Strategy Benchmark
 # For searches with length <[2,3]
 # Performance: [0.05]
-SET @search = "zz";
+SET @search = "us";
 SET @sep = ',,,';
 (
 	SELECT
