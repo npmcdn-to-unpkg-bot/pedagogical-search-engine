@@ -1,4 +1,5 @@
 @import 'search-bar';
+@import 'results';
 
 .wc-com-search- {
   &topthings {
@@ -19,7 +20,7 @@
 }
 
 body, input[text], button {
-  color: #888;
+  color: rgb(84,84,84);
   font-family: Cambria, Georgia;
 }
 a {

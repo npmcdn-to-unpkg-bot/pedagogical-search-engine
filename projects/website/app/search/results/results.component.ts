@@ -11,24 +11,49 @@ import {MockEntriesService} from "./mock-entries.service";
     selector: 'wc-search-results',
     template: `
     
-<div *ngFor="#entry of _response?.entries" style="padding: 5px;">
-    <div>
-        <a [href]="entry.href">
-            <b [textContent]="entry.title"></b>
-        </a>
-        <i [textContent]="entry.typeText"></i>
-        (<span [textContent]="entry.score"></span>)
+<div class="wc-com-results-container">
+
+    <div class="wc-com-results-entry"
+        *ngFor="#entry of _response?.entries">
+        <div>
+            <a class="wc-com-results-link wc-com-results-link-ok"
+               [href]="entry.href">
+                <b [textContent]="entry.title"></b>
+            </a>
+            <span class="wc-com-results-link-source" 
+                  [textContent]="entry.typeText"></span>
+        </div>
+        <div class="wc-com-results-snippet-container"
+             *ngFor="#line of entry.snippet.lines">
+            <div class="wc-com-results-snippet-line"
+                 [textContent]="line.text"></div>
+        </div>
     </div>
-    <div *ngFor="#line of entry.snippet.lines">
-        <div [textContent]="line.text"></div>
+    
+    <div class="wc-com-results-pagination"
+         *ngIf="_hasMultiplePages()">
+        <span>
+            Pages
+        </span>
+
+        <span class="wc-com-results-pagination-entry"
+              *ngFor="#pageNo of _pages()">
+             
+            <span *ngIf="_isCurrentPage(pageNo)"
+                    [textContent]="pageNo"
+                    class="wc-com-results-pagination-entry-current"></span>
+                    
+            <a *ngIf="!_isCurrentPage(pageNo)"
+                class="wc-com-results-pagination-entry-link"
+                [textContent]="pageNo"
+                (click)="_goPage($event, pageNo)"
+                ></a>
+            
+        </span>
     </div>
+    
 </div>
-<div *ngIf="_hasMultiplePages()">
-    <div *ngFor="#pageNo of _pages()">
-        <a [textContent]="pageNo"
-        (click)="_goPage($event, pageNo)"></a>
-    </div>
-</div>
+
     
     `,
     directives: [],
@@ -65,6 +90,10 @@ export class ResultsCmp {
     }
 
     // Private
+    private _isCurrentPage(pageNo: number): boolean {
+        let currentPage = (this._from / this._step) + 1;
+        return (pageNo == currentPage);
+    }
     private _fetchEntries(): void {
         if(this._searchTerms.length > 0) {
             // Log the fetch

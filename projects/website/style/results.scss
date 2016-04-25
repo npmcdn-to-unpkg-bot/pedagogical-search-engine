@@ -1,0 +1,71 @@
+
+.wc-com-results- {
+  &container {
+    padding-left: 5%;
+  }
+
+  &entry {
+    padding: 0px;
+    margin-bottom: 25px;
+  }
+
+  &link {
+    text-decoration: none;
+
+    &-good {
+      color: #4DB411;
+    }
+    &-ok {
+      color: #3F5986;
+    }
+    &-poor {
+      color: #636363;
+    }
+
+    &-source {
+      color: #888;
+      font-style: italic;
+      font-size: 0.8em;
+    }
+  }
+  &link:hover {
+    text-decoration: underline;
+  }
+
+  &snippet {
+    &-container {
+
+    }
+    &-line {
+      padding-top: 4px;
+      font-size: 0.9em;
+    }
+  }
+
+  &pagination {
+    margin-top: 50px;
+    margin-bottom: 70px;
+
+    font-size: 0.9em;
+    font-weight: bold;
+
+    &-entry {
+      display: inline-block;
+
+      margin-left: 10px;
+
+      &-link {
+        text-decoration: none;
+        color: #3F5986;
+      }
+
+      &-link:hover {
+
+      }
+
+      &-current-link {
+
+      }
+    }
+  }
+}
