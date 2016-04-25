@@ -6,6 +6,7 @@ import {Injectable} from "angular2/core";
 import {Response} from "./response";
 import {Snippet} from "./snippet";
 import {Line} from "./line";
+import {Quality} from "./quality";
 
 @Injectable()
 export class MockEntriesService extends EntriesService {
@@ -30,6 +31,15 @@ export class MockEntriesService extends EntriesService {
         let type = 'Book';
         let href = 'http://example.com';
         let snippet = 'Week 1: Chaos magnifico est.';
-        return new Entry(title, type, href, new Snippet([new Line(snippet, [])]), n / 10);
+        let score = n / 10;
+        let quality: Quality;
+        if(score < 0.33) {
+            quality = Quality.low;
+        } else if(score < 0.99) {
+            quality = Quality.medium;
+        } else {
+            quality = Quality.high;
+        }
+        return new Entry(title, type, href, new Snippet([new Line(snippet, [])]), quality, 1);
     }
 }

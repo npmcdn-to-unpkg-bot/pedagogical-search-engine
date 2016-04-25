@@ -8,6 +8,7 @@ import {Snippet} from "./snippet";
 import {Spot} from "./spot";
 import {Line} from "./line";
 import {Response} from "./response";
+import {Quality} from "./quality";
 
 @Injectable()
 export class SimpleEntriesService extends EntriesService {
@@ -53,7 +54,16 @@ export class SimpleEntriesService extends EntriesService {
                     let title = e["title"];
                     let typeText = e["typeText"];
                     let href = e["href"];
-                    let score = e["score"];
+                    let rank: number = +e["href"];
+                    let qualityStr = e["quality"];
+                    let quality;
+                    if(qualityStr === "high") {
+                        quality = Quality.high;
+                    } else if(qualityStr === "medium") {
+                        quality = Quality.medium;
+                    } else {
+                        quality = Quality.low;
+                    }
                     let snippetStr = e["snippet"];
 
                     // Is there any snippet
@@ -81,18 +91,18 @@ export class SimpleEntriesService extends EntriesService {
                         snippet = new Snippet(lines);
                     }
 
-                    let entry = new Entry(title, typeText, href, snippet, score);
+                    let entry = new Entry(title, typeText, href, snippet, quality, rank);
                     entries.push(entry);
                 }
                 let ordered = entries.sort((a: Entry, b: Entry) => {
-                    if(a.score < b.score) {
+                    if(a.rank < b.rank) {
                         return 1;
-                    } else if(a.score > b.score) {
+                    } else if(a.rank > b.rank) {
                         return -1;
                     } else {
                         return 0;
                     }
-                })
+                });
 
                 return new Response(entries, json["nbResults"]);
             })

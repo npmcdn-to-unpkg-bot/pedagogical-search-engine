@@ -16,6 +16,10 @@ import {MockEntriesService} from "./mock-entries.service";
     <div class="wc-com-results-entry"
         *ngFor="#entry of _response?.entries">
         <div>
+            <span *ngIf="entry.isHighQuality()"
+                  class="wc-com-results-link-good">
+                [Good match]
+            </span>
             <a class="wc-com-results-link wc-com-results-link-ok"
                [href]="entry.href">
                 <b [textContent]="entry.title"></b>
