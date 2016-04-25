@@ -9,5 +9,8 @@ dev/
 dist/
 typings/
 
-# configuration file
-app/config.ts
+# others
+app/config-dev.ts
+app/config-prod.ts
+index.html
+container/
