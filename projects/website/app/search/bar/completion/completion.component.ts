@@ -17,7 +17,7 @@ import {MockCompletionService} from "./mock-completion.service";
     [class.wc-com-completion-entry-disambiguation-selected]="proposition.getResult().isDisambiguation() && proposition.isSelected()"
     (click)="select()"
     (mouseover)="_setAndApplyCursor(i)">
-    <span [textContent]="proposition.getResult().label | json"></span>
+    <span [textContent]="proposition.getResult().label"></span>
 </div>
     
     `,
