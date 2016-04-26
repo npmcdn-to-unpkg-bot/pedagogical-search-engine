@@ -11,6 +11,8 @@ export class Entry {
         public rank: number
     ){}
 
+    private _titleQuery = encodeURI(this.title);
+
     // Public
     public isHighQuality(): boolean {
         return this.quality === Quality.high;
@@ -25,8 +27,10 @@ export class Entry {
         return (this.typeText.toLowerCase() === "book");
     }
     public googleHref(): String {
-        let query = encodeURI(this.title);
 
-        return `https://google.com/search?q=${query}`;
+        return `https://google.com/search?q=${this._titleQuery}`;
+    }
+    public epflHref(): String {
+        return `http://beast-epfl.hosted.exlibrisgroup.com/primo_library/libweb/action/search.do?fn=search&ct=search&initialSearch=true&mode=Basic&tab=default_tab&indx=1&dum=true&srt=rank&vid=EPFL&frbg=&tb=t&scp.scps=scope%3A%28EPFL_SFX%29%2CPrimo2Primo_41EPFL&vl%28freeText0%29=${this._titleQuery}`;
     }
 }

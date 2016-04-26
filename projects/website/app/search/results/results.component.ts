@@ -23,7 +23,7 @@ import {MockEntriesService} from "./mock-entries.service";
             
             <a *ngIf="entry.isBook()"
                 class="wc-com-results-link wc-com-results-link-ok"
-               [href]="entry.googleHref()">
+               [href]="entry.epflHref()">
                 <b [textContent]="entry.title"></b>
             </a>
             <a *ngIf="!entry.isBook()"
