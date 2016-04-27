@@ -11,7 +11,13 @@
 If launched, this script will crash because of this line :p
 ;
 
-
+# todo: Review the index creation!!!
+# .. innodb uses the primary key as a "clustered index"
+# .. be carefull that inserts with non-consecutive PK is slow
+# .. because the records have to be moved on inserts. Does a transaction
+# .. solves this? Is it better to create first with an AI PK and then copy
+# .. with the real PK?
+# .. see https://dev.mysql.com/doc/refman/5.7/en/innodb-table-and-index.html
 # todo: Int -> MEDIUMINT or even smallest if possible
 # todo: shrink VARCHAR length
 # todo: rename the tables in a smart way
