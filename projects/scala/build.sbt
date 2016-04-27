@@ -36,6 +36,7 @@ libraryDependencies ++= {
     "io.spray"            %%  "spray-can"     % sprayV,
     "io.spray"            %%  "spray-routing" % sprayV,
     "io.spray"            %%  "spray-json"    % sprayV,
+    "io.spray"            %%  "spray-client"  % sprayV,
     "com.typesafe.akka"   %%  "akka-actor"    % akkaV
   )
 }

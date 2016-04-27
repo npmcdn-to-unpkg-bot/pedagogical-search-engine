@@ -39,6 +39,9 @@ class Settings(config: Config) {
     }
   }
   object Indices {
+    object Bing {
+      val apiKey = getString("indices.bing.apiKey")
+    }
     object Indexation {
       val nbTasks = getInt("indices.indexation.nbTasks")
     }
