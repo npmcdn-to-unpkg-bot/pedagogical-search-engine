@@ -6,4 +6,5 @@ object Quality extends Enumeration {
   val high = Value("high")
   val medium = Value("medium")
   val low = Value("low")
+  val unknown = Value("unknown")
 }
