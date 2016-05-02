@@ -29,6 +29,29 @@ wikichimp {
       }
     }
   }
+  userStudy {
+      slick {
+        driver = "com.mysql.jdbc.Driver"
+        url = "jdbc:mysql://"?ip?"/tocpic"
+
+        databaseName = ???
+        user = ???
+        password = ???
+
+        connectionPool = "slick.jdbc.hikaricp.HikariCPJdbcDataSource$"
+        numThreads = 20
+        queueSize = 10
+        connectionTimeout = 1000
+
+        keepAliveConnection = true
+      }
+    ws {
+      spray {
+        ip = "???"
+        port = 8383
+      }
+    }
+  }
   indices {
     bing {
       apiKey = "???"

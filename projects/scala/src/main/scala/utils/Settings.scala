@@ -21,6 +21,14 @@ class Settings(config: Config) {
     val port = getInt("spotlight.server.port")
     val host = getString("spotlight.server.host")
   }
+  object UserStudy {
+    object Ws {
+      object Spray {
+        val ip = getString("userStudy.ws.spray.ip")
+        val port = getInt("userStudy.ws.spray.port")
+      }
+    }
+  }
   object Wikipedia {
     object Links {
       object Mysql {
