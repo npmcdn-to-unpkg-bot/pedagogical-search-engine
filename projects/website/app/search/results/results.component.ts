@@ -3,9 +3,13 @@ import {SearchTerm} from "../search-terms/SearchTerm";
 import {EntriesService} from "./entries.service";
 import {Entry} from "./entry";
 import {SimpleEntriesService} from "./simple-entries.service";
-import {Response} from "./response";
 import {Router, RouteParams} from "angular2/router";
 import {MockEntriesService} from "./mock-entries.service";
+import {ClickService} from "../user-study/click.service";
+import {SimpleClickService} from "../user-study/simple-click.service";
+import {Quality} from "./quality";
+import {Response as HttpResponse, Http} from "angular2/http";
+import {Response} from "./response";
 
 @Component({
     selector: 'wc-search-results',
@@ -23,12 +27,14 @@ import {MockEntriesService} from "./mock-entries.service";
             
             <a *ngIf="!entry.hasHref()"
                 class="wc-com-results-link wc-com-results-link-ok"
-               [href]="entry.epflHref()">
+               [href]="entry.epflHref()"
+               (click)="_logAndGoTo($event, entry, entry.epflHref())">
                 <b [textContent]="entry.title"></b>
             </a>
             <a *ngIf="entry.hasHref()"
                 class="wc-com-results-link wc-com-results-link-ok"
-               [href]="entry.href">
+               [href]="entry.href"
+               (click)="_logAndGoTo($event, entry, entry.href)">
                 <b [textContent]="entry.title"></b>
             </a>
             
@@ -70,7 +76,8 @@ import {MockEntriesService} from "./mock-entries.service";
     `,
     directives: [],
     providers: [
-        provide(EntriesService, {useClass: SimpleEntriesService})
+        provide(EntriesService, {useClass: SimpleEntriesService}),
+        provide(ClickService, {useClass: SimpleClickService})
     ]
 })
 export class ResultsCmp {
@@ -83,6 +90,7 @@ export class ResultsCmp {
 
     constructor(
         @Inject(EntriesService) private _entriesService: EntriesService,
+        @Inject(ClickService) private _clickService: ClickService,
         private _router: Router,
         private _routeParams: RouteParams
     ) {
@@ -102,6 +110,23 @@ export class ResultsCmp {
     }
 
     // Private
+    private _logAndGoTo(event, entry: Entry, url: String): void {
+        // Prevent following the link until we logged the click
+        event.preventDefault();
+
+        // Log the click
+        let clickStream = this._clickService.saveClick(
+            this._searchTerms,
+            entry.entryId,
+            this._from + entry.rank,
+            entry.quality);
+
+        clickStream.subscribe((res: HttpResponse) => {
+            console.log(`Click logged: ${res.text()}`);
+            console.log(`Going to ${url}`);
+            window.location.href = url;
+        });
+    }
     private _isCurrentPage(pageNo: number): boolean {
         let currentPage = (this._from / this._step) + 1;
         return (pageNo == currentPage);

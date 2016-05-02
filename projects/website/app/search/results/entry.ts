@@ -3,6 +3,7 @@ import {Quality} from "./quality";
 
 export class Entry {
     constructor(
+        public entryId: String = '',
         public title: String = '',
         public typeText: String = '',
         public href: String = '',

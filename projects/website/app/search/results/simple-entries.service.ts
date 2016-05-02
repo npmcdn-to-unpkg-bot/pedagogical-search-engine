@@ -51,19 +51,12 @@ export class SimpleEntriesService extends EntriesService {
                 let entries: Array<Entry> = [];
                 for(let e of jsonEntries) {
                     // Extract basic information
+                    let entryId = e["entryId"];
                     let title = e["title"];
                     let typeText = e["typeText"];
                     let href = e["href"];
-                    let rank: number = +e["href"];
-                    let qualityStr = e["quality"];
-                    let quality;
-                    if(qualityStr === "high") {
-                        quality = Quality.high;
-                    } else if(qualityStr === "medium") {
-                        quality = Quality.medium;
-                    } else {
-                        quality = Quality.low;
-                    }
+                    let rank: number = +e["rank"];
+                    let quality = Quality[e["quality"]];
                     let snippetStr = e["snippet"];
 
                     // Is there any snippet
@@ -91,17 +84,11 @@ export class SimpleEntriesService extends EntriesService {
                         snippet = new Snippet(lines);
                     }
 
-                    let entry = new Entry(title, typeText, href, snippet, quality, rank);
+                    let entry = new Entry(entryId, title, typeText, href, snippet, quality, rank);
                     entries.push(entry);
                 }
                 let ordered = entries.sort((a: Entry, b: Entry) => {
-                    if(a.rank < b.rank) {
-                        return 1;
-                    } else if(a.rank > b.rank) {
-                        return -1;
-                    } else {
-                        return 0;
-                    }
+                    return a.rank - b.rank;
                 });
 
                 return new Response(entries, json["nbResults"]);
