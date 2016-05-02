@@ -1,6 +1,7 @@
 package ws.indices.response
 
-case class Entry(title: String,
+case class Entry(entryId: String,
+                 title: String,
                  typeText: String,
                  href: String,
                  snippet: String,

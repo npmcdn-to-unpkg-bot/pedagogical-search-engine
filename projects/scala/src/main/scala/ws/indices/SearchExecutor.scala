@@ -62,8 +62,9 @@ class SearchExecutor {
       case (indices, totalNb) =>
         // create the public entries
         val entries: List[response.Entry] = indices.zipWithIndex.map {
-          case (FullBing(_, _, title, source, url, snippet, _), rank) =>
+          case (FullBing(entryId, _, title, source, url, snippet, _), rank) =>
             Entry(
+              entryId,
               title,
               WebsiteSourceType.toPublicString(source),
               url,
@@ -71,8 +72,9 @@ class SearchExecutor {
               QualityType.unknown,
               rank
             )
-          case (FullWikichimp(_, score, _, title, source, url, snippet), rank) =>
+          case (FullWikichimp(entryId, score, _, title, source, url, snippet), rank) =>
             Entry(
+              entryId,
               title,
               WebsiteSourceType.toPublicString(source),
               url,
