@@ -69,7 +69,7 @@ wikichimp {
         connectionPool = "slick.jdbc.hikaricp.HikariCPJdbcDataSource$"
         numThreads = 20
         queueSize = 10
-        connectionTimeout = 1500
+        connectionTimeout = 5000
 
         keepAliveConnection = true
       }

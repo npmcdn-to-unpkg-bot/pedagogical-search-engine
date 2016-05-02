@@ -42,6 +42,7 @@ class BingFetcher(timeoutMs: Int) {
       case ("Title", x) => ("title", x)
       case ("Description", x) => ("description", x)
       case ("Url", x) => ("url", x)
+      case ("ID", x) => ("id", x)
     }
     transformed.extract[BingApiResult]
   }

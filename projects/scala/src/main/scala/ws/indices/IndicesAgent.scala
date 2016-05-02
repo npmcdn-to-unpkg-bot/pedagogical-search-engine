@@ -11,7 +11,7 @@ import ws.indices.spraythings.ServiceActor
 import scala.concurrent.duration._
 
 
-object MysqlBoot extends App {
+object IndicesAgent extends App {
   // we need an ActorSystem to host our application in
   implicit val system = ActorSystem("on-spray-can")
 

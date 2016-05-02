@@ -4,7 +4,7 @@ import java.util.concurrent.atomic.AtomicInteger
 
 import slick.jdbc.JdbcBackend._
 import ws.autocomplete.query.Queries
-import ws.indices.MysqlService
+import ws.indices.SearchExecutor
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
@@ -22,7 +22,7 @@ object MysqlService extends App {
   }
 
   // Create the search-service
-  val service = new MysqlService()
+  val service = new SearchExecutor()
 
   // Latency will decrease progressively
   var currentLatency = 500

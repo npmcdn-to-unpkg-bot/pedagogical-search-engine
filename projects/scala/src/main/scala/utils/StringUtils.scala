@@ -48,4 +48,7 @@ object StringUtils {
   }
 
   def uuid36(): String = UUID.randomUUID().toString
+
+  def labelizeUri(uri: String): String =
+    uri.replaceAll("_", " ")
 }

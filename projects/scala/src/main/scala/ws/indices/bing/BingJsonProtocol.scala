@@ -8,5 +8,5 @@ object BingJsonProtocol extends Json4sSupport {
 
   case class BingApiResult(d: dElement)
   case class dElement(results: List[ResultElement])
-  case class ResultElement(title: String, description: String, url: String)
+  case class ResultElement(title: String, description: String, url: String, id: String)
 }

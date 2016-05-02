@@ -8,10 +8,11 @@ import rsc.attributes.Level
 import rsc.importers.Importer
 import rsc.indexers.Indexer
 import rsc.snippets
+import ws.indices.response.QualityType
 
 trait Formatters {
   implicit val formats = DefaultFormats ++ Seq(
-    new EnumNameSerializer(Quality),
+    new EnumNameSerializer(QualityType),
     new EnumNameSerializer(snippets.Source)
   )
 }

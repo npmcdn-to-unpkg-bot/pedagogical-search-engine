@@ -5,7 +5,7 @@ import org.json4s.native.Serialization.write
 import rsc.Formatters
 import spray.http.MediaTypes.`application/json`
 import spray.routing.HttpService
-import ws.indices.MysqlService
+import ws.indices.SearchExecutor
 import ws.indices.spraythings.JsonSupport._
 import ws.spraythings.CORSSupport
 
@@ -14,7 +14,7 @@ import scala.util.{Failure, Success}
 
 trait Service extends HttpService with CORSSupport with Formatters {
 
-  val mysqlService = new MysqlService()
+  val executor = new SearchExecutor()
 
   val myRoute =
     path("indices") {
@@ -22,7 +22,7 @@ trait Service extends HttpService with CORSSupport with Formatters {
         post {
           entity(as[Search]) { search =>
             respondWithMediaType(`application/json`) {
-              onComplete(mysqlService.search(search.uris, search.from, search.to)) {
+              onComplete(executor.search(search.uris, search.from, search.to)) {
                 case Success(value) => complete {
                   write(value)
                 }
