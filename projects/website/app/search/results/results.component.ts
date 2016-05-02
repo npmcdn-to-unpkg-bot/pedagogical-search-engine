@@ -27,14 +27,14 @@ import {Response} from "./response";
             
             <a *ngIf="!entry.hasHref()"
                 class="wc-com-results-link wc-com-results-link-ok"
-               [href]="entry.epflHref()"
-               (click)="_logAndGoTo($event, entry, entry.epflHref())">
+                [href]="entry.epflHref()"
+               (mousedown)="_logAndGoTo($event, entry, entry.epflHref())">
                 <b [textContent]="entry.title"></b>
             </a>
             <a *ngIf="entry.hasHref()"
                 class="wc-com-results-link wc-com-results-link-ok"
-               [href]="entry.href"
-               (click)="_logAndGoTo($event, entry, entry.href)">
+                [href]="entry.href"
+               (mousedown)="_logAndGoTo($event, entry, entry.href)">
                 <b [textContent]="entry.title"></b>
             </a>
             
@@ -110,9 +110,15 @@ export class ResultsCmp {
     }
 
     // Private
-    private _logAndGoTo(event, entry: Entry, url: String): void {
+    private _logAndGoTo(e: MouseEvent, entry: Entry, url: String): void {
         // Prevent following the link until we logged the click
-        event.preventDefault();
+        let openNewPage = false;
+        if (e.ctrlKey || e.metaKey || e.button === 1) {
+            openNewPage = true;
+        }
+        if(!openNewPage) {
+            e.preventDefault();
+        }
 
         // Log the click
         let clickStream = this._clickService.saveClick(
@@ -123,8 +129,13 @@ export class ResultsCmp {
 
         clickStream.subscribe((res: HttpResponse) => {
             console.log(`Click logged: ${res.text()}`);
-            console.log(`Going to ${url}`);
-            window.location.href = url;
+
+            // In the case of a direct click to the link
+            // Follow it
+            if(!openNewPage && e.button === 0) {
+                console.log(`Going to ${url}`);
+                window.location.href = url;
+            }
         });
     }
     private _isCurrentPage(pageNo: number): boolean {
