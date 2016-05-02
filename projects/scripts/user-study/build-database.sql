@@ -17,7 +17,7 @@ CREATE TABLE `clicks` (
 	INDEX entryid_idx (`EntryId`(10)),
     
 	`SearchHash` INT,
-	`Rank` TINYINT,
+	`Rank` SMALLINT,
 	`Quality` VARCHAR(32) CHARACTER SET 'utf8',
     `Timestamp` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     

@@ -13,7 +13,7 @@ CREATE TABLE `cache-entries` (
 	INDEX searchhash_idx (`SearchHash`),
     
     `EntryId` VARCHAR(36) CHARACTER SET 'utf8',
-    `Rank` TINYINT,
+    `Rank` SMALLINT,
     `Source` VARCHAR(16) CHARACTER SET 'utf8',
 
 	PRIMARY KEY(`AutoId`))
