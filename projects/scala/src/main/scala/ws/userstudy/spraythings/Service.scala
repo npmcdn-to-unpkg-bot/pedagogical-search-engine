@@ -39,5 +39,17 @@ trait Service extends HttpService with CORSSupport {
           }
         }
       }
-    }
+    } ~
+      path("classifications") {
+        respondWithCORS() {
+          post {
+            entity(as[ClassificationInput]) { ci =>
+              onComplete(executor.saveCl(ci)) {
+                case Success(value) => complete { OkMsg }
+                case Failure(e) => complete { e.printStackTrace(); FailMsg }
+              }
+            }
+          }
+        }
+      }
 }

@@ -24,7 +24,7 @@ CREATE TABLE `clicks` (
 	PRIMARY KEY (`AutoId`))
     CHARACTER SET 'utf8';
     
-CREATE TABLE `classification` (
+CREATE TABLE `classifications` (
 	# There will be a lot of inserts. Thus the "clustered-index"
     # (aka the PK) in InnoDb should be consecutive.
 	`AutoId` INT NOT NULL AUTO_INCREMENT,

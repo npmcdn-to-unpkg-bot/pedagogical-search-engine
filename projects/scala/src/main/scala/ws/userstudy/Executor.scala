@@ -2,7 +2,8 @@ package ws.userstudy
 
 import slick.jdbc.JdbcBackend._
 import ws.indices.response.QualityType
-import ws.userstudy.spraythings.ClickInput
+import ws.userstudy.enum.ClassificationType
+import ws.userstudy.spraythings.{ClassificationInput, ClickInput}
 
 import scala.concurrent.Future
 
@@ -42,6 +43,23 @@ class Executor {
         quality
       )
       db.run(action)
+    }
+  }
+
+  // Save a user classification
+  def saveCl(ci: ClassificationInput)
+  : Future[Unit] = {
+    // Validate the input
+    if(ci.entryId.size > 36) {
+      Future.failed(new Exception("EntryId is too long (>36)"))
+    } else {
+      ClassificationType.fromString(ci.classification) match {
+        case None => Future.failed(new Exception(s"Unkown classification: ${ci.classification}"))
+        case Some(cl) =>
+          val uris = ci.uris.toSet
+          val action = Queries.saveCl(uris, ci.entryId, cl)
+          db.run(action)
+      }
     }
   }
 }
