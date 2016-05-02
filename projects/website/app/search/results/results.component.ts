@@ -21,12 +21,12 @@ import {MockEntriesService} from "./mock-entries.service";
                 [Good match]
             </span>
             
-            <a *ngIf="entry.isBook()"
+            <a *ngIf="!entry.hasHref()"
                 class="wc-com-results-link wc-com-results-link-ok"
                [href]="entry.epflHref()">
                 <b [textContent]="entry.title"></b>
             </a>
-            <a *ngIf="!entry.isBook()"
+            <a *ngIf="entry.hasHref()"
                 class="wc-com-results-link wc-com-results-link-ok"
                [href]="entry.href">
                 <b [textContent]="entry.title"></b>
