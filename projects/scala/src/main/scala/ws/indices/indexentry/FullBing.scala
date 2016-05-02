@@ -63,6 +63,8 @@ object FullBing {
       .replace("- Safari Books", "")
       .replace("- Safari", "")
 
+      .replace("[Book]", "")
+
       .trim
   }
 

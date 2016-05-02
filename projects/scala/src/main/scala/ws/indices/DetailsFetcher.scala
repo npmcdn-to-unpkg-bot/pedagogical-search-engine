@@ -51,7 +51,7 @@ class DetailsFetcher(db: Database) {
               val title = d._2
               val url = d._4
               val source = FullBing.inferSource(url)
-              val snippet = Snippet.fromText(d._5)
+              val snippet = Snippet.fromSnippetJSON(d._5)
               val timestamp = d._6
               (rank, FullBing(entryId, rank, title, source, url, snippet, timestamp))
           }

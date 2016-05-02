@@ -1,6 +1,7 @@
 package ws.indices.snippet
 
 import org.json4s.DefaultFormats
+import org.json4s.native.JsonMethods._
 import rsc.snippets.Source
 
 case class Snippet(lines: List[Line]) {
@@ -12,9 +13,16 @@ case class Snippet(lines: List[Line]) {
 
 }
 
-object Snippet {
+object Snippet  {
+  implicit val format = DefaultFormats
+
   def fromText(text: String): Snippet =
     Snippet(List(Line(text, Nil)))
+
+  def fromSnippetJSON(jsonStr: String): Snippet = {
+    val json = parse(jsonStr)
+    json.extract[Snippet]
+  }
 
   def fromRscSnippet(rscSnippet: rsc.snippets.Snippet, uris: Set[String]): Snippet = {
     // Get the top line if it is not the title

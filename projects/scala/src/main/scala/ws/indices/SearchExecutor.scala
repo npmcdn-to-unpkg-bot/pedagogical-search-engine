@@ -15,7 +15,7 @@ class SearchExecutor {
   // Create the service itself
   private val db = Database.forConfig("wikichimp.indices.ws.slick")
 
-  private val bingFetcher = new BingFetcher(timeoutMs = 2000)
+  private val bingFetcher = new BingFetcher(timeoutMs = 5000)
 
   private val indicesFetcher = new IndicesFetcher(db, bingFetcher)
   private val detailsFetcher = new DetailsFetcher(db)
