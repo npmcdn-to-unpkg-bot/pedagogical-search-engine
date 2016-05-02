@@ -27,5 +27,17 @@ trait Service extends HttpService with CORSSupport {
           }
         }
       }
+    } ~
+    path("clicks") {
+      respondWithCORS() {
+        post {
+          entity(as[ClickInput]) { ci =>
+            onComplete(executor.saveClick(ci)) {
+              case Success(value) => complete { OkMsg }
+              case Failure(e) => complete { FailMsg }
+            }
+          }
+        }
+      }
     }
 }

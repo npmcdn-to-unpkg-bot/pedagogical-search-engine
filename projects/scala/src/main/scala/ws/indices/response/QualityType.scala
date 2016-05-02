@@ -8,6 +8,19 @@ object QualityType extends Enumeration {
   val low = Value("low")
   val unknown = Value("unknown")
 
+  def fromString(label: String)
+  : Quality = {
+    if(label.equals(high.toString)) {
+      high
+    } else if(label.equals(medium.toString)) {
+      medium
+    } else if(label.equals(low.toString)) {
+      low
+    } else {
+      unknown
+    }
+  }
+
   def qualityFromScore(score: Double, size: Int)
   : Quality = size match {
     case 0 => QualityType.unknown
