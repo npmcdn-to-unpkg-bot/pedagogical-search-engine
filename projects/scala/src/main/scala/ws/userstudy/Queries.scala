@@ -9,19 +9,9 @@ import scala.util.hashing.MurmurHash3
 
 
 object Queries {
-  private val searchesTQ = TableQuery[mysql.slick.tables.Searches]
   private val clicksTQ = TableQuery[mysql.slick.tables.Clicks]
   private val classificationTQ = TableQuery[mysql.slick.tables.Classifications]
   implicit val format = DefaultFormats
-
-  def saveSearch(uris: Set[String]) = {
-    val searchHash: Int = MurmurHash3.unorderedHash(uris)
-    val urisJson: String = org.json4s.native.Serialization.write(uris)
-
-    DBIO.seq(
-      searchesTQ += (-1, searchHash, urisJson, None)
-    )
-  }
 
   def saveClick(uris: Set[String], entryId: String, rank: Int, quality: Quality) = {
     val searchHash: Int = MurmurHash3.unorderedHash(uris)

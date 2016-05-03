@@ -16,18 +16,6 @@ trait Service extends HttpService with CORSSupport {
   val FailMsg = "FAILED"
 
   val myRoute =
-    path("searches") {
-      respondWithCORS() {
-        post {
-          entity(as[SearchInput]) { si =>
-            onComplete(executor.saveSearch(si.uris)) {
-              case Success(value) => complete { OkMsg }
-              case Failure(e) => complete { FailMsg }
-            }
-          }
-        }
-      }
-    } ~
     path("clicks") {
       respondWithCORS() {
         post {

@@ -2,6 +2,7 @@ package ws.indices
 
 
 import slick.jdbc.JdbcBackend._
+import utils.Logger
 import ws.indices.response.{Entry, QualityType, Response}
 import ws.indices.bing.BingFetcher
 import ws.indices.enums.WebsiteSourceType
@@ -52,8 +53,16 @@ class SearchExecutor {
   def unvalidatedSearch(uris: Set[String], from: Int, to: Int)
   : Future[Response] = {
 
+    // Log the search
+    val logAction = Queries.saveSearch(uris, from, to)
+    val logFuture = db.run(logAction).recover {
+      case e =>
+        // We do not really care about failures
+        Logger.info("there was a log failure")
+    }
+
     // Fetch all the best indices (without their details yet)
-    indicesFetcher.wcAndBing(uris, N_MAX).flatMap(indexEntries => {
+    val indicesFuture = indicesFetcher.wcAndBing(uris, N_MAX).flatMap(indexEntries => {
       // fetch the details in the [from, to] interval
       val interval = indexEntries.slice(from, to + 1)
       detailsFetcher.resolve(interval, uris).map(r => (r, indexEntries.size))
@@ -105,5 +114,11 @@ class SearchExecutor {
         // Create the public response
         Response(inherited, totalNb)
     }
+
+    // Quick off the tasks in parallel
+    for {
+      _ <- logFuture
+      response <- indicesFuture
+    } yield response
   }
 }

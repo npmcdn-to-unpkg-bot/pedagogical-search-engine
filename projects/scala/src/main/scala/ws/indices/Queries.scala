@@ -2,6 +2,7 @@ package ws.indices
 
 import java.sql.Timestamp
 
+import org.json4s.DefaultFormats
 import slick.driver.MySQLDriver.api._
 import slick.jdbc.{GetResult, PositionedParameters, PositionedResult, SetParameter}
 import ws.indices.enums.EngineSourceType
@@ -11,10 +12,11 @@ import scala.util.hashing.MurmurHash3
 
 
 object Queries {
-  val indicesTQ = TableQuery[mysql.slick.tables.Indices]
-  val detailsTQ = TableQuery[mysql.slick.tables.Details]
-  val cacheDetailsTQ = TableQuery[mysql.slick.tables.CacheDetails]
-  val cacheEntriesTQ = TableQuery[mysql.slick.tables.CacheEntries]
+  private val indicesTQ = TableQuery[mysql.slick.tables.Indices]
+  private val detailsTQ = TableQuery[mysql.slick.tables.Details]
+  private val cacheDetailsTQ = TableQuery[mysql.slick.tables.CacheDetails]
+  private val cacheEntriesTQ = TableQuery[mysql.slick.tables.CacheEntries]
+  private val searchesTQ = TableQuery[mysql.slick.tables.Searches]
 
 
   // Handle slick plain-sql "IN clause"
@@ -69,6 +71,17 @@ object Queries {
     SearchHash = #$searchHash
 )
     """.as[IndexEntry](BestIndicesRConv)
+  }
+
+  implicit val format = DefaultFormats
+
+  def saveSearch(uris: Set[String], from: Int, to: Int) = {
+    val searchHash: Int = MurmurHash3.unorderedHash(uris)
+    val urisJson: String = org.json4s.native.Serialization.write(uris)
+
+    DBIO.seq(
+      searchesTQ += (-1, searchHash, urisJson, from, to, None)
+    )
   }
 
   // Save some bing results (given the search "hash")

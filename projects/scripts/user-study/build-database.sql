@@ -63,6 +63,8 @@ CREATE TABLE `searches` (
 	INDEX searchhash_idx (`SearchHash`),
     
     `Uris` TEXT CHARACTER SET 'utf8',
+    `From` INT,
+    `To` INT,
     `Timestamp` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     
 
