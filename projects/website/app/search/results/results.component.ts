@@ -1,4 +1,4 @@
-import {Component, Input, provide, Inject, SimpleChange} from "angular2/core";
+import {Component, Input, provide, Inject, SimpleChange, Class} from "angular2/core";
 import {SearchTerm} from "../search-terms/SearchTerm";
 import {EntriesService} from "./entries.service";
 import {Entry} from "./entry";
@@ -10,6 +10,10 @@ import {SimpleClickService} from "../user-study/simple-click.service";
 import {Quality} from "./quality";
 import {Response as HttpResponse, Http} from "angular2/http";
 import {Response} from "./response";
+import {Classification} from "./classification";
+import {ClassificationService} from "../user-study/classification.service";
+import {SimpleClassificationService} from "../user-study/simple-classification.service";
+import {Observable} from "rxjs/Observable";
 
 @Component({
     selector: 'wc-search-results',
@@ -46,6 +50,19 @@ import {Response} from "./response";
             <div class="wc-com-results-snippet-line"
                  [textContent]="line.text"></div>
         </div>
+        <div>
+            <span>
+                Rate this!
+            </span>
+            <span class="wc-com-results-link-good"
+                (click)="_classify(entry, _relevant)">
+                Good match!
+            </span>
+            <span class="wc-com-results-link-poor"
+                (click)="_classify(entry, _irrelevant)">
+                Bad match
+            </span>
+        </div>
     </div>
     
     <div class="wc-com-results-pagination"
@@ -77,7 +94,8 @@ import {Response} from "./response";
     directives: [],
     providers: [
         provide(EntriesService, {useClass: SimpleEntriesService}),
-        provide(ClickService, {useClass: SimpleClickService})
+        provide(ClickService, {useClass: SimpleClickService}),
+        provide(ClassificationService, {useClass: SimpleClassificationService})
     ]
 })
 export class ResultsCmp {
@@ -87,10 +105,13 @@ export class ResultsCmp {
     private _response: Response;
     private _from: number = 0;
     private _step: number = 10;
+    private _relevant: Classification = Classification.relevant;
+    private _irrelevant: Classification = Classification.irrelevant;
 
     constructor(
         @Inject(EntriesService) private _entriesService: EntriesService,
         @Inject(ClickService) private _clickService: ClickService,
+        @Inject(ClassificationService) private _classificationService: ClassificationService,
         private _router: Router,
         private _routeParams: RouteParams
     ) {
@@ -110,6 +131,18 @@ export class ResultsCmp {
     }
 
     // Private
+    private _classify(entry: Entry, classification: Classification): void {
+        let stream: Observable<any> = this._classificationService.saveClassification(
+            this._searchTerms,
+            entry.entryId,
+            classification
+        );
+
+        stream.subscribe(res => {
+            let label = Classification[classification];
+            console.log(`Classification ${label}: ${res.text()}`);
+        });
+    }
     private _logAndGoTo(e: MouseEvent, entry: Entry, url: String): void {
         // Prevent following the link until we logged the click
         let openNewPage = false;
