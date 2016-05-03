@@ -5,3 +5,43 @@
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
 }
+
+// Kind of a master design
+button {
+  font-family: Arial;
+  background-color: #eee;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  cursor: hand;
+}
+button:hover {
+  background-color: #cfd8dc;
+}
+button:disabled {
+  background-color: #eee;
+  color: #aaa;
+  cursor: auto;
+}
+
+.button- {
+  &selected {
+    background-color: #00cc99 !important;
+    color: white !important;
+    font-weight: bold;
+  }
+  &selected-bad {
+    background-color: #CC004A !important;
+    color: whitesmoke !important;
+    font-weight: bold;
+  }
+}
+
+.msg- {
+  &info {
+    color: #0c8888;
+    font-style: italic;
+    font-size: 0.8em;
+  }
+}

@@ -30,9 +30,11 @@ ROUTER_DIRECTIVES[1] = MiddleClickRouterLink;
 
 
 // Normal App component
-import {Component} from "angular2/core";
+import {Component, provide} from "angular2/core";
 import {RouteConfig, ROUTER_DIRECTIVES} from "angular2/router";
 import {SearchCmp} from "./search/search.component";
+import {ClassificationService} from "./search/user-study/classification.service";
+import {SimpleClassificationService} from "./search/user-study/simple-classification.service";
 
 @Component({
     selector: 'wc-app',
@@ -41,7 +43,10 @@ import {SearchCmp} from "./search/search.component";
 <router-outlet></router-outlet>
 
 `,
-    directives: [ROUTER_DIRECTIVES]
+    directives: [ROUTER_DIRECTIVES],
+    providers: [
+        provide(ClassificationService, {useClass: SimpleClassificationService})
+    ]
 })
 @RouteConfig([
     {path:'/search', name: 'Search', component: SearchCmp, useAsDefault: true}

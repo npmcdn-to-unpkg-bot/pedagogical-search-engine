@@ -26,7 +26,7 @@ import {Observable} from "rxjs/Observable";
         <div>
             <span *ngIf="entry.isHighQuality()"
                   class="wc-com-results-link-good">
-                [Good match]
+                &#187;
             </span>
             
             <a *ngIf="!entry.hasHref()"
@@ -50,17 +50,22 @@ import {Observable} from "rxjs/Observable";
             <div class="wc-com-results-snippet-line"
                  [textContent]="line.text"></div>
         </div>
-        <div>
-            <span>
-                Rate this!
-            </span>
-            <span class="wc-com-results-link-good"
+        <div class="wc-com-results-rating-container">
+            <button
+                [disabled]="_clsService.isRelevant(entry)"
+                [class.button-selected]="_clsService.isRelevant(entry)"
                 (click)="_classify(entry, _relevant)">
                 Good match!
-            </span>
-            <span class="wc-com-results-link-poor"
+            </button>
+            <button
+                [disabled]="_clsService.isIrrelevant(entry)"
+                [class.button-selected-bad]="_clsService.isIrrelevant(entry)"
                 (click)="_classify(entry, _irrelevant)">
                 Bad match
+            </button>
+            <span *ngIf="_clsService.isClassified(entry)"
+                  class="msg-info"
+                  [textContent]="_clsService.thxMsg(entry)">
             </span>
         </div>
     </div>
@@ -94,8 +99,7 @@ import {Observable} from "rxjs/Observable";
     directives: [],
     providers: [
         provide(EntriesService, {useClass: SimpleEntriesService}),
-        provide(ClickService, {useClass: SimpleClickService}),
-        provide(ClassificationService, {useClass: SimpleClassificationService})
+        provide(ClickService, {useClass: SimpleClickService})
     ]
 })
 export class ResultsCmp {
@@ -111,7 +115,7 @@ export class ResultsCmp {
     constructor(
         @Inject(EntriesService) private _entriesService: EntriesService,
         @Inject(ClickService) private _clickService: ClickService,
-        @Inject(ClassificationService) private _classificationService: ClassificationService,
+        @Inject(ClassificationService) private _clsService: ClassificationService,
         private _router: Router,
         private _routeParams: RouteParams
     ) {
@@ -132,7 +136,8 @@ export class ResultsCmp {
 
     // Private
     private _classify(entry: Entry, classification: Classification): void {
-        let stream: Observable<any> = this._classificationService.saveClassification(
+        // Log the classification
+        let stream: Observable<any> = this._clsService.saveClassification(
             this._searchTerms,
             entry.entryId,
             classification

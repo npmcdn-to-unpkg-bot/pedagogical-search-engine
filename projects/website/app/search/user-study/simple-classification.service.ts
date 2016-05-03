@@ -3,6 +3,8 @@ import {Http, Headers, RequestOptions} from "angular2/http";
 import {SearchTerm} from "../search-terms/SearchTerm";
 import {ClassificationService} from "./classification.service";
 import {Classification} from "../results/classification";
+import privateMemberModifier = ts.ScriptElementKindModifier.privateMemberModifier;
+import {Entry} from "../results/entry";
 
 @Injectable()
 export class SimpleClassificationService extends ClassificationService {
@@ -11,12 +13,36 @@ export class SimpleClassificationService extends ClassificationService {
         @Inject('SETTINGS') private _settings
     ) {}
 
+    private _cache: Array<Classification> = [];
+    private _msgCache: Array<String> = [];
+    private _thxMsgs: Array<String> = [
+        "Thank you for your feedback",
+        "",
+        "Thanks again",
+        "", "", "", "",
+        "Hey thanks! Your feedback helps us a lot :)"
+    ];
+
+    // Private method
+    private _possibleThanksMsg(): String {
+        if(this.nbClassifications() < this._thxMsgs.length) {
+            return this._thxMsgs[this.nbClassifications()];
+        } else {
+            return "";
+        }
+    }
+
     // Public method
     public saveClassification(
         searchTerms:Array<SearchTerm>,
         entryId: String,
         classification: Classification
     ) {
+        if(!(entryId in this._msgCache)) {
+            this._msgCache[entryId] = this._possibleThanksMsg();
+        }
+        this._cache[entryId] = classification;
+
         // Extract the uris
         let uris: Array<String> = [];
         for(let st of searchTerms) {
@@ -36,4 +62,23 @@ export class SimpleClassificationService extends ClassificationService {
 
         return this._http.post(url, body, options);
     }
+
+    public nbClassifications(): number {
+        return Object.keys(this._cache).length;
+    }
+
+
+    public isClassified(entry: Entry): boolean {
+        return (entry.entryId in this._cache);
+    }
+    public isRelevant(entry: Entry): boolean {
+        return this.isClassified(entry) && (this._cache[entry.entryId] === Classification.relevant);
+    }
+    public isIrrelevant(entry: Entry): boolean {
+        return this.isClassified(entry) && (this._cache[entry.entryId] === Classification.irrelevant);
+    }
+    public thxMsg(entry: Entry): String {
+        return (entry.entryId in this._msgCache)? this._msgCache[entry.entryId]: '';
+    }
+
 }

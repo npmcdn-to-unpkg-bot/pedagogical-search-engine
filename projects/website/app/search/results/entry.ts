@@ -1,5 +1,6 @@
 import {Snippet} from "./snippet";
 import {Quality} from "./quality";
+import {Classification} from "./classification";
 
 export class Entry {
     constructor(
