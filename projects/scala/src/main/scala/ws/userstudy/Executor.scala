@@ -42,13 +42,10 @@ class Executor {
     if(ci.entryId.size > 36) {
       Future.failed(new Exception("EntryId is too long (>36)"))
     } else {
-      ClassificationType.fromString(ci.classification) match {
-        case None => Future.failed(new Exception(s"Unkown classification: ${ci.classification}"))
-        case Some(cl) =>
-          val uris = ci.uris.toSet
-          val action = Queries.saveCl(uris, ci.entryId, cl)
-          db.run(action)
-      }
+      val cls = ClassificationType.withName(ci.classification)
+      val uris = ci.uris.toSet
+      val action = Queries.saveCl(uris, ci.entryId, cls)
+      db.run(action)
     }
   }
 }

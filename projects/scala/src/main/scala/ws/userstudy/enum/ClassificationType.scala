@@ -6,15 +6,6 @@ extends Enumeration{
 
   val relevant = Value("relevant")
   val irrelevant = Value("irrelevant")
-
-  def fromString(label: String)
-  : Option[Classification] = {
-    if(label.equals(relevant.toString)) {
-      Some(relevant)
-    } else if(label.equals(irrelevant.toString)) {
-      Some(irrelevant)
-    } else {
-      None
-    }
-  }
+  val relevantPatch = Value("rlvpatch")
+  val irrelevantPatch = Value("irlvpatch")
 }

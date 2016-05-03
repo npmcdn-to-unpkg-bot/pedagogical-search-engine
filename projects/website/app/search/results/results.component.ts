@@ -144,8 +144,7 @@ export class ResultsCmp {
         );
 
         stream.subscribe(res => {
-            let label = Classification[classification];
-            console.log(`Classification ${label}: ${res.text()}`);
+            console.log(res.text());
         });
     }
     private _logAndGoTo(e: MouseEvent, entry: Entry, url: String): void {

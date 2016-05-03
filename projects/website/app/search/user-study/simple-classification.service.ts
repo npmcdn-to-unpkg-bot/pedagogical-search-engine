@@ -5,6 +5,8 @@ import {ClassificationService} from "./classification.service";
 import {Classification} from "../results/classification";
 import privateMemberModifier = ts.ScriptElementKindModifier.privateMemberModifier;
 import {Entry} from "../results/entry";
+import {Response} from "../results/response";
+import {Response as HttpResponse} from 'angular2/http'
 
 @Injectable()
 export class SimpleClassificationService extends ClassificationService {
@@ -41,6 +43,13 @@ export class SimpleClassificationService extends ClassificationService {
         if(!(entryId in this._msgCache)) {
             this._msgCache[entryId] = this._possibleThanksMsg();
         }
+        if(entryId in this._cache) {
+            if(classification === Classification.relevant) {
+                classification = Classification.rlvpatch;
+            } else {
+                classification = Classification.irlvpatch;
+            }
+        }
         this._cache[entryId] = classification;
 
         // Extract the uris
@@ -60,7 +69,10 @@ export class SimpleClassificationService extends ClassificationService {
             "classification": Classification[classification]
         });
 
-        return this._http.post(url, body, options);
+        return this._http.post(url, body, options).map((res: HttpResponse) => {
+            res.statusText = `Logged ${classification}, server responded with ${res.text()}`;
+            return res;
+        });
     }
 
     public nbClassifications(): number {
@@ -72,10 +84,14 @@ export class SimpleClassificationService extends ClassificationService {
         return (entry.entryId in this._cache);
     }
     public isRelevant(entry: Entry): boolean {
-        return this.isClassified(entry) && (this._cache[entry.entryId] === Classification.relevant);
+        return this.isClassified(entry) &&
+            (this._cache[entry.entryId] === Classification.relevant ||
+            this._cache[entry.entryId] === Classification.rlvpatch);
     }
     public isIrrelevant(entry: Entry): boolean {
-        return this.isClassified(entry) && (this._cache[entry.entryId] === Classification.irrelevant);
+        return this.isClassified(entry) &&
+            (this._cache[entry.entryId] === Classification.irrelevant ||
+            this._cache[entry.entryId] === Classification.irlvpatch);
     }
     public thxMsg(entry: Entry): String {
         return (entry.entryId in this._msgCache)? this._msgCache[entry.entryId]: '';
