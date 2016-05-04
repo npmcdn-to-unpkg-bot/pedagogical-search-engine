@@ -2,7 +2,7 @@ package ws.indices
 
 
 import slick.jdbc.JdbcBackend._
-import utils.Logger
+import utils.{Logger, StringUtils}
 import ws.indices.response.{Entry, QualityType, Response}
 import ws.indices.bing.BingFetcher
 import ws.indices.enums.WebsiteSourceType
@@ -40,7 +40,7 @@ class SearchExecutor {
 
     } else {
       // The input sounds reasonable but perform a in-depth check
-      val validatedUris = uris.map(_.trim.toLowerCase).filter(_.length > 0).toSet
+      val validatedUris = uris.map(uri => StringUtils.normalizeUri(uri)).filter(_.length > 0).toSet
 
       if(validatedUris.isEmpty) {
         Future.successful(Response(Nil, 0))

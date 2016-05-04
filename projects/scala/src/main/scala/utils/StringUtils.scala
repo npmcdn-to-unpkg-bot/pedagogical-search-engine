@@ -35,6 +35,8 @@ object StringUtils {
 
   def normalize(s: String): String = s.replaceAll("[^a-zA-Z0-9 ]", "").toLowerCase.trim
 
+  def normalizeUri(uri: String): String = uri.trim.toLowerCase
+
   def textOf(s: String): String = s.
     replaceAll("\\u00a0", " ").
     replaceAll("\\u00ae", "").

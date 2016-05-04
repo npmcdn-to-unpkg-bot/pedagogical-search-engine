@@ -1,6 +1,7 @@
 package ws.userstudy
 
 import slick.jdbc.JdbcBackend._
+import utils.StringUtils
 import ws.indices.response.QualityType
 import ws.userstudy.enum.ClassificationType
 import ws.userstudy.spraythings.{ClassificationInput, ClickInput}
@@ -22,7 +23,7 @@ class Executor {
       Future.failed(new Exception("Rank is less than o"))
     } else {
       val quality = QualityType.fromString(clickInput.quality)
-      val uris = clickInput.uris.toSet
+      val uris = clickInput.uris.map(uri => StringUtils.normalizeUri(uri)).toSet
 
       // Save the click
       val action = Queries.saveClick(
@@ -43,7 +44,7 @@ class Executor {
       Future.failed(new Exception("EntryId is too long (>36)"))
     } else {
       val cls = ClassificationType.withName(ci.classification)
-      val uris = ci.uris.toSet
+      val uris = ci.uris.map(uri => StringUtils.normalizeUri(uri)).toSet
       val action = Queries.saveCl(uris, ci.entryId, cls)
       db.run(action)
     }

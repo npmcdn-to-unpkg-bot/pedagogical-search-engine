@@ -8,3 +8,6 @@ target/
 
 # Private configuration files
 src/main/resources/application.conf
+
+# Other files
+scala-assembly-1.0.jar
