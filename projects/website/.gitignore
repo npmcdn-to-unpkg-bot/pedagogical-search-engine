@@ -14,3 +14,4 @@ app/config-dev.ts
 app/config-prod.ts
 index.html
 container/
+container.tar.gz
