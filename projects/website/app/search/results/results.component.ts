@@ -26,7 +26,7 @@ import {Observable} from "rxjs/Observable";
         <div>
             <span *ngIf="entry.isHighQuality()"
                   class="wc-com-results-link-good">
-                &#187;
+                Best Match &#187;
             </span>
             
             <a *ngIf="!entry.hasHref()"
