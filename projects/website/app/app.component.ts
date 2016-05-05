@@ -40,6 +40,15 @@ import {SimpleClassificationService} from "./search/user-study/simple-classifica
     selector: 'wc-app',
     template: `
 
+<div class="wc-com-app-header">
+    <span class="wc-com-app-header-title">
+        Wikichimp
+    </span>
+    <span class="wc-com-app-header-text">
+        Search engine for students
+    </span>
+</div>
+
 <router-outlet></router-outlet>
 
 `,

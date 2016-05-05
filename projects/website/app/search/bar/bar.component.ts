@@ -1,17 +1,21 @@
-import {Component, ViewChild, Output, EventEmitter, OnChanges, SimpleChange, Inject} from "angular2/core";
+import {Component, ViewChild, Output, EventEmitter, Inject} from "angular2/core";
 import {Router, RouteParams} from "angular2/router";
 import {CompletionCmp} from "./completion/completion.component";
 import {SearchTerm} from "../search-terms/SearchTerm";
 import {Entity} from "./completion/result/entity";
 import {AngularFixService} from "../../utils/angular-fix.service";
 
-enum keys {Tab, Enter, Down, Up, Escape};
+enum keys {Tab, Enter, Down, Up, Escape}
 
 @Component({
     selector: 'wc-search-bar',
     template: `
 
-<div class="wc-com-search-bar-container">
+<div>
+    Search online Books & Courses
+</div>
+
+<div>
     <div class="wc-com-search-bar-input-wrapper">
     
         <input type="text" [(ngModel)]="_text"

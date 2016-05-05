@@ -1,18 +1,15 @@
-import {Component, Input, provide, Inject, SimpleChange, Class} from "angular2/core";
+import {Component, Input, provide, Inject, SimpleChange} from "angular2/core";
 import {SearchTerm} from "../search-terms/SearchTerm";
 import {EntriesService} from "./entries.service";
 import {Entry} from "./entry";
 import {SimpleEntriesService} from "./simple-entries.service";
 import {Router, RouteParams} from "angular2/router";
-import {MockEntriesService} from "./mock-entries.service";
 import {ClickService} from "../user-study/click.service";
 import {SimpleClickService} from "../user-study/simple-click.service";
-import {Quality} from "./quality";
-import {Response as HttpResponse, Http} from "angular2/http";
+import {Response as HttpResponse} from "angular2/http";
 import {Response} from "./response";
 import {Classification} from "./classification";
 import {ClassificationService} from "../user-study/classification.service";
-import {SimpleClassificationService} from "../user-study/simple-classification.service";
 import {Observable} from "rxjs/Observable";
 
 @Component({

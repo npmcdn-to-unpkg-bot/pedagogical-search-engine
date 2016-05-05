@@ -8,12 +8,8 @@ import {RouteParams, Router, ROUTER_DIRECTIVES} from "angular2/router";
     template: `
     
     <div class="wc-com-search-topthings">
-        <h2 class="wc-com-search-minilogo">
-            Search
-        </h2>
-        
         <wc-search-bar
-            class="wc-com-search-bar"
+            class="wc-com-search-bar-container"
             (searchTermsChange)="_searchTermsChange($event)"></wc-search-bar>
     </div>
     
