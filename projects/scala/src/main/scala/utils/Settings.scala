@@ -21,6 +21,12 @@ class Settings(config: Config) {
     val port = getInt("spotlight.server.port")
     val host = getString("spotlight.server.host")
   }
+  object ElasticSearch {
+    object jsonCreation {
+      val inputFolder = getString("elasticSearch.jsonCreation.inputFolder")
+      val outputFolder = getString("elasticSearch.jsonCreation.outputFolder")
+    }
+  }
   object UserStudy {
     object Ws {
       object Spray {

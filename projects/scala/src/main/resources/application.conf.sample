@@ -29,6 +29,12 @@ wikichimp {
       }
     }
   }
+    elasticSearch {
+      jsonCreation {
+        inputFolder = ${wikichimp.resources.folder}
+        outputFolder = "???"
+      }
+    }
   userStudy {
       slick {
         driver = "com.mysql.jdbc.Driver"
