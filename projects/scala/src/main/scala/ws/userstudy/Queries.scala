@@ -15,7 +15,6 @@ object Queries {
 
   def saveClick(uris: Set[String], entryId: String, rank: Int, quality: Quality) = {
     val searchHash: Int = MurmurHash3.unorderedHash(uris)
-    val urisJson: String = org.json4s.native.Serialization.write(uris)
 
     DBIO.seq(
       clicksTQ += (-1, entryId, searchHash, rank, quality.toString, None)
