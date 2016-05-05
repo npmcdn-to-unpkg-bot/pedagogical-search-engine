@@ -37,6 +37,9 @@ object StringUtils {
 
   def normalizeUri(uri: String): String = uri.trim.toLowerCase
 
+  def escapeSQLWildcards(text: String): String =
+    text.replaceAll("\\%", "\\\\%").replaceAll("\\_", "\\\\_")
+
   def textOf(s: String): String = s.
     replaceAll("\\u00a0", " ").
     replaceAll("\\u00ae", "").

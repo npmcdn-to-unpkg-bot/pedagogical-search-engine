@@ -5,6 +5,7 @@ import java.sql.Timestamp
 import org.json4s.DefaultFormats
 import slick.driver.MySQLDriver.api._
 import slick.jdbc.{GetResult, PositionedParameters, PositionedResult, SetParameter}
+import utils.StringUtils
 import ws.indices.enums.EngineSourceType
 import ws.indices.indexentry.{FullBing, IndexEntry, PartialBing, PartialWikichimp}
 
@@ -12,8 +13,6 @@ import scala.util.hashing.MurmurHash3
 
 
 object Queries {
-  private val indicesTQ = TableQuery[mysql.slick.tables.Indices]
-  private val detailsTQ = TableQuery[mysql.slick.tables.Details]
   private val cacheDetailsTQ = TableQuery[mysql.slick.tables.CacheDetails]
   private val cacheEntriesTQ = TableQuery[mysql.slick.tables.CacheEntries]
   private val searchesTQ = TableQuery[mysql.slick.tables.Searches]
@@ -45,8 +44,9 @@ object Queries {
       }
     }
   }
-  def bestIndices(uris: Set[String], nmax: Int) = {
-    val searchHash: Int = MurmurHash3.unorderedHash(uris)
+  def bestIndices(unescapedUris: Set[String], nmax: Int) = {
+    val searchHash: Int = MurmurHash3.unorderedHash(unescapedUris)
+    val escapedUris = unescapedUris.map(uri => StringUtils.escapeSQLWildcards(uri))
     sql"""
 (
   SELECT
@@ -56,7 +56,7 @@ object Queries {
     MIN(ResourceId)
   FROM indices
   WHERE
-    Uri IN ($uris#${",?" * (uris.size - 1)})
+    Uri IN ($escapedUris#${",?" * (escapedUris.size - 1)})
   GROUP BY entryId
   ORDER BY SUM(Score) DESC
   LIMIT 0, 500
@@ -97,7 +97,8 @@ object Queries {
   }
 
   // Get details of some entries (from wikichimp, bing, etc..)
-  def getDetails(entryIds: Set[String]) = {
+  def getDetails(unescapedEi: Set[String]) = {
+    val escapedEi = unescapedEi.map(uri => StringUtils.escapeSQLWildcards(uri))
     sql"""
 (
 	SELECT
@@ -108,7 +109,7 @@ object Queries {
 		Snippet,
 		Timestamp
 	FROM `cache-details`
-	WHERE EntryId IN ($entryIds#${",?" * (entryIds.size - 1)})
+	WHERE EntryId IN ($escapedEi#${",?" * (escapedEi.size - 1)})
 ) UNION (
 	SELECT
 		EntryId,
@@ -118,7 +119,7 @@ object Queries {
 		Snippet,
     '2016-04-29 14:45:48'
 	FROM details
-    WHERE EntryId IN ($entryIds#${",?" * (entryIds.size - 1)})
+    WHERE EntryId IN ($escapedEi#${",?" * (escapedEi.size - 1)})
 );
     """.as[(String, String, String, String, String, Timestamp)]
   }

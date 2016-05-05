@@ -2,7 +2,7 @@ package ws.autocomplete.query
 
 import slick.jdbc.GetResult
 import slick.driver.MySQLDriver.api._
-import utils.StringUtils
+import utils.StringUtils._
 import ws.autocomplete.results._
 
 object Queries {
@@ -22,8 +22,6 @@ object Queries {
   val defaultLimit = 10
 
   val separator = ",¬" // Ensure that no labels or uris contain this
-  def preventWildcards(s: String): String =
-    s.replaceAll("\\%", "\\\\%").replaceAll("\\_", "\\\\_")
 
   /* mysql GROUP_CONCAT can be truncated, we can send a funky
    * row filled with garbage to set the non-truncated window
@@ -38,16 +36,16 @@ object Queries {
   val maxNbRows = math.pow(2, 10).toInt
 
   // Create the query-action
-  def getAction(text: String, n: Int) = text.size match {
+  def getAction(text: String, n: Int) = text.length match {
     case one if one == 1 => Queries.one(text, n)
-    case twoThre if (twoThre == 2 || twoThre == 3) => Queries.twoThre(text, n)
+    case twoThre if twoThre == 2 || twoThre == 3 => Queries.twoThre(text, n)
     case _ => Queries.fourPlus(text, n)
   }
 
   def withWilcards(text: String): String = {
     val max = 4
     val sep = " "
-    StringUtils.glue(text.split(sep).toList, max, sep) match {
+    glue(text.split(sep).toList, max, sep) match {
       case Nil => ""
       case head::Nil => head + "%"
       case head::tail => head + "%" + tail.mkString(" ") + "%"
@@ -58,7 +56,7 @@ object Queries {
     val source = r.nextInt()
 
     source match {
-      case Codes.Exact.disambiguation | Codes.Prefix.disambiguation => {
+      case Codes.Exact.disambiguation | Codes.Prefix.disambiguation =>
         val labelA = r.nextString()
         val labelB = r.nextString().split(separator).toList
         val uriA = r.nextString()
@@ -69,28 +67,28 @@ object Queries {
           case (label, uri, in) => PageElement(uri, label, in)
         }
         Disambiguation(uriA, labelA, bs)
-      }
-      case Codes.Exact.title | Codes.Prefix.title => {
+
+      case Codes.Exact.title | Codes.Prefix.title =>
         r.skip
         val label = r.nextString()
         r.skip
         val uri =  r.nextString()
         val in = r.nextInt()
         Title(label, uri, in)
-      }
-      case Codes.Exact.redirect | Codes.Prefix.redirect => {
+
+      case Codes.Exact.redirect | Codes.Prefix.redirect =>
         val labelA = r.nextString()
         val labelB = r.nextString()
         r.skip
         val uriB = r.nextString()
         val inB = r.nextInt()
         Redirect(labelA, labelB, uriB, inB)
-      }
+
     }
   })
 
   def one(i: String, n: Int = defaultLimit) = {
-    val text = preventWildcards(i)
+    val text = escapeSQLWildcards(i)
     sql"""
     (
       SELECT
@@ -147,7 +145,7 @@ object Queries {
   }
 
   def twoThre(i: String, n: Int = defaultLimit) = {
-    val text = preventWildcards(i)
+    val text = escapeSQLWildcards(i)
     val textPercent = text + "%"
     sql"""
     (
@@ -245,7 +243,7 @@ object Queries {
   }
 
   def fourPlus(i: String, n: Int = defaultLimit) = {
-    val text = preventWildcards(i)
+    val text = escapeSQLWildcards(i)
     val textPercent = withWilcards(text)
     sql"""
     (
