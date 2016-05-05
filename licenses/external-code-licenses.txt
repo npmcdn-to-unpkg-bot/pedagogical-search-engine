@@ -1,0 +1,15 @@
+
+Licenses for the Website
+----------------------------
+	() Fonts
+		() Indie Flower
+			link: https://www.google.com/fonts/specimen/Indie+Flower
+
+			license: SIL Open Font License, 1.1
+			online: http://scripts.sil.org/OFL
+
+		() Montserrat
+			link: https://www.google.com/fonts/specimen/Montserrat
+
+			license: SIL Open Font License, 1.1
+			online: http://scripts.sil.org/OFL
