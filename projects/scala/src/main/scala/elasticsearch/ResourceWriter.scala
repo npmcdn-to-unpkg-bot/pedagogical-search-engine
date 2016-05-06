@@ -16,14 +16,15 @@ object ResourceWriter {
       case Success(e) => List(e)
       case _ => Nil
     }
-    val nodes = r.oTocs.map(tocs => {
-      tocs.flatMap(toc => toc.nodesRec().flatMap(node => {
-        nodeResource(r, node) match {
-          case Success(e) => List(e)
-          case Failure(e) => println("failure!"); e.printStackTrace(); Nil
-        }
-      }))
-    }).getOrElse(Nil)
+    val nodes: List[JObject] =
+      r.oTocs.map(tocs => {
+        tocs.flatMap(toc => toc.nodesRec().flatMap(node => {
+          nodeResource(r, node) match {
+            case Success(e) => List(e)
+            case Failure(e) => Nil
+          }
+        }))
+      }).getOrElse(Nil)
 
     title:::nodes
   }
@@ -35,17 +36,15 @@ object ResourceWriter {
   }
 
   private def getHref(r: Resource)
-  : String = r.oHref match {
-    case None => ""
-    case Some(href) => href
-  }
+  : String = rsc.Utils.getUrl(r).getOrElse("")
 
   def titleResource(r: Resource)
   : Try[JObject] =
     Try {
       val entryId = getEntryId(r.title.oIndices)
       val title = r.title.label
-      produceResource(title, r.source, title, bodyText(r), entryId, getHref(r))
+      produceResource(title, r.source, title, bodyText(r), entryId, r.resourceId,
+        getHref(r))
     }
 
   def nodeResource(r: Resource, node: Node)
@@ -54,7 +53,7 @@ object ResourceWriter {
       val entryId = getEntryId(r.title.oIndices)
 
       produceResource(r.title.label, r.source, node.label,
-        bodyText(r), entryId, getHref(r))
+        bodyText(r), entryId, r.resourceId, getHref(r))
     }
 
   def descriptionText(r: Resource)
@@ -78,10 +77,12 @@ object ResourceWriter {
                       header: String,
                       body: String,
                       entryId: String,
+                      resourceId: String,
                       href: String)
   : JObject =
     ("title" -> title) ~ ("source" -> source.toString) ~
       ("header" -> header) ~ ("body" -> body) ~
-      ("entryId" -> entryId) ~ ("href" -> href)
+      ("entryId" -> entryId) ~ ("resourceId" -> resourceId) ~
+      ("href" -> href)
 
 }

@@ -1,7 +1,7 @@
 package rsc.importers
 
-import mysql.slick.tables.{Details, Indices, Types, DictionaryDisambiguations, DictionaryRedirects, DictionaryTitles}
-import rsc.{Formatters, Resource}
+import mysql.slick.tables.{Details, DictionaryDisambiguations, DictionaryRedirects, DictionaryTitles, Indices, Types}
+import rsc.{Formatters, Resource, Utils}
 import rsc.attributes.Source._
 import rsc.importers.Importer.{Importer, SlickMysql}
 import rsc.toc.{Node, Toc}
@@ -137,14 +137,5 @@ class SlickMysql(_ec: ExecutionContext, db: Database) extends Formatters {
     case Scholarpedia => "Scholarpedia"
   }
 
-  def hrefDetail(r: Resource): Option[String] = r.oHref match {
-    case None => None
-    case Some(partialHref) => r.source match {
-      case Coursera => Some(s"https://www.coursera.org$partialHref")
-      case Khan => Some(s"https://www.khanacademy.org$partialHref")
-      case MIT => Some(s"http://ocw.mit.edu$partialHref")
-      case Safari => None
-      case Scholarpedia => Some(s"http://www.scholarpedia.org$partialHref")
-    }
-  }
+  def hrefDetail(r: Resource): Option[String] = Utils.getUrl(r)
 }
