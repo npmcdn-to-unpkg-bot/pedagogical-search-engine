@@ -4,14 +4,21 @@ import java.io.File
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
 
+import akka.actor.ActorSystem
 import elasticsearch.ResourceWriter
+import org.json4s.JsonAST.JObject
 import org.json4s.native.JsonMethods._
+import org.json4s.JsonDSL._
 import org.json4s.native.Serialization.write
 import rsc.{Formatters, Resource}
+import spray.client.pipelining._
+import spray.http.{HttpRequest, HttpResponse}
 import utils.{Files, Logger, Settings}
 
+import scala.concurrent.duration._
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
 object CopyToES extends App with Formatters {
   //
@@ -25,11 +32,28 @@ object CopyToES extends App with Formatters {
   val tqExec = Executors.newFixedThreadPool(nbTasks)
   val tasksQueue = ExecutionContext.fromExecutor(tqExec)
 
+  val iqExec = Executors.newFixedThreadPool(nbTasks * 10)
+  val importQueue = ExecutionContext.fromExecutor(iqExec)
+
   val uqExec = Executors.newFixedThreadPool(10)
   val utilsQueue = ExecutionContext.fromExecutor(uqExec)
 
+  // Create the http actors
+  implicit private val system = ActorSystem("es-import")
+  import system.dispatcher
+  val timeoutMs = 10*60*1000
+  val timeout = timeoutMs.milliseconds
 
-  Logger.info(s"Start indexing: #tasks=$nbTasks")
+  val ip = settings.ElasticSearch.ip
+  val port = settings.ElasticSearch.port
+  val esIndex = settings.ElasticSearch.esIndex
+  val esType = settings.ElasticSearch.esType
+  val url = s"http://$ip:$port/_bulk"
+
+  val pipeline: HttpRequest => Future[HttpResponse] = (
+    addHeader("Accept", "application/json")
+      ~> sendReceive(implicitly, implicitly, futureTimeout = timeout)
+    )
 
   // Create a monitoring system
   var shutDownMonitoring = false
@@ -50,33 +74,49 @@ object CopyToES extends App with Formatters {
 
   // Define how each file is processed
   val outputFolder = new File(settings.ElasticSearch.jsonCreation.outputFolder)
+  val esComplement: JObject =
+    "index" -> (
+      ("_index" -> esIndex) ~
+        ("_type" -> esType)
+      )
   def process(file: File)
   : Future[Any] = {
-    // Parse it
-    val json = parse(file)
-    val r = json.extract[Resource]
-
     Future {
       Logger.info(s"Process ${file.getName}")
+
+      // Parse it
+      val json = parse(file)
+      val r = json.extract[Resource]
 
       // Check that the file was not already copied
       val donePath = outputFolder.getAbsolutePath + "/" + file.getName + ".done"
       new File(donePath).exists() match {
         case true => Logger.info(s"Skipping, already copied: ${file.getName}")
         case false =>
+
           val objects = ResourceWriter.jsonResources(r)
-          objects.zipWithIndex.foreach {
-            case (obj, index) =>
-              val path = outputFolder.getAbsolutePath + "/" + file.getName + s"-frag-$index.json"
-              val body = write(obj)
-              Files.write(body, path)
-          }
+          val body = objects.map(o => write(esComplement ~ o)).mkString("\n")
 
-          // Indicate that we are done
-          Files.write("", donePath)
+          // The request will be executed in the import queue
+          val request = pipeline(Post(url, body))
+
+          //
+          Await.result(request, Duration.Inf)
+
+          request.onComplete {
+            case Success(response) =>
+              // Indicate that we are done
+              Files.write("", donePath)
+
+              // Log the success
+              println(s"Successfully posted ${file.getName}")
+              totCounter.incrementAndGet()
+
+            case Failure(e) =>
+              e.printStackTrace()
+              totCounter.incrementAndGet()
+          }(importQueue)
       }
-
-      totCounter.incrementAndGet()
 
     }(tasksQueue)
   }
@@ -90,6 +130,7 @@ object CopyToES extends App with Formatters {
     true
   )
 
+  Logger.info(s"Start indexing: #tasks=$nbTasks")
   while(it.hasNext) {
     val file = it.next().asInstanceOf[File]
     lastIndexation = process(file)
@@ -101,6 +142,8 @@ object CopyToES extends App with Formatters {
   Await.result(monitoring, Duration.Inf)
 
   // Shut down java executors
+  iqExec.shutdown()
   tqExec.shutdown()
   uqExec.shutdown()
+  system.shutdown()
 }

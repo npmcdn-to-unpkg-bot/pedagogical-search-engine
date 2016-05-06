@@ -29,12 +29,16 @@ wikichimp {
       }
     }
   }
-    elasticSearch {
-      jsonCreation {
-        inputFolder = ${wikichimp.resources.folder}
-        outputFolder = "???"
-      }
+  elasticSearch {
+    ip = "127.0.0.1"
+    port = 9200
+    esIndex = "wikichimp"
+    esType = "???"
+    jsonCreation {
+      inputFolder = ${wikichimp.resources.folder}
+      outputFolder = "${wikichimp.resources.folder}/../elastic-search/resources-monitoring"
     }
+  }
   userStudy {
       slick {
         driver = "com.mysql.jdbc.Driver"
