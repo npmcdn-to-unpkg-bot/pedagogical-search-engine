@@ -34,12 +34,18 @@ object ResourceWriter {
     case None => StringUtils.uuid36()
   }
 
+  private def getHref(r: Resource)
+  : String = r.oHref match {
+    case None => ""
+    case Some(href) => href
+  }
+
   def titleResource(r: Resource)
   : Try[JObject] =
     Try {
       val entryId = getEntryId(r.title.oIndices)
       val title = r.title.label
-      produceResource(title, r.source, title, bodyText(r), entryId)
+      produceResource(title, r.source, title, bodyText(r), entryId, getHref(r))
     }
 
   def nodeResource(r: Resource, node: Node)
@@ -48,7 +54,7 @@ object ResourceWriter {
       val entryId = getEntryId(r.title.oIndices)
 
       produceResource(r.title.label, r.source, node.label,
-        bodyText(r), entryId)
+        bodyText(r), entryId, getHref(r))
     }
 
   def descriptionText(r: Resource)
@@ -71,10 +77,11 @@ object ResourceWriter {
                       source: Source,
                       header: String,
                       body: String,
-                      entryId: String)
+                      entryId: String,
+                      href: String)
   : JObject =
     ("title" -> title) ~ ("source" -> source.toString) ~
       ("header" -> header) ~ ("body" -> body) ~
-      ("entryId" -> entryId)
+      ("entryId" -> entryId) ~ ("href" -> href)
 
 }
