@@ -7,16 +7,15 @@ import java.util.concurrent.atomic.AtomicInteger
 import akka.actor.ActorSystem
 import elasticsearch.ResourceWriter
 import org.json4s.JsonAST.JObject
-import org.json4s.native.JsonMethods._
 import org.json4s.JsonDSL._
+import org.json4s.native.JsonMethods._
 import org.json4s.native.Serialization.write
 import rsc.{Formatters, Resource}
 import spray.client.pipelining._
-import spray.http.{HttpRequest, HttpResponse}
+import spray.http.{HttpRequest, HttpResponse, StatusCodes}
 import utils.{Files, Logger, Settings}
 
-import scala.concurrent.duration._
-import scala.concurrent.duration.Duration
+import scala.concurrent.duration.{Duration, _}
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
@@ -79,6 +78,7 @@ object CopyToES extends App with Formatters {
       ("_index" -> esIndex) ~
         ("_type" -> esType)
       )
+  val esComplementStr: String = write(esComplement)
   def process(file: File)
   : Future[Any] = {
     Future {
@@ -95,21 +95,27 @@ object CopyToES extends App with Formatters {
         case false =>
 
           val objects = ResourceWriter.jsonResources(r)
-          val body = objects.map(o => write(esComplement ~ o)).mkString("\n")
+          val body = objects.map(o => esComplementStr + "\n" + write(o)).mkString("\n")
 
           // The request will be executed in the import queue
-          val request = pipeline(Post(url, body))
+          val request = pipeline(Post(url, body + "\n"))
 
           //
           Await.result(request, Duration.Inf)
 
           request.onComplete {
             case Success(response) =>
-              // Indicate that we are done
-              Files.write("", donePath)
+              response.status == StatusCodes.OK match {
+                case true =>
+                  // Indicate that we are done
+                  Files.write("", donePath)
 
-              // Log the success
-              println(s"Successfully posted ${file.getName}")
+                  // Log the success
+                  Logger.info(s"Successfully posted ${file.getName}")
+                case false =>
+                  Logger.error(s"Failure, elastic responded with\n $response")
+              }
+
               totCounter.incrementAndGet()
 
             case Failure(e) =>
