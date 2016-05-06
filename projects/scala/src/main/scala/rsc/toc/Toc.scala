@@ -8,4 +8,8 @@ case class Toc(nodes: Nodes) {
   })
 
   def nodesRec(): Nodes = nodesWithDepth().map(_._1)
+
+  def rawString(): String = nodes.map(node => {
+    node.rawString()
+  }).mkString("\n")
 }

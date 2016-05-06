@@ -16,6 +16,9 @@ case class Node(label: String,
     current:::sub
   }
 
+  def rawString(): String =
+    label + "\n" + children.map(c => c.rawString()).mkString("\n")
+
   def prettyPrint(spaces: String): String = {
     val affix = children match {
       case Nil => ""
