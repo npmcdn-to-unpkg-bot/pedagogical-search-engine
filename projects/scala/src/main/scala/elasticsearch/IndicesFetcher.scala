@@ -63,13 +63,13 @@ class IndicesFetcher(esIndex: String,
         val entryId = hit.field(entryIdField).getValue[String]
         val url = hit.field(urlField).getValue[String]
         val resourceId = hit.field(rIdField).getValue[String]
-        val snippet = hit.fields.contains(bodyField) match {
+        val snippet = hit.highlightFields.contains(bodyField) match {
           case true => toSnippet(hit.highlightFields(bodyField))
           case false => Snippet(Nil)
         }
 
         FullWFT(entryId, score, resourceId, title, WebsiteSourceType.withName(source),
-          url, Snippet(Nil))
+          url, snippet)
       })
     })
   }
