@@ -3,10 +3,12 @@ package ws.indices
 import slick.jdbc.JdbcBackend.Database
 import utils.{ListMixer, Logger, StringUtils}
 import ws.indices.bing.BingFetcher
+import ws.indices.bing.BingJsonProtocol.{BingApiResult, ResultElement, dElement}
 import ws.indices.indexentry._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.util.hashing.MurmurHash3
 
 class IndicesFetcher(db: Database, bf: BingFetcher,
                      esFetcher: elasticsearch.IndicesFetcher) {
@@ -19,16 +21,14 @@ class IndicesFetcher(db: Database, bf: BingFetcher,
     val esAction = esFetcher.getIndices(searchText, 0, 50)
 
     val dbFuture = db.run(dbAction).recover {
-      case e => {
+      case e =>
         Logger.error(s"Indices fetcher got an error with db-indices: ${e.getMessage}")
         Vector[IndexEntry]()
-      }
     }
     val esFuture = esAction.recover {
-      case e => {
+      case e =>
         Logger.error(s"Indices fetcher got an error with es-indices: ${e.getMessage}")
         Nil
-      }
     }
     val future = for {
       f1 <- dbFuture
@@ -36,9 +36,7 @@ class IndicesFetcher(db: Database, bf: BingFetcher,
     } yield (f1, f2)
 
     future.flatMap {
-      case (indexRows, wftIndices) => {
-        Logger.info(s"cache: ${indexRows.size}, full-text: ${wftIndices.size}")
-
+      case (indexRows, wftIndices) =>
         // Classify the index rows
         val (partialBingRows, wcWithDup) = indexRows
           .foldLeft((List[PartialBing](), List[PartialWikichimp]())) {
@@ -66,9 +64,39 @@ class IndicesFetcher(db: Database, bf: BingFetcher,
         // If there are no bing rows, go fetch them
         partialBingRows match {
           case Nil =>
-            val searchText = uris.map(StringUtils.labelizeUri(_)).mkString(" ")
-            bf.search(searchText, 0, 10).flatMap(result => {
-              val fullBingResults = FullBing.fromBingResult(result)
+            val searchText = uris.map(StringUtils.labelizeUri).mkString(" ")
+            val futureApiResult = bf.search(searchText, 0, 10)
+
+            // Remove duplicates based on titles
+            // Hide de
+            futureApiResult.map(apiResult => {
+              val accInit = (List[Set[Int]](), List[ResultElement]())
+
+              apiResult.d.results.foldLeft(accInit) {
+                case ((hashesSets, acc), result) =>
+                  val text = result.title
+                  val chunks = text.split(" ")
+                    .filter(_.trim.length > 0).map(_.toLowerCase).toList
+                  val hashes = chunks.map(MurmurHash3.stringHash)
+                  val differences = hashesSets.map(set => hashes.filterNot(set.contains).length)
+                  val minDiff = differences.size match {
+                    case 0 => 0
+                    case _ => differences.min
+                  }
+
+                  val threshold = math.ceil(chunks.size.toDouble * 0.25)
+
+                  if(hashesSets.nonEmpty && minDiff <= threshold) {
+                    (hashesSets, acc)
+                  } else {
+                    (hashes.toSet :: hashesSets, acc ::: List(result))
+                  }
+              }._2
+
+            }).flatMap(result => {
+              val fullBingResults = FullBing.fromBingResult(
+                BingApiResult(dElement(result))
+              )
 
               // Save them into the cache
               val action = Queries.saveBingResult(uris, fullBingResults)
@@ -87,7 +115,6 @@ class IndicesFetcher(db: Database, bf: BingFetcher,
             val mix = ListMixer.mixByFPreserveOrder(randomButConsitent, partialBingRows, ourIndices).toList
             Future.successful(mix)
         }
-      }
     }
   }
 
