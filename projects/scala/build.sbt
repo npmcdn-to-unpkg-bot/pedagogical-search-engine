@@ -15,6 +15,7 @@ libraryDependencies ++= Seq(
   "com.typesafe.slick" %% "slick" % "3.1.1",
   "com.typesafe.slick" % "slick-hikaricp_2.11" % "3.1.1",
   "org.slf4j" % "slf4j-nop" % "1.6.4",
+  "com.sksamuel.elastic4s" % "elastic4s-core_2.11" % "2.3.0",
 
   // Scala Test
   "org.scalactic" % "scalactic_2.11" % "2.2.6",

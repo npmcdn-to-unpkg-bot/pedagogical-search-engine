@@ -11,3 +11,4 @@ src/main/resources/application.conf
 
 # Other files
 scala-assembly-1.0.jar
+src/main/scala/agents/Test.scala
