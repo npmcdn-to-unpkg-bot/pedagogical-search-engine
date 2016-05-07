@@ -37,6 +37,8 @@ class IndicesFetcher(db: Database, bf: BingFetcher,
 
     future.flatMap {
       case (indexRows, wftIndices) => {
+        Logger.info(s"cache: ${indexRows.size}, full-text: ${wftIndices.size}")
+
         // Classify the index rows
         val (partialBingRows, wcWithDup) = indexRows
           .foldLeft((List[PartialBing](), List[PartialWikichimp]())) {
@@ -94,6 +96,7 @@ class IndicesFetcher(db: Database, bf: BingFetcher,
       case PartialBing(entryId, _) => entryId
       case PartialWikichimp(entryId, _, _) => entryId
       case c@FullBingMatch(_) => c.entryId
+      case x if x.isInstanceOf[FullWFT] => x.asInstanceOf[FullWFT].entryId
     }
   }
 }
