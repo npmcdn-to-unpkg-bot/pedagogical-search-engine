@@ -1,7 +1,7 @@
 package ws.autocomplete.query
 
-import slick.jdbc.GetResult
 import slick.driver.MySQLDriver.api._
+import slick.jdbc.GetResult
 import utils.StringUtils._
 import ws.autocomplete.results._
 
@@ -108,8 +108,7 @@ object Queries {
         GROUP_CONCAT(`InB` ORDER BY `InB` DESC SEPARATOR '#$separator') as `InB`
       FROM `dictionary-disambiguation`
       WHERE
-        `LabelA` LIKE $text AND
-        `Available` = 1
+        `LabelA` LIKE $text
       GROUP BY `A`
       LIMIT #$n
     ) UNION (
@@ -122,8 +121,7 @@ object Queries {
         `In` as `InB`
       FROM `dictionary-titles`
       WHERE
-        `Label` LIKE $text AND
-        `Available` = 1
+        `Label` LIKE $text
       ORDER BY `In` DESC
       LIMIT #$n
     ) UNION (
@@ -136,8 +134,7 @@ object Queries {
         `InB` as `InB`
       FROM `dictionary-redirects`
       WHERE
-        `LabelA` LIKE $text AND
-        `Available` = 1
+        `LabelA` LIKE $text
       ORDER BY `InB` DESC
       LIMIT #$n
     ) ORDER BY `Source` ASC LIMIT 1, #$maxNbRows;
@@ -166,8 +163,7 @@ object Queries {
         GROUP_CONCAT(`InB` ORDER BY `InB` DESC SEPARATOR '#$separator') as `InB`
       FROM `dictionary-disambiguation`
       WHERE
-        `LabelA` LIKE $text AND
-        `Available` = 1
+        `LabelA` LIKE $text
       GROUP BY `A`
       LIMIT #$n
     ) UNION (
@@ -180,8 +176,7 @@ object Queries {
         `In` as `InB`
       FROM `dictionary-titles`
       WHERE
-        `Label` LIKE $text AND
-        `Available` = 1
+        `Label` LIKE $text
       ORDER BY `In` DESC
       LIMIT #$n
     ) UNION (
@@ -194,8 +189,7 @@ object Queries {
         `InB` as `InB`
       FROM `dictionary-redirects`
       WHERE
-        `LabelA` LIKE $text AND
-        `Available` = 1
+        `LabelA` LIKE $text
       ORDER BY `InB` DESC
       LIMIT #$n
     ) UNION (
@@ -208,8 +202,7 @@ object Queries {
         GROUP_CONCAT(`InB` ORDER BY `InB` DESC SEPARATOR '#$separator') as `InB`
       FROM `dictionary-disambiguation`
       WHERE
-        `LabelA` LIKE $textPercent AND
-        `Available` = 1
+        `LabelA` LIKE $textPercent
       GROUP BY `A`
       LIMIT #$n
     ) UNION (
@@ -222,8 +215,7 @@ object Queries {
         `In` as `InB`
       FROM `dictionary-titles`
       WHERE
-        `Label` LIKE $textPercent AND
-        `Available` = 1
+        `Label` LIKE $textPercent
       LIMIT #$n
     ) UNION (
       SELECT
@@ -235,8 +227,7 @@ object Queries {
         `InB` as `InB`
       FROM `dictionary-redirects`
       WHERE
-        `LabelA` LIKE $textPercent AND
-        `Available` = 1
+        `LabelA` LIKE $textPercent
       LIMIT #$n
     ) ORDER BY `Source` ASC LIMIT 1, #$maxNbRows;
     """.as[Result]
@@ -264,8 +255,7 @@ object Queries {
         GROUP_CONCAT(`InB` ORDER BY `InB` DESC SEPARATOR '#$separator') as `InB`
       FROM `dictionary-disambiguation`
       WHERE
-        `LabelA` LIKE $text AND
-        `Available` = 1
+        `LabelA` LIKE $text
       GROUP BY `A`
       LIMIT #$n
     ) UNION (
@@ -278,8 +268,7 @@ object Queries {
         `In` as `InB`
       FROM `dictionary-titles`
       WHERE
-        `Label` LIKE $text AND
-        `Available` = 1
+        `Label` LIKE $text
       ORDER BY `In` DESC
       LIMIT #$n
     ) UNION (
@@ -292,8 +281,7 @@ object Queries {
         `InB` as `InB`
       FROM `dictionary-redirects`
       WHERE
-        `LabelA` LIKE $text AND
-        `Available` = 1
+        `LabelA` LIKE $text
       ORDER BY `InB` DESC
       LIMIT #$n
     ) UNION (
@@ -306,8 +294,7 @@ object Queries {
         GROUP_CONCAT(`InB` ORDER BY `InB` DESC SEPARATOR '#$separator') as `InB`
       FROM `dictionary-disambiguation`
       WHERE
-        `LabelA` LIKE $textPercent AND
-        `Available` = 1
+        `LabelA` LIKE $textPercent
       GROUP BY `A`
       ORDER BY length(MIN(`LabelA`)) ASC
       LIMIT #$n
@@ -321,8 +308,7 @@ object Queries {
         `In` as `InB`
       FROM `dictionary-titles`
       WHERE
-        `Label` LIKE $textPercent AND
-        `Available` = 1
+        `Label` LIKE $textPercent
       ORDER BY length(`Label`) ASC, `In` DESC
       LIMIT #$n
     ) UNION (
@@ -335,8 +321,7 @@ object Queries {
         `InB` as `InB`
       FROM `dictionary-redirects`
       WHERE
-        `LabelA` LIKE $textPercent AND
-        `Available` = 1
+        `LabelA` LIKE $textPercent
       ORDER BY length(`LabelA`) ASC, `InB` DESC
       LIMIT #$n
     ) ORDER BY `Source` ASC LIMIT 1, #$maxNbRows;
