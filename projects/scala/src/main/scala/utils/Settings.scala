@@ -24,6 +24,7 @@ class Settings(config: Config) {
   object ElasticSearch {
     val ip = getString("elasticSearch.ip")
     val port = getInt("elasticSearch.port")
+    val clusterName = getString("elasticSearch.clusterName")
     val esIndex = getString("elasticSearch.esIndex")
     val esType = getString("elasticSearch.esType")
     object jsonCreation {

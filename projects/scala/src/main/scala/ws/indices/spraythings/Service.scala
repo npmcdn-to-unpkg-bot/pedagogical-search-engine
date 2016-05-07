@@ -1,10 +1,10 @@
 package ws.indices.spraythings
 
-import org.json4s._
 import org.json4s.native.Serialization.write
 import rsc.Formatters
 import spray.http.MediaTypes.`application/json`
 import spray.routing.HttpService
+import utils.Settings
 import ws.indices.SearchExecutor
 import ws.indices.spraythings.JsonSupport._
 import ws.spraythings.CORSSupport
@@ -14,7 +14,7 @@ import scala.util.{Failure, Success}
 
 trait Service extends HttpService with CORSSupport with Formatters {
 
-  val executor = new SearchExecutor()
+  val executor = new SearchExecutor(new Settings())
 
   val myRoute =
     path("indices") {

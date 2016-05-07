@@ -3,6 +3,7 @@ package evaluation.indices
 import java.util.concurrent.atomic.AtomicInteger
 
 import slick.jdbc.JdbcBackend._
+import utils.Settings
 import ws.autocomplete.query.Queries
 import ws.indices.SearchExecutor
 
@@ -22,7 +23,7 @@ object MysqlService extends App {
   }
 
   // Create the search-service
-  val service = new SearchExecutor()
+  val service = new SearchExecutor(new Settings())
 
   // Latency will decrease progressively
   var currentLatency = 500

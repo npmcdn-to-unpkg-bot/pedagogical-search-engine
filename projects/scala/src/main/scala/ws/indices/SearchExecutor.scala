@@ -2,23 +2,29 @@ package ws.indices
 
 
 import slick.jdbc.JdbcBackend._
-import utils.{Logger, StringUtils}
+import utils.{Logger, Settings, StringUtils}
 import ws.indices.response.{Entry, QualityType, Response}
 import ws.indices.bing.BingFetcher
 import ws.indices.enums.WebsiteSourceType
-import ws.indices.indexentry.{FullBing, FullWikichimp}
+import ws.indices.indexentry.{FullBing, FullWFT, FullWikichimp}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class SearchExecutor {
+class SearchExecutor(settings: Settings) {
 
   // Create the service itself
   private val db = Database.forConfig("wikichimp.indices.ws.slick")
 
   private val bingFetcher = new BingFetcher(timeoutMs = 5000)
 
-  private val indicesFetcher = new IndicesFetcher(db, bingFetcher)
+  private val esIndicesFetcher = new elasticsearch.IndicesFetcher(
+    settings.ElasticSearch.esIndex,
+    settings.ElasticSearch.esType,
+    settings.ElasticSearch.ip,
+    settings.ElasticSearch.port
+  )
+  private val indicesFetcher = new IndicesFetcher(db, bingFetcher, esIndicesFetcher)
   private val detailsFetcher = new DetailsFetcher(db)
 
   // Some constants
@@ -81,6 +87,7 @@ class SearchExecutor {
               QualityType.unknown,
               rank
             )
+
           case (FullWikichimp(entryId, score, _, title, source, url, snippet), rank) =>
             Entry(
               entryId,
@@ -91,9 +98,20 @@ class SearchExecutor {
               QualityType.qualityFromScore(score, uris.size),
               rank
             )
+
+          case (FullWFT(entryId, score, resourceId, title, source, url, snippet), rank) =>
+            Entry(
+              entryId,
+              title,
+              WebsiteSourceType.toPublicString(source),
+              url,
+              snippet.toJSONString,
+              QualityType.unknown,
+              rank
+            )
         }
 
-        // Bing entries inherit their quality attribute from the closest wikichimp entries
+        // Unknown quality types are infered from the closest wikichimp entries
         val firstKnowQuality = entries.map(_.quality).filter {
           case QualityType.unknown => false
           case _ => true

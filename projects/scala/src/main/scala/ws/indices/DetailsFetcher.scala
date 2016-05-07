@@ -1,8 +1,10 @@
 package ws.indices
 
-import ws.indices.indexentry._
+import java.sql.Timestamp
+
 import slick.jdbc.JdbcBackend.Database
 import ws.indices.enums.WebsiteSourceType
+import ws.indices.indexentry._
 import ws.indices.snippet.Snippet
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -12,68 +14,69 @@ class DetailsFetcher(db: Database) {
 
   def resolve(entries: List[IndexEntry], uris: Set[String])
   : Future[List[FullEntry]] = {
-    // Split entries by type
-    val emptyAccFB = List[(Int, FullBing)]()
-    val emptyAccFW = List[(Int, FullWikichimp)]()
-    val emptyAccPB = List[(Int, PartialBing)]()
-    val emptyAccPW = List[(Int, PartialWikichimp)]()
-    val emptyAcc = (emptyAccFB, emptyAccFW, emptyAccPB, emptyAccPW)
 
-    val (fbs, fws, pbs, pws) = entries.zipWithIndex.foldLeft(emptyAcc) {
-      case ((fb, fw, pb, pw), (entry, index)) => entry match {
-        case c@FullBingMatch(_) =>
-          ((index, c)::fb, fw, pb, pw)
-        case c@FullWikichimp(_,_,_,_,_,_,_) =>
-          (fb, (index, c)::fw, pb, pw)
-        case c@PartialBing(_,_) =>
-          (fb, fw, (index, c)::pb, pw)
-        case c@PartialWikichimp(_,_,_) =>
-          (fb, fw, pb, (index, c)::pw)
+    // Get partial entries
+    val emptyAccPB = List[PartialBing]()
+    val emptyAccPW = List[PartialWikichimp]()
+    val emptyAcc = (emptyAccPB, emptyAccPW)
+
+    val (partialBings, partialWcs) =
+      entries.foldLeft(emptyAcc) {
+        case ((accPB, accPW), entry) => entry match {
+
+          case c@PartialBing(_,_) =>
+            (c::accPB, accPW)
+
+          case c@PartialWikichimp(_,_,_) =>
+            (accPB, c::accPW)
+
+          case _ =>
+            (accPB, accPW)
+        }
       }
-    }
 
     // Is there any partial entries to complete?
-    pbs.map(_._2.entryId):::pws.map(_._2.entryId) match {
-      case Nil =>
-        Future.successful((fbs:::fws).sortBy(_._1).map(_._2))
+    val entryIds = partialBings.map(_.entryId):::partialWcs.map(_.entryId)
+    entryIds match {
+      case Nil => Future.successful(entries.asInstanceOf[List[FullEntry]])
+      case _ => getDetails(entryIds.toSet).map(detailsMap => {
+        // Complete the partial entries
+        entries.map {
+          case entry if entry.isInstanceOf[FullEntry] =>
+            entry.asInstanceOf[FullEntry]
 
-      case entryIds =>
-        // Get details of the partial entries
-        val action = Queries.getDetails(entryIds.toSet)
-        db.run(action).map(detailRows => {
-          val details = detailRows.groupBy(_._1).map(g => (g._1, g._2.head))
+          case PartialBing(entryId, rank) =>
+            val d = detailsMap(entryId)
 
-          // Complete the partial entries
-          val completedBing = pbs.map {
-            case (rank, PartialBing(entryId, _)) =>
-              val d = details(entryId)
+            val title = d._2
+            val url = d._4
+            val source = FullBing.inferSource(url)
+            val snippet = Snippet.fromSnippetJSON(d._5)
+            val timestamp = d._6
+            FullBing(entryId, rank, title, source, url, snippet, timestamp)
 
-              val title = d._2
-              val url = d._4
-              val source = FullBing.inferSource(url)
-              val snippet = Snippet.fromSnippetJSON(d._5)
-              val timestamp = d._6
-              (rank, FullBing(entryId, rank, title, source, url, snippet, timestamp))
-          }
+          case PartialWikichimp(entryId, sumScore, resourceId) =>
+            val d = detailsMap(entryId)
 
-          val completedWikichimp = pws.map {
-            case (rank, PartialWikichimp(entryId, sumScore, resourceId)) =>
-              val d = details(entryId)
+            val title = d._2
+            val url = d._4
+            val source = WebsiteSourceType.fromWcTypeField(d._3)
+            val rscSnippet = rsc.snippets.Snippet.fromJSONString(d._5)
+            val snippet = Snippet.fromRscSnippet(rscSnippet, uris)
 
-              val title = d._2
-              val url = d._4
-              val source = WebsiteSourceType.fromWcTypeField(d._3)
-              val rscSnippet = rsc.snippets.Snippet.fromJSONString(d._5)
-              val snippet = Snippet.fromRscSnippet(rscSnippet, uris)
-
-              (rank, FullWikichimp(entryId, sumScore, resourceId, title, source, url, snippet))
-          }
-
-          // Return the completed entries
-          val all = fbs:::fws:::completedBing:::completedWikichimp
-          val sorted = all.sortBy(_._1)
-          sorted.map(_._2)
-        })
+            FullWikichimp(entryId, sumScore, resourceId, title, source, url, snippet)
+        }
+      })
     }
+  }
+
+  type row = (String, String, String, String, String, Timestamp)
+
+  def getDetails(entryIds: Set[String])
+  : Future[Map[String, (row)]] = {
+    val action = Queries.getDetails(entryIds)
+    db.run(action).map(rows => {
+      rows.map(row => (row._1, row)).toMap
+    })
   }
 }
