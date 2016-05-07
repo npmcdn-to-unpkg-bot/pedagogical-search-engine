@@ -7,6 +7,7 @@ import rsc.attributes.Candidate.Spotlight
 import rsc.attributes.Level
 import rsc.importers.Importer
 import rsc.indexers.Indexer
+import ws.indices.indexentry.EngineType
 
 trait Formatters {
   implicit val formats = DefaultFormats ++ Seq(
@@ -16,6 +17,7 @@ trait Formatters {
     new EnumNameSerializer(Indexer),
     new EnumNameSerializer(Importer),
     new EnumNameSerializer(snippets.Source),
-    new EnumNameSerializer(snippets.Snippetizer)
+    new EnumNameSerializer(snippets.Snippetizer),
+    new EnumNameSerializer(EngineType)
   ) + ShortTypeHints(List(classOf[Spotlight]))
 }

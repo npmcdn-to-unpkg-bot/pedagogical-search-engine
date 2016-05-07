@@ -1,5 +1,5 @@
 package ws.indices.indexentry
 
-trait FullEntry {
+trait FullEntry extends IndexEntry {
 
 }

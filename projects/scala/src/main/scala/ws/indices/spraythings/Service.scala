@@ -27,6 +27,7 @@ trait Service extends HttpService with CORSSupport with Formatters {
                   write(value)
                 }
                 case Failure(e) => complete {
+                  e.printStackTrace()
                   "[]"
                 }
               }

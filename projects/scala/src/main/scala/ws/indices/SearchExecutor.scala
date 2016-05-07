@@ -77,7 +77,7 @@ class SearchExecutor(settings: Settings) {
       case (indices, totalNb) =>
         // create the public entries
         val entries: List[response.Entry] = indices.zipWithIndex.map {
-          case (FullBing(entryId, _, title, source, url, snippet, _), rank) =>
+          case (c@FullBing(entryId, _, title, source, url, snippet, _), rank) =>
             Entry(
               entryId,
               title,
@@ -85,10 +85,11 @@ class SearchExecutor(settings: Settings) {
               url,
               snippet.toJSONString,
               QualityType.unknown,
-              rank
+              rank,
+              c.engine
             )
 
-          case (FullWikichimp(entryId, score, _, title, source, url, snippet), rank) =>
+          case (c@FullWikichimp(entryId, score, _, title, source, url, snippet), rank) =>
             Entry(
               entryId,
               title,
@@ -96,10 +97,11 @@ class SearchExecutor(settings: Settings) {
               url,
               snippet.toJSONString,
               QualityType.qualityFromScore(score, uris.size),
-              rank
+              rank,
+              c.engine
             )
 
-          case (FullWFT(entryId, score, resourceId, title, source, url, snippet), rank) =>
+          case (c@FullWFT(entryId, score, resourceId, title, source, url, snippet), rank) =>
             Entry(
               entryId,
               title,
@@ -107,7 +109,8 @@ class SearchExecutor(settings: Settings) {
               url,
               snippet.toJSONString,
               QualityType.unknown,
-              rank
+              rank,
+              c.engine
             )
         }
 

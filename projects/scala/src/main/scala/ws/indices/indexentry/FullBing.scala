@@ -6,6 +6,7 @@ import org.json4s.DefaultFormats
 import ws.indices.bing.BingJsonProtocol.BingApiResult
 import ws.indices.enums.WebsiteSourceType
 import ws.indices.enums.WebsiteSourceType.WebsiteSource
+import ws.indices.indexentry.EngineType.Engine
 import ws.indices.snippet.Snippet
 
 case class FullBing(entryId: String,
@@ -27,6 +28,8 @@ extends IndexEntry with FullEntry {
   : mysql.slick.tables.Types.CacheDetail =
     (-1, entryId, title, source.toString,
       url, org.json4s.native.Serialization.write(snippet), Some(timestamp))
+
+  override def engine: Engine = EngineType.Bing
 }
 
 object FullBing {
