@@ -54,7 +54,10 @@ object Basic extends Formatter {
     val filtered = label.replaceAll("(?i)\\(disambiguation\\)", "").trim()
     l2.equals(u2) match {
       case true => filtered
-      case false => s"$filtered ($uri)"
+      case false => {
+        val uriDecoded = java.net.URLDecoder.decode(uri, "UTF-8")
+        s"$filtered ($uriDecoded)"
+      }
     }
   }
 }
