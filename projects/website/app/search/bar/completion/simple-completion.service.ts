@@ -26,17 +26,19 @@ export class SimpleCompletionService extends CompletionService {
                 for(let e of json) {
                     let label = e["label"];
                     let uri = e["uri"];
+                    let a1 = e["available"];
                     let disambiguating = e["disambiguating"];
                     if(disambiguating.length > 0) {
                         let disambiguations = [];
                         for(let e2 of disambiguating) {
                             let label2 = e2["label"];
                             let uri2 = e2["uri"];
-                            disambiguations.push(new Entity(label2, uri2));
+                            let a2 = e2["available"];
+                            disambiguations.push(new Entity(label2, uri2, a2));
                         }
                         results.push(new Disambiguation(label, uri, disambiguations));
                     } else {
-                        results.push(new Entity(label, uri));
+                        results.push(new Entity(label, uri, a1));
                     }
                 }
 

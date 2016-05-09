@@ -23,7 +23,11 @@ import {RawSearch} from "./result/rawSearch";
         Search "{{ proposition.getResult().label }}"
     </span>
     <span *ngIf="proposition.getResult().isEntity()">
-        <span class="wc-com-colors-codes-good">&#187;&#187;</span>
+        <span 
+            [class.wc-com-colors-codes-good]="proposition.getResult().available"
+            [class.wc-com-colors-codes-bad]="!proposition.getResult().available">
+            &#187;&#187;
+        </span>
         {{ proposition.getResult().label }}
     </span>
     <span *ngIf="proposition.getResult().isDisambiguation()">
