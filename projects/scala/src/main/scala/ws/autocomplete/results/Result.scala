@@ -5,6 +5,7 @@ trait Result {
   def searchLabel(): String
   def displayLabel(): String
   def pageUri(): String
+  def isAvailable(): Boolean
 
   def isContainedIn(xs: List[Result]): Boolean = xs match {
     case Nil => false

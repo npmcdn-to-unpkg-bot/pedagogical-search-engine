@@ -62,11 +62,20 @@ object Queries {
         val uriA = r.nextString()
         val uriB = r.nextString().split(separator).toList
         val inB = r.nextString().split(separator).toList.map(_.toInt)
+        val availabilities = r.nextString().split(separator).toList.map {
+          case "0" => false
+          case "1" => true
+        }
 
         val bs = (labelB, uriB, inB).zipped.map {
-          case (label, uri, in) => PageElement(uri, label, in)
+          case (label, uri, in) => PageElement(uri, label, in, available = false)
         }
-        Disambiguation(uriA, labelA, bs)
+        val (bs2, disjunction) = (bs, availabilities).zipped.foldLeft((List[PageElement](), false)) {
+          case ((acc, a1), (element, a2)) =>
+            (acc:::List(element.copy(available = a2)), a1 || a2)
+
+        }
+        Disambiguation(uriA, labelA, bs2, disjunction)
 
       case Codes.Exact.title | Codes.Prefix.title =>
         r.skip
@@ -74,7 +83,8 @@ object Queries {
         r.skip
         val uri =  r.nextString()
         val in = r.nextInt()
-        Title(label, uri, in)
+        val available = r.nextBoolean()
+        Title(label, uri, in, available)
 
       case Codes.Exact.redirect | Codes.Prefix.redirect =>
         val labelA = r.nextString()
@@ -82,7 +92,8 @@ object Queries {
         r.skip
         val uriB = r.nextString()
         val inB = r.nextInt()
-        Redirect(labelA, labelB, uriB, inB)
+        val available = r.nextBoolean()
+        Redirect(labelA, labelB, uriB, inB, available)
 
     }
   })
@@ -97,7 +108,8 @@ object Queries {
         REPEAT('a', #$strPadding) as `LabelB`,
         REPEAT('a', #$strPadding) as `UriA`,
         REPEAT('a', #$strPadding) as `UriB`,
-        1 as `InB`
+        1 as `InB`,
+        REPEAT('a', #$strPadding) as `Available`
     ) UNION (
       SELECT
         #${Codes.Exact.disambiguation} as `Source`,
@@ -105,7 +117,8 @@ object Queries {
         GROUP_CONCAT(`LabelB` ORDER BY `InB` DESC SEPARATOR '#$separator') as `LabelB`,
         `A` as `UriA`,
         GROUP_CONCAT(`B` ORDER BY `InB` DESC SEPARATOR '#$separator') as `UriB`,
-        GROUP_CONCAT(`InB` ORDER BY `InB` DESC SEPARATOR '#$separator') as `InB`
+        GROUP_CONCAT(`InB` ORDER BY `InB` DESC SEPARATOR '#$separator') as `InB`,
+        GROUP_CONCAT(`Available` ORDER BY `InB` DESC SEPARATOR '#$separator') as `Available`
       FROM `dictionary-disambiguation`
       WHERE
         `LabelA` LIKE $text
@@ -118,7 +131,8 @@ object Queries {
         `Label` as `LabelB`,
             NULL as `UriA`,
         `Uri` as `UriB`,
-        `In` as `InB`
+        `In` as `InB`,
+        `Available` as `Available`
       FROM `dictionary-titles`
       WHERE
         `Label` LIKE $text
@@ -131,7 +145,8 @@ object Queries {
         `LabelB` as `LabelB`,
         NULL as `UriA`,
         `UriB` as `UriB`,
-        `InB` as `InB`
+        `InB` as `InB`,
+        `Available` as `Available`
       FROM `dictionary-redirects`
       WHERE
         `LabelA` LIKE $text
@@ -152,7 +167,8 @@ object Queries {
         REPEAT('a', #$strPadding) as `LabelB`,
         REPEAT('a', #$strPadding) as `UriA`,
         REPEAT('a', #$strPadding) as `UriB`,
-        1 as `InB`
+        1 as `InB`,
+        REPEAT('a', #$strPadding) as `Available`
     ) UNION (
       SELECT
         #${Codes.Exact.disambiguation} as `Source`,
@@ -160,7 +176,8 @@ object Queries {
         GROUP_CONCAT(`LabelB` ORDER BY `InB` DESC SEPARATOR '#$separator') as `LabelB`,
         `A` as `UriA`,
         GROUP_CONCAT(`B` ORDER BY `InB` DESC SEPARATOR '#$separator') as `UriB`,
-        GROUP_CONCAT(`InB` ORDER BY `InB` DESC SEPARATOR '#$separator') as `InB`
+        GROUP_CONCAT(`InB` ORDER BY `InB` DESC SEPARATOR '#$separator') as `InB`,
+        GROUP_CONCAT(`Available` ORDER BY `InB` DESC SEPARATOR '#$separator') as `Available`
       FROM `dictionary-disambiguation`
       WHERE
         `LabelA` LIKE $text
@@ -173,7 +190,8 @@ object Queries {
         `Label` as `LabelB`,
         NULL as `UriA`,
         `Uri` as `UriB`,
-        `In` as `InB`
+        `In` as `InB`,
+        `Available` as `Available`
       FROM `dictionary-titles`
       WHERE
         `Label` LIKE $text
@@ -186,7 +204,8 @@ object Queries {
         `LabelB` as `LabelB`,
         NULL as `UriA`,
         `UriB` as `UriB`,
-        `InB` as `InB`
+        `InB` as `InB`,
+        `Available` as `Available`
       FROM `dictionary-redirects`
       WHERE
         `LabelA` LIKE $text
@@ -199,7 +218,8 @@ object Queries {
         GROUP_CONCAT(`LabelB` ORDER BY `InB` DESC SEPARATOR '#$separator') as `LabelB`,
         `A` as `UriA`,
         GROUP_CONCAT(`B` ORDER BY `InB` DESC SEPARATOR '#$separator') as `UriB`,
-        GROUP_CONCAT(`InB` ORDER BY `InB` DESC SEPARATOR '#$separator') as `InB`
+        GROUP_CONCAT(`InB` ORDER BY `InB` DESC SEPARATOR '#$separator') as `InB`,
+        GROUP_CONCAT(`Available` ORDER BY `InB` DESC SEPARATOR '#$separator') as `Available`
       FROM `dictionary-disambiguation`
       WHERE
         `LabelA` LIKE $textPercent
@@ -212,7 +232,8 @@ object Queries {
         `Label` as `LabelB`,
         NULL as `UriA`,
         `Uri` as `UriB`,
-        `In` as `InB`
+        `In` as `InB`,
+        `Available` as `Available`
       FROM `dictionary-titles`
       WHERE
         `Label` LIKE $textPercent
@@ -224,7 +245,8 @@ object Queries {
         `LabelB` as `LabelB`,
         NULL as `UriA`,
         `UriB` as `UriB`,
-        `InB` as `InB`
+        `InB` as `InB`,
+        `Available` as `Available`
       FROM `dictionary-redirects`
       WHERE
         `LabelA` LIKE $textPercent
@@ -244,7 +266,8 @@ object Queries {
         REPEAT('a', #$strPadding) as `LabelB`,
         REPEAT('a', #$strPadding) as `UriA`,
         REPEAT('a', #$strPadding) as `UriB`,
-        1 as `InB`
+        1 as `InB`,
+        REPEAT('a', #$strPadding) as `Available`
     ) UNION (
       SELECT
         #${Codes.Exact.disambiguation} as `Source`,
@@ -252,7 +275,8 @@ object Queries {
         GROUP_CONCAT(`LabelB` ORDER BY `InB` DESC SEPARATOR '#$separator') as `LabelB`,
         `A` as `UriA`,
         GROUP_CONCAT(`B` ORDER BY `InB` DESC SEPARATOR '#$separator') as `UriB`,
-        GROUP_CONCAT(`InB` ORDER BY `InB` DESC SEPARATOR '#$separator') as `InB`
+        GROUP_CONCAT(`InB` ORDER BY `InB` DESC SEPARATOR '#$separator') as `InB`,
+        GROUP_CONCAT(`Available` ORDER BY `InB` DESC SEPARATOR '#$separator') as `Available`
       FROM `dictionary-disambiguation`
       WHERE
         `LabelA` LIKE $text
@@ -265,7 +289,8 @@ object Queries {
         `Label` as `LabelB`,
         NULL as `UriA`,
         `Uri` as `UriB`,
-        `In` as `InB`
+        `In` as `InB`,
+        `Available` as `Available`
       FROM `dictionary-titles`
       WHERE
         `Label` LIKE $text
@@ -278,7 +303,8 @@ object Queries {
         `LabelB` as `LabelB`,
         NULL as `UriA`,
         `UriB` as `UriB`,
-        `InB` as `InB`
+        `InB` as `InB`,
+        `Available` as `Available`
       FROM `dictionary-redirects`
       WHERE
         `LabelA` LIKE $text
@@ -291,7 +317,8 @@ object Queries {
         GROUP_CONCAT(`LabelB` ORDER BY `InB` DESC SEPARATOR '#$separator') as `LabelB`,
         `A` as `UriA`,
         GROUP_CONCAT(`B` ORDER BY `InB` DESC SEPARATOR '#$separator') as `UriB`,
-        GROUP_CONCAT(`InB` ORDER BY `InB` DESC SEPARATOR '#$separator') as `InB`
+        GROUP_CONCAT(`InB` ORDER BY `InB` DESC SEPARATOR '#$separator') as `InB`,
+        GROUP_CONCAT(`Available` ORDER BY `InB` DESC SEPARATOR '#$separator') as `Available`
       FROM `dictionary-disambiguation`
       WHERE
         `LabelA` LIKE $textPercent
@@ -305,7 +332,8 @@ object Queries {
         `Label` as `LabelB`,
         NULL as `UriA`,
         `Uri` as `UriB`,
-        `In` as `InB`
+        `In` as `InB`,
+        `Available` as `Available`
       FROM `dictionary-titles`
       WHERE
         `Label` LIKE $textPercent
@@ -318,7 +346,8 @@ object Queries {
         `LabelB` as `LabelB`,
         NULL as `UriA`,
         `UriB` as `UriB`,
-        `InB` as `InB`
+        `InB` as `InB`,
+        `Available` as `Available`
       FROM `dictionary-redirects`
       WHERE
         `LabelA` LIKE $textPercent

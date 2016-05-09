@@ -6,41 +6,38 @@ object Basic extends Formatter {
   def format(results: List[Result]): List[PublicResponse] = {
     val responses = results.map {
       case result => result match {
-        case Disambiguation(uriA, labelA, bs) => bs match {
-          case one::Nil => {
+        case Disambiguation(uriA, labelA, bs, available) => bs match {
+          case one::Nil =>
             // If there is only one thing to disambiguate, flatten things
             val label = one.label
             val uri = one.uri
-            PublicResponse(getNiceLabel(label, uri), uri, Nil)
-          }
-          case many => {
+            PublicResponse(getNiceLabel(label, uri), uri, available, Nil)
+
+          case many =>
             val label = result.displayLabel()
             val uri = result.pageUri()
             val dis = bs.map {
-              case PageElement(uri, label, _) => {
-                PublicResponse(getNiceLabel(label, uri), uri, Nil)
-              }
+              case PageElement(u, l, _, a) =>
+                PublicResponse(getNiceLabel(l, u), u, a, Nil)
             }
-            PublicResponse(getNiceLabel(label, uri), uri, dis)
-          }
+            PublicResponse(getNiceLabel(label, uri), uri, available, dis)
         }
-        case _ => {
+        case _ =>
           val label = result.displayLabel()
           val uri = result.pageUri()
-          PublicResponse(getNiceLabel(label, uri), uri, Nil)
-        }
+          val available = result.isAvailable()
+          PublicResponse(getNiceLabel(label, uri), uri, available, Nil)
       }
     }
 
     // Flattening could have introduced duplicates
     val filtered = responses.foldLeft(List[PublicResponse]()) {
-      case (acc, response) => {
+      case (acc, response) =>
         val uris = acc.map(_.uri)
         uris.contains(response.uri) match {
           case true => acc
           case false => acc ::: List(response)
         }
-      }
     }
 
     filtered
@@ -54,10 +51,9 @@ object Basic extends Formatter {
     val filtered = label.replaceAll("(?i)\\(disambiguation\\)", "").trim()
     l2.equals(u2) match {
       case true => filtered
-      case false => {
+      case false =>
         val uriDecoded = java.net.URLDecoder.decode(uri, "UTF-8")
         s"$filtered ($uriDecoded)"
-      }
     }
   }
 }
