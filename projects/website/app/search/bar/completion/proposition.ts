@@ -1,6 +1,7 @@
 import {Result} from "./result/result";
 import {Entity} from "./result/entity";
 import {Disambiguation} from "./result/disambiguation";
+import {RawSearch} from "./result/rawSearch";
 
 export class Proposition {
     private _result: Result;
@@ -23,11 +24,5 @@ export class Proposition {
     }
     public unselect() {
         this._isSelected = false;
-    }
-    public isEntity() {
-        return this._result.isPrototypeOf(Entity);
-    }
-    public isDisambiguation() {
-        return this._result.isPrototypeOf(Disambiguation);
     }
 }

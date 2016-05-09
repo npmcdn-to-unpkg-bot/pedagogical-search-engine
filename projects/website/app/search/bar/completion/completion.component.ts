@@ -5,6 +5,7 @@ import {SimpleCompletionService} from "./simple-completion.service";
 import {Result} from "./result/result";
 import {Proposition} from "./proposition";
 import {MockCompletionService} from "./mock-completion.service";
+import {RawSearch} from "./result/rawSearch";
 
 @Component({
     selector: 'wc-completion',
@@ -17,7 +18,18 @@ import {MockCompletionService} from "./mock-completion.service";
     [class.wc-com-completion-entry-disambiguation-selected]="proposition.getResult().isDisambiguation() && proposition.isSelected()"
     (click)="select()"
     (mouseover)="_setAndApplyCursor(i)">
-    <span [textContent]="proposition.getResult().label"></span>
+    <span *ngIf="proposition.getResult().isRawSearch()">
+        <span class="wc-com-colors-codes-bad">&#187;&#187;</span>
+        Search "{{ proposition.getResult().label }}"
+    </span>
+    <span *ngIf="proposition.getResult().isEntity()">
+        <span class="wc-com-colors-codes-good">&#187;&#187;</span>
+        {{ proposition.getResult().label }}
+    </span>
+    <span *ngIf="proposition.getResult().isDisambiguation()">
+        <span class="wc-com-ghost">&#187;&#187;</span>
+        {{ proposition.getResult().label }} (disambiguation)
+    </span>
 </div>
     
     `,
@@ -129,7 +141,12 @@ export class CompletionCmp {
             this._disambiguationCompletion.update([]);
 
             // Update the normal-navigator
-            t.currentRef.update(t.newRef.getPropositions());
+            let rawProposition = [];
+            if(this._text && this._text.length > 0) {
+                rawProposition.push(new Proposition(new RawSearch(this._text, this._text), false))
+            }
+            let props = t.newRef.getPropositions().concat(rawProposition);
+            t.currentRef.update(props);
             this._setAndApplyCursor(this._reframeCursorToClosest(this._cursor));
         })
     }

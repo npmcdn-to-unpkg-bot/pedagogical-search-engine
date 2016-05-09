@@ -22,12 +22,11 @@ import {Observable} from "rxjs/Observable";
         *ngFor="#entry of _response?.entries">
         <div>
             <span *ngIf="entry.isHighQuality()"
-                  class="wc-com-results-link-good">
+                  class="wc-com-colors-codes-good">
                 Best Match &#187;
             </span>
             
             <a *ngIf="!entry.hasHref()"
-                class="wc-com-results-link wc-com-results-link-ok"
                 [href]="entry.epflHref()"
                (mousedown)="_logAndGoTo($event, entry, entry.epflHref())">
                 <b [textContent]="entry.title"></b>

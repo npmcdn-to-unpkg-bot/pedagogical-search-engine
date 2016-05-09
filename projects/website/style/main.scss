@@ -16,6 +16,32 @@ body, input[text], button {
   font-family: Cambria, Georgia;
 }
 
+a {
+  color: #3F5986;
+}
+
+.wc-com- {
+  &colors-codes {
+    &-good {
+      color: #4DB411;
+    }
+    &-ok {
+      color: #3F5986;
+    }
+    &-bad {
+      color: #A02E25;
+    }
+    &-gray {
+      color: #BDBDBD;
+    }
+  }
+
+  &ghost {
+    visibility: hidden;
+  }
+}
+
+
 /* everywhere else */
 * {
   font-family: Arial, Helvetica, sans-serif;
