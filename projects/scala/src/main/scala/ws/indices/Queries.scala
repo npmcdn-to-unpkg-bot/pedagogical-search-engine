@@ -44,9 +44,8 @@ object Queries {
       }
     }
   }
-  def bestIndices(unescapedUris: Set[String], nmax: Int) = {
-    val searchHash: Int = MurmurHash3.unorderedHash(unescapedUris)
-    val escapedUris = unescapedUris.map(uri => StringUtils.escapeSQLWildcards(uri))
+  def bestIndices(uris: Set[String], nmax: Int) = {
+    val searchHash: Int = MurmurHash3.unorderedHash(uris)
     sql"""
 (
   SELECT
@@ -56,7 +55,7 @@ object Queries {
     MIN(ResourceId)
   FROM indices
   WHERE
-    Uri IN ($escapedUris#${",?" * (escapedUris.size - 1)})
+    Uri IN ($uris#${",?" * (uris.size - 1)})
   GROUP BY entryId
   ORDER BY SUM(Score) DESC
   LIMIT 0, 500
@@ -97,8 +96,7 @@ object Queries {
   }
 
   // Get details of some entries (from wikichimp, bing, etc..)
-  def getDetails(unescapedEi: Set[String]) = {
-    val escapedEi = unescapedEi.map(uri => StringUtils.escapeSQLWildcards(uri))
+  def getDetails(uris: Set[String]) = {
     sql"""
 (
 	SELECT
@@ -109,7 +107,7 @@ object Queries {
 		Snippet,
 		Timestamp
 	FROM `cache-details`
-	WHERE EntryId IN ($escapedEi#${",?" * (escapedEi.size - 1)})
+	WHERE EntryId IN ($uris#${",?" * (uris.size - 1)})
 ) UNION (
 	SELECT
 		EntryId,
@@ -119,7 +117,7 @@ object Queries {
 		Snippet,
     '2016-04-29 14:45:48'
 	FROM details
-    WHERE EntryId IN ($escapedEi#${",?" * (escapedEi.size - 1)})
+    WHERE EntryId IN ($uris#${",?" * (uris.size - 1)})
 );
     """.as[(String, String, String, String, String, Timestamp)]
   }
