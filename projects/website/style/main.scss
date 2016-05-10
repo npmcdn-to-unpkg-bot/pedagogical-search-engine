@@ -1,3 +1,6 @@
+@import url(https://fonts.googleapis.com/css?family=Montserrat:400,700);
+@import url(https://fonts.googleapis.com/css?family=Indie+Flower);
+
 @import 'app';
 @import 'search';
 
@@ -17,10 +20,19 @@ body, input[text], button {
 }
 
 a {
+  text-decoration: none;
   color: #3F5986;
+  cursor: pointer;
 }
 
 .wc-com- {
+  &indie-flower {
+    font-family: 'Indie Flower', sans-serif;
+  }
+  &montserrat {
+    font-family: 'Montserrat', sans-serif;
+  }
+
   &colors-codes {
     &-good {
       color: #4DB411;
@@ -33,6 +45,37 @@ a {
     }
     &-gray {
       color: #BDBDBD;
+    }
+  }
+
+  &highlight- {
+    &t1 {
+      @extend .wc-com-indie-flower;
+      background-color: #fff2a8;
+    }
+    &t2 {
+      @extend .wc-com-indie-flower;
+      background-color: #a8d1ff;
+    }
+    &t3 {
+      @extend .wc-com-indie-flower;
+      background-color: #ffb7b7;
+    }
+    &t4 {
+      @extend .wc-com-indie-flower;
+      background-color: #DEDEDE;
+    }
+    &t6 {
+      @extend .wc-com-indie-flower;
+      background-color: #DDEBD1;
+    }
+    &t7 {
+      @extend .wc-com-indie-flower;
+      background-color: #EBD2D1;
+    }
+    &t8 {
+      @extend .wc-com-indie-flower;
+      background-color: #DFD1EB;
     }
   }
 

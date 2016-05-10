@@ -11,6 +11,9 @@ import {Response} from "./response";
 import {Classification} from "./classification";
 import {ClassificationService} from "../user-study/classification.service";
 import {Observable} from "rxjs/Observable";
+import {HighlightService} from "../../utils/highlight.service";
+import {WordsService} from "../../utils/words.service";
+import {LineHighlightService} from "./line-highlight.service";
 
 @Component({
     selector: 'wc-search-results',
@@ -44,7 +47,7 @@ import {Observable} from "rxjs/Observable";
         <div class="wc-com-results-snippet-container"
              *ngFor="#line of entry.snippet.lines">
             <div class="wc-com-results-snippet-line"
-                 [textContent]="line.text"></div>
+                 [innerHTML]="_lineHService.highlight(line)"></div>
         </div>
         <div class="wc-com-results-rating-container">
             <button
@@ -68,22 +71,24 @@ import {Observable} from "rxjs/Observable";
     
     <div class="wc-com-results-pagination"
          *ngIf="_hasMultiplePages()">
-        <span>
+        <span class="wc-com-results-pagination-text">
             Pages
         </span>
 
         <span class="wc-com-results-pagination-entry"
               *ngFor="#pageNo of _pages()">
-             
+              
             <span *ngIf="_isCurrentPage(pageNo)"
-                    [textContent]="pageNo"
-                    class="wc-com-results-pagination-entry-current"></span>
+                    class="wc-com-results-pagination-entry-current">
+                &#187; {{ pageNo }} &#171;
+            </span>
                     
             <a *ngIf="!_isCurrentPage(pageNo)"
-                class="wc-com-results-pagination-entry-link"
-                [textContent]="pageNo"
                 (click)="_goPage($event, pageNo)"
-                ></a>
+                class="wc-com-results-pagination-entry-link"
+                >
+                {{ pageNo }}
+            </a>
             
         </span>
     </div>
@@ -95,7 +100,10 @@ import {Observable} from "rxjs/Observable";
     directives: [],
     providers: [
         provide(EntriesService, {useClass: SimpleEntriesService}),
-        provide(ClickService, {useClass: SimpleClickService})
+        provide(ClickService, {useClass: SimpleClickService}),
+        provide(LineHighlightService, {useClass: LineHighlightService}),
+        provide(HighlightService, {useClass: HighlightService}),
+        provide(WordsService, {useClass: WordsService})
     ]
 })
 export class ResultsCmp {
@@ -112,6 +120,7 @@ export class ResultsCmp {
         @Inject(EntriesService) private _entriesService: EntriesService,
         @Inject(ClickService) private _clickService: ClickService,
         @Inject(ClassificationService) private _clsService: ClassificationService,
+        @Inject(LineHighlightService) private _lineHService: LineHighlightService,
         private _router: Router,
         private _routeParams: RouteParams
     ) {

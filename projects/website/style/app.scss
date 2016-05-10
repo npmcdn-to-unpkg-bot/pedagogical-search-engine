@@ -1,6 +1,3 @@
-@import url(https://fonts.googleapis.com/css?family=Montserrat:400,700);
-@import url(https://fonts.googleapis.com/css?family=Indie+Flower);
-
 
 .wc-com-app- {
   &header {
@@ -9,14 +6,16 @@
     padding-bottom: 5px;
 
     &-title {
-      font-family: 'Indie Flower', sans-serif;
+      @extend .wc-com-indie-flower;
+
       font-weight: 700;
 
       font-size: 2.8em;
     }
 
     &-text {
-      font-family: 'Montserrat', sans-serif;
+      @extend .wc-com-montserrat;
+
       font-weight: 400;
 
       font-size: 1.3em;

@@ -39,24 +39,21 @@
     margin-bottom: 70px;
 
     font-size: 0.9em;
-    font-weight: bold;
+
+    &-text {
+      font-weight: bold;
+      font-size: 1em;
+    }
 
     &-entry {
       display: inline-block;
-
       margin-left: 10px;
 
       &-link {
-        text-decoration: none;
-        color: #3F5986;
       }
 
-      &-link:hover {
-
-      }
-
-      &-current-link {
-
+      &-current {
+        color: black;
       }
     }
   }
