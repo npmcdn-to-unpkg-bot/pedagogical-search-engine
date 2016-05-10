@@ -7,10 +7,11 @@ import org.elasticsearch.common.settings.Settings
 import org.elasticsearch.search.highlight.HighlightField
 import ws.indices.enums.WebsiteSourceType
 import ws.indices.indexentry.FullWFT
-import ws.indices.snippet.{Line, Snippet}
+import ws.indices.snippet.Snippet
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.util.{Failure, Success, Try}
 
 class IndicesFetcher(esIndex: String,
                      esType: String,
@@ -51,9 +52,13 @@ class IndicesFetcher(esIndex: String,
     val query = queryCore start from limit (to - from + 1)
 
     // Execute & create the indices
-    val executed = client.execute(query)
+    val executed = Try { client.execute(query) }
+    val future = executed match {
+      case Success(x) => x
+      case Failure(e) => Future.failed(e)
+    }
 
-    executed.map(rsp => {
+    future.map(rsp => {
       val hits = rsp.hits.toList
 
       hits.map(hit => {

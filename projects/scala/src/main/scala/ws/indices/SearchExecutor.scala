@@ -7,6 +7,7 @@ import ws.indices.response.{Entry, QualityType, Response}
 import ws.indices.bing.BingFetcher
 import ws.indices.enums.WebsiteSourceType
 import ws.indices.indexentry.{FullBing, FullWFT, FullWikichimp}
+import ws.indices.spraythings.{Search, SearchTerm}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -31,36 +32,49 @@ class SearchExecutor(settings: Settings) {
   private val N_MAX = 500
 
   // Define the search-strategy
-  def search(uris: List[String], oFrom: Option[Int] = None, oTo: Option[Int] = None)
+  def search(search: Search)
   : Future[Response] = {
     // defaults
-    val from = oFrom.getOrElse(0)
-    val to = oTo.getOrElse(from + 9)
+    val from = search.from.getOrElse(0)
+    val to = search.to.getOrElse(from + 9)
     val distance = to - from + 1
 
     // First validations: discard huge inputs
-    if(uris.size > 10 ||
+    val rejectResponse = Future.successful(Response(Nil, 0))
+    if(search.searchTerms.size > 10 ||
       from > to || from < 0 || to >= N_MAX ||
       distance < 1 || distance > 10) {
-      Future.successful(Response(Nil, 0))
+      rejectResponse
 
     } else {
-      // The input sounds reasonable but perform a in-depth check
-      val validatedUris = uris.map(uri => StringUtils.normalizeUri(uri)).filter(_.length > 0).toSet
+      // The input sounds reasonable but perform a in-depth validation
+      val searchTerms = search.searchTerms.flatMap {
+        case SearchTerm(l1, o1) =>
+          // We lower case the label, because do not want to register
+          // two different searchs for "A" and "a"
+          // e.g. this will mean to ask Bing two times for search "a"
+          val l2 = l1.trim().toLowerCase()
+          val o2 = o1.map(StringUtils.normalizeUri)
 
-      if(validatedUris.isEmpty) {
-        Future.successful(Response(Nil, 0))
+          if(l2.length > 0 && o2.getOrElse(".").length > 0) {
+            List(SearchTerm(l2, o2))
+          } else {
+            Nil
+          }
+      }
+      if(searchTerms.isEmpty) {
+        rejectResponse
       } else {
-        unvalidatedSearch(validatedUris, from, to)
+        unvalidatedSearch(searchTerms, from, to)
       }
     }
   }
 
-  def unvalidatedSearch(uris: Set[String], from: Int, to: Int)
+  def unvalidatedSearch(searchTerms: List[SearchTerm], from: Int, to: Int)
   : Future[Response] = {
 
     // Log the search
-    val logAction = Queries.saveSearch(uris, from, to)
+    val logAction = Queries.saveSearch(searchTerms, from, to)
     val logFuture = db.run(logAction).recover {
       case e =>
         // We do not really care about failures
@@ -68,10 +82,10 @@ class SearchExecutor(settings: Settings) {
     }
 
     // Fetch all the best indices (without their details yet)
-    val indicesFuture = indicesFetcher.wcAndBing(uris, N_MAX).flatMap(indexEntries => {
+    val indicesFuture = indicesFetcher.wcAndBing(searchTerms, N_MAX).flatMap(indexEntries => {
       // fetch the details in the [from, to] interval
       val interval = indexEntries.slice(from, to + 1)
-      detailsFetcher.resolve(interval, uris).map(r => (r, indexEntries.size))
+      detailsFetcher.resolve(interval, searchTerms).map(r => (r, indexEntries.size))
 
     }).map {
       case (indices, totalNb) =>
@@ -96,7 +110,7 @@ class SearchExecutor(settings: Settings) {
               WebsiteSourceType.toPublicString(source),
               url,
               snippet.toJSONString,
-              QualityType.qualityFromScore(score, uris.size),
+              QualityType.qualityFromScore(score, SearchTerm.uris(searchTerms).size),
               rank,
               c.engine
             )

@@ -6,13 +6,14 @@ import slick.jdbc.JdbcBackend.Database
 import ws.indices.enums.WebsiteSourceType
 import ws.indices.indexentry._
 import ws.indices.snippet.Snippet
+import ws.indices.spraythings.SearchTerm
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class DetailsFetcher(db: Database) {
 
-  def resolve(entries: List[IndexEntry], uris: Set[String])
+  def resolve(entries: List[IndexEntry], searchTerms: List[SearchTerm])
   : Future[List[FullEntry]] = {
 
     // Get partial entries
@@ -62,7 +63,8 @@ class DetailsFetcher(db: Database) {
             val url = d._4
             val source = WebsiteSourceType.fromWcTypeField(d._3)
             val rscSnippet = rsc.snippets.Snippet.fromJSONString(d._5)
-            val snippet = Snippet.fromRscSnippet(rscSnippet, uris)
+            val uris = SearchTerm.uris(searchTerms)
+            val snippet = Snippet.fromRscSnippet(rscSnippet, uris.toSet)
 
             FullWikichimp(entryId, sumScore, resourceId, title, source, url, snippet)
         }

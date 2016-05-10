@@ -8,6 +8,7 @@ import slick.jdbc.{GetResult, PositionedParameters, PositionedResult, SetParamet
 import utils.StringUtils
 import ws.indices.enums.EngineSourceType
 import ws.indices.indexentry.{FullBing, IndexEntry, PartialBing, PartialWikichimp}
+import ws.indices.spraythings.SearchTerm
 
 import scala.util.hashing.MurmurHash3
 
@@ -44,8 +45,31 @@ object Queries {
       }
     }
   }
-  def bestIndices(uris: Set[String], nmax: Int) = {
-    val searchHash: Int = MurmurHash3.unorderedHash(uris)
+
+  def bestIndices(uris: Set[String], searchHash: Int, nmax: Int) = {
+    if(uris.isEmpty) {
+      bestIndicesBingOnly(searchHash)
+    } else {
+      bestIndicesBingAndWC(uris, searchHash, nmax)
+    }
+  }
+
+  def bestIndicesBingOnly(searchHash: Int) = {
+    sql"""
+(
+  SELECT
+    Source,
+    EntryId,
+    Rank,
+    ''
+  FROM `cache-entries`
+    WHERE
+    SearchHash = #$searchHash
+)
+    """.as[IndexEntry](BestIndicesRConv)
+  }
+
+  def bestIndicesBingAndWC(uris: Set[String], searchHash: Int, nmax: Int) = {
     sql"""
 (
   SELECT
@@ -58,7 +82,7 @@ object Queries {
     Uri IN ($uris#${",?" * (uris.size - 1)})
   GROUP BY entryId
   ORDER BY SUM(Score) DESC
-  LIMIT 0, 500
+  LIMIT 0, #$nmax
 ) UNION (
   SELECT
     Source,
@@ -74,18 +98,17 @@ object Queries {
 
   implicit val format = DefaultFormats
 
-  def saveSearch(uris: Set[String], from: Int, to: Int) = {
-    val searchHash: Int = MurmurHash3.unorderedHash(uris)
-    val urisJson: String = org.json4s.native.Serialization.write(uris)
+  def saveSearch(searchTerms: List[SearchTerm], from: Int, to: Int) = {
+    val searchHash: Int = SearchTerm.searchHash(searchTerms)
+    val jsonLog: String = org.json4s.native.Serialization.write(searchTerms)
 
     DBIO.seq(
-      searchesTQ += (-1, searchHash, urisJson, from, to, None)
+      searchesTQ += (-1, searchHash, jsonLog, from, to, None)
     )
   }
 
   // Save some bing results (given the search "hash")
-  def saveBingResult(uris: Set[String], bingEntries: List[FullBing]) = {
-    val searchHash: Int = MurmurHash3.unorderedHash(uris)
+  def saveBingResult(searchHash: Int, bingEntries: List[FullBing]) = {
     val entryRows = bingEntries.map(entry => entry.slickEntryTuple(searchHash))
     val detailRows = bingEntries.map(_.slickDetailTuple())
 

@@ -2,10 +2,9 @@ package evaluation.indices
 
 import java.util.concurrent.atomic.AtomicInteger
 
-import slick.jdbc.JdbcBackend._
 import utils.Settings
-import ws.autocomplete.query.Queries
 import ws.indices.SearchExecutor
+import ws.indices.spraythings.{Search, SearchTerm}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
@@ -15,6 +14,7 @@ object MysqlService extends App {
 
   // Search texts
   val uris = List("slavery", "music", "biology", "history", "jews", "culture")
+  val searchTerms = uris.map(uri => SearchTerm(uri, Some(uri)))
 
   // Function to profile the amount of elapsed time
   def elapsedMs(start: Long): Int = {
@@ -42,7 +42,7 @@ object MysqlService extends App {
     // generate the request itself
     val start = System.nanoTime()
 
-    service.search(uris, Some(30), Some(39)).map(rs => {
+    service.search(Search(searchTerms, Some(30), Some(39))).map(rs => {
       val elapsed = elapsedMs(start)
 
       // Filter a bit the outliers
@@ -52,14 +52,13 @@ object MysqlService extends App {
         // Compute some statistics
         val n = count.incrementAndGet()
         val s = sum.addAndGet(elapsed)
-        val avg = (s / n)
+        val avg = s / n
 
         println(s"....ok avg= $avg, cur=" + elapsed)
       }
     }).recover({
-      case _ => {
+      case _ =>
         println(s"failed " + " " + elapsedMs(start))
-      }
     })
   }
 

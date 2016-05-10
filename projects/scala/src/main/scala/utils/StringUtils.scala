@@ -15,21 +15,20 @@ object StringUtils {
            joinAcc: String = "",
            globAcc: List[String] = Nil)
   : List[String] = chunks match {
-    case Nil => joinAcc.size match {
+    case Nil => joinAcc.length match {
       case 0 => globAcc
       case _ => globAcc:::List(joinAcc)
     }
-    case head::tail => {
-      val joined = joinAcc.size match {
+    case head::tail =>
+      val joined = joinAcc.length match {
         case 0 => head
         case _ => joinAcc + joinStr + head
       }
-      if(joined.size >= size) {
+      if(joined.length >= size) {
         glue(tail, size, joinStr, "", globAcc:::List(joined))
       } else {
         glue(tail, size, joinStr, joined, globAcc)
       }
-    }
   }
 
 
@@ -53,7 +52,4 @@ object StringUtils {
   }
 
   def uuid36(): String = UUID.randomUUID().toString
-
-  def labelizeUri(uri: String): String =
-    uri.replaceAll("_", " ")
 }
