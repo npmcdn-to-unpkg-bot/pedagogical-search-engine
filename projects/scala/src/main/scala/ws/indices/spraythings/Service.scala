@@ -27,11 +27,11 @@ trait Service extends HttpService with CORSSupport with Json4sSupport with Forma
             respondWithMediaType(`application/json`) {
               onComplete(executor.search(search)) {
                 case Success(value) => complete {
-                  write(value)
+                  value
                 }
                 case Failure(e) => complete {
                   e.printStackTrace()
-                  "[]"
+                  List()
                 }
               }
             }

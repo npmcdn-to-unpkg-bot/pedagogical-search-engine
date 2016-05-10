@@ -36,6 +36,18 @@ object StringUtils {
 
   def normalizeUri(uri: String): String = uri.trim.toLowerCase
 
+  def indicesOf(text: String, term: String)
+  : List[Int] = {
+    def rec(text: String, term: String, acc: List[Int], from: Int)
+    : List[Int] = text.indexOf(term, from) match {
+      case -1 => acc
+      case i =>
+        val stop = i + term.size
+        rec(text, term, acc ::: List(i), stop)
+    }
+    rec(text, term, Nil, 0)
+  }
+
   def escapeSQLWildcards(text: String): String =
     text.replaceAll("\\%", "\\\\%").replaceAll("\\_", "\\\\_")
 

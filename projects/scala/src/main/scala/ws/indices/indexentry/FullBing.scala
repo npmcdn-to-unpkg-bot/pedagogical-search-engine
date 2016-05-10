@@ -7,7 +7,8 @@ import ws.indices.bing.BingJsonProtocol.BingApiResult
 import ws.indices.enums.WebsiteSourceType
 import ws.indices.enums.WebsiteSourceType.WebsiteSource
 import ws.indices.indexentry.EngineType.Engine
-import ws.indices.snippet.Snippet
+import ws.indices.snippet.{Line, Snippet}
+import ws.indices.spraythings.SearchTerm
 
 case class FullBing(entryId: String,
                     rank: Int,
@@ -71,7 +72,7 @@ object FullBing {
       .trim
   }
 
-  def fromBingResult(result: BingApiResult)
+  def fromBingResult(result: BingApiResult, searchTerms: TraversableOnce[SearchTerm])
   : List[FullBing] = {
     // Create the full bing indices from the api results
     result.d.results.zipWithIndex.map {
@@ -79,7 +80,9 @@ object FullBing {
         val entryId = r.id
         val title = r.title
         val url = r.url
-        val snippet = Snippet.fromText(r.description)
+        val text = r.description
+        val spots = Snippet.spotsFrom(text, searchTerms)
+        val snippet = Snippet(Line(text, spots.toList)::Nil)
 
         FullBing(
           entryId,

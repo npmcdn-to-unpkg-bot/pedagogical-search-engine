@@ -11,22 +11,22 @@ object Basic extends Formatter {
             // If there is only one thing to disambiguate, flatten things
             val label = one.label
             val uri = one.uri
-            PublicResponse(getNiceLabel(label, uri), uri, available, Nil)
+            PublicResponse(label, getNiceLabel(label, uri), uri, available, Nil)
 
           case many =>
             val label = result.displayLabel()
             val uri = result.pageUri()
             val dis = bs.map {
               case PageElement(u, l, _, a) =>
-                PublicResponse(getNiceLabel(l, u), u, a, Nil)
+                PublicResponse(label, getNiceLabel(l, u), u, a, Nil)
             }
-            PublicResponse(getNiceLabel(label, uri), uri, available, dis)
+            PublicResponse(label, getNiceLabel(label, uri), uri, available, dis)
         }
         case _ =>
           val label = result.displayLabel()
           val uri = result.pageUri()
           val available = result.isAvailable()
-          PublicResponse(getNiceLabel(label, uri), uri, available, Nil)
+          PublicResponse(label, getNiceLabel(label, uri), uri, available, Nil)
       }
     }
 

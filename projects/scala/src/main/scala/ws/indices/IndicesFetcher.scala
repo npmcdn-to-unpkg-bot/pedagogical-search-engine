@@ -101,7 +101,7 @@ class IndicesFetcher(db: Database, bf: BingFetcher,
 
             }).flatMap(result => {
               val fullBingResults = FullBing.fromBingResult(
-                BingApiResult(dElement(result))
+                BingApiResult(dElement(result)), searchTerms
               )
 
               // Save them into the cache

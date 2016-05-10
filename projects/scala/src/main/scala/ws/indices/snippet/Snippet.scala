@@ -3,6 +3,8 @@ package ws.indices.snippet
 import org.json4s.DefaultFormats
 import org.json4s.native.JsonMethods._
 import rsc.snippets.Source
+import utils.StringUtils
+import ws.indices.spraythings.SearchTerm
 
 case class Snippet(lines: List[Line]) {
 
@@ -18,6 +20,14 @@ object Snippet  {
 
   def fromText(text: String): Snippet =
     Snippet(List(Line(text, Nil)))
+
+  def spotsFrom(text: String, searchTerms: TraversableOnce[SearchTerm]): TraversableOnce[Spot] =
+    searchTerms.flatMap {
+      case SearchTerm(label, oUri) =>
+        StringUtils.indicesOf(text.toLowerCase(), label.toLowerCase()).map {
+          case i => Spot(i, i + label.length, oUri.getOrElse(label.toLowerCase()))
+        }
+    }
 
   def fromSnippetJSON(jsonStr: String): Snippet = {
     val json = parse(jsonStr)
