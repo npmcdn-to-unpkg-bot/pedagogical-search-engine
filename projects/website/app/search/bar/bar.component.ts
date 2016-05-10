@@ -72,7 +72,7 @@ export class SearchBarCmp {
             let searchTerms = JSON.parse(decodeURIComponent(q));
             if(searchTerms.length > 0) {
                 for(let searchTerm of searchTerms) {
-                    this._entities.push(new Entity(searchTerm.label, searchTerm.uri));
+                    this._entities.push(new Entity(searchTerm.label, undefined, searchTerm.uri, undefined));
                 }
             }
         }

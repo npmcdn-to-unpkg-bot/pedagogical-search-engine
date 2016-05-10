@@ -14,4 +14,8 @@ export class Disambiguation extends Result{
     public asDisambiguation(): Disambiguation {
         return this;
     }
+
+    protected _displayLabelImpl(): string {
+        return `${this.label} (disambiguation)`;
+    }
 }

@@ -20,11 +20,20 @@ export class SimpleEntriesService extends EntriesService {
         @Inject('SETTINGS') private _settings
     ){}
 
-    list(searchTerms:Array<SearchTerm>, from: number, to: number):Observable<Response> {
+    list(searchTearms: Array<SearchTerm>, from: number, to: number):Observable<Response> {
         // Extract the uris
-        let uris: Array<String> = [];
-        for(let st of searchTerms) {
-            uris.push(st.uri);
+        let requestTerms: Array<any> = [];
+        for(let searchTerm of searchTearms) {
+            if(searchTerm.uri.length > 0) {
+                requestTerms.push({
+                    "label": searchTerm.label,
+                    "uri": searchTerm.uri
+                });
+            } else {
+                requestTerms.push({
+                    "label": searchTerm.label
+                });
+            }
         }
 
         // Fetch the entries
@@ -32,7 +41,7 @@ export class SimpleEntriesService extends EntriesService {
         let headers = new Headers({ 'Content-Type': 'application/json' });
         let options = new RequestOptions({ headers: headers });
         let body = JSON.stringify({
-            "uris": uris,
+            "searchTerms": requestTerms,
             "from": from,
             "to": to
         });

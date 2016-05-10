@@ -51,13 +51,6 @@ import {LineHighlightService} from "./line-highlight.service";
         </div>
         <div class="wc-com-results-rating-container">
             <button
-                [disabled]="_clsService.isRelevant(entry)"
-                [class.button-selected]="_clsService.isRelevant(entry)"
-                (click)="_classify(entry, _relevant)">
-                Good match!
-            </button>
-            <button
-                [disabled]="_clsService.isIrrelevant(entry)"
                 [class.button-selected-bad]="_clsService.isIrrelevant(entry)"
                 (click)="_classify(entry, _irrelevant)">
                 Bad match

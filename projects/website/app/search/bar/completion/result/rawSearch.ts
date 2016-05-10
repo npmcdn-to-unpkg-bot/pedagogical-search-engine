@@ -12,4 +12,8 @@ export class RawSearch extends Result{
     public asRawSearch(): RawSearch {
         return this;
     }
+
+    protected _displayLabelImpl(): string {
+        return `Search "${this.label}"`;
+    }
 }

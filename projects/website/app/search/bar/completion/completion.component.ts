@@ -4,7 +4,6 @@ import {Completion} from "./completion";
 import {SimpleCompletionService} from "./simple-completion.service";
 import {Result} from "./result/result";
 import {Proposition} from "./proposition";
-import {MockCompletionService} from "./mock-completion.service";
 import {RawSearch} from "./result/rawSearch";
 
 @Component({
@@ -20,7 +19,7 @@ import {RawSearch} from "./result/rawSearch";
     (mouseover)="_setAndApplyCursor(i)">
     <span *ngIf="proposition.getResult().isRawSearch()">
         <span class="wc-com-colors-codes-bad">&#187;&#187;</span>
-        Search "{{ proposition.getResult().label }}"
+        {{ proposition.getResult().displayLabel() }}
     </span>
     <span *ngIf="proposition.getResult().isEntity()">
         <span 
@@ -28,11 +27,11 @@ import {RawSearch} from "./result/rawSearch";
             [class.wc-com-colors-codes-bad]="!proposition.getResult().available">
             &#187;&#187;
         </span>
-        {{ proposition.getResult().label }}
+        {{ proposition.getResult().displayLabel() }}
     </span>
     <span *ngIf="proposition.getResult().isDisambiguation()">
         <span class="wc-com-ghost">&#187;&#187;</span>
-        {{ proposition.getResult().label }} (disambiguation)
+        {{ proposition.getResult().displayLabel() }}
     </span>
 </div>
     

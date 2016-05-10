@@ -3,6 +3,20 @@ import {Disambiguation} from "./disambiguation";
 import {RawSearch} from "./rawSearch";
 
 export abstract class Result {
+
+
+    protected abstract _displayLabelImpl(): string
+
+    public displayLabel(): string {
+        let full = this._displayLabelImpl();
+        let skimmed = full.substring(0, 48);
+        if(full.length !== skimmed.length) {
+            return skimmed + "..";
+        } else {
+            return full;
+        }
+    }
+
     public isEntity(): Boolean {
         return false;
     }
