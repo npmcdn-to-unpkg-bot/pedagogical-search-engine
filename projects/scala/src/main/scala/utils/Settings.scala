@@ -73,6 +73,9 @@ class Settings(config: Config) {
   }
   object Resources {
     val folder = getString("resources.folder")
+    object Agent {
+      val workingDir = getString("resources.agent.workingDir")
+    }
     object Coursera {
       val pages = getString("resources.coursera.pages")
       val data = getString("resources.coursera.data")

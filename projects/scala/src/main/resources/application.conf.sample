@@ -131,7 +131,11 @@ wikichimp {
     }
   }
   resources {
-    folder = "???"
+    pathPrefix = "???"
+    folder = ${wikichimp.resources.pathPrefix}"/resources"
+    agent {
+      workingDir = ${wikichimp.resources.pathPrefix}"/agent-working-dir"
+    }
     coursera {
       pages = "???"
       data = "???"
