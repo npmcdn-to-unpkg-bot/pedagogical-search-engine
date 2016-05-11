@@ -34,6 +34,7 @@ class FileExplorer(jobName: String = Calendar.getInstance.getTime.toString,
     var shutDownMonitoring = false
 
     val totCounter = new AtomicInteger(0)
+    val skippedCounter = new AtomicInteger(0)
 
     val monitoring = Future {
       val waitedMs = new AtomicInteger(0)
@@ -46,12 +47,13 @@ class FileExplorer(jobName: String = Calendar.getInstance.getTime.toString,
         if(waited > 60 * 1000) {
           waitedMs.getAndSet(0)
           val tot = totCounter.get()
+          val skipped = skippedCounter.get()
 
           // Log the stats
-          Logger.info(s"Monitoring(rsc/min): tot=$tot")
+          Logger.info(s"Monitoring(rsc/min): tot=$tot, skipped=$skipped")
         }
       }
-      Logger.info("Monitoring was shut down")
+      Logger.info(s"Monitoring was shut down. tot=${totCounter.get()}, skipped=${skippedCounter.get()}")
       true
     }(utilsQueue)
 
@@ -61,13 +63,19 @@ class FileExplorer(jobName: String = Calendar.getInstance.getTime.toString,
     try {
       // Prepare the iterator over resources files
       val name = jobName.replaceAll("/", "-")
-      val output = Files.touch(s"${settings.Resources.Agent.workingDir}/file-explorer-job-$name/")
+      val output = new File(s"${settings.Resources.Agent.workingDir}/file-explorer-job-$name/")
       val input = new File(settings.Resources.folder)
       val it = org.apache.commons.io.FileUtils.iterateFiles(
         input,
         Array("json"),
         true
       )
+      if(!output.exists() || !output.isDirectory) {
+        if(output.exists()) {
+          output.delete()
+        }
+        output.mkdir()
+      }
 
       // Iterate
       Logger.info(s"Launch File-explorer: #tasks=$nbTasks, input=${input.getAbsolutePath}," +
@@ -76,24 +84,39 @@ class FileExplorer(jobName: String = Calendar.getInstance.getTime.toString,
 
       while(it.hasNext) {
         val file = it.next().asInstanceOf[File]
-        lastTask = Future {
-          /*
-           * It is tricky here:
-           * Each process(..) has it's own thread in the
-           * task queue which frees only when the process is done.
-           *
-           * Why?
-           * This ensures that we are only running the fixed number
-           * of processes defined by the tasks queue size.
-           *
-           * What happen if we don't?
-           * We might run a undetermined number of tasks in parallel
-           * and since each process takes memory, we might run out
-           * of memory.
-           */
-          val future = process(file, workingQueue)
-          Await.result(future, Duration.Inf)
-        }(tasksQueue)
+
+        // Check whether the file was already processed
+        val donePath = s"${output.getAbsolutePath}/${file.getName}.done"
+
+        new File(donePath).exists() match {
+          case true =>
+            Logger.info(s"Skipping, already processed: ${file.getName}")
+            skippedCounter.incrementAndGet()
+
+          case false =>
+            lastTask = Future {
+              /*
+               * It is tricky here:
+               * Each process(..) has it's own thread in the
+               * task queue which frees only when the process is done.
+               *
+               * Why?
+               * This ensures that we are only running the fixed number
+               * of processes defined by the tasks queue size.
+               *
+               * What happen if we don't?
+               * We might run a undetermined number of tasks in parallel
+               * and since each process takes memory, we might run out
+               * of memory.
+               */
+              val future = process(file, workingQueue)
+              Await.result(future, Duration.Inf)
+            }(tasksQueue)
+
+            // Indicate that we are done
+            Files.write("", donePath)
+            totCounter.incrementAndGet()
+        }
       }
     } catch {
       case e: Throwable =>
