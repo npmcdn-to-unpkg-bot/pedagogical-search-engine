@@ -25,6 +25,10 @@ a {
   cursor: pointer;
 }
 
+::selection {
+  background-color: #DBF2FF;
+}
+
 .wc-com- {
   &indie-flower {
     font-family: 'Indie Flower', sans-serif;

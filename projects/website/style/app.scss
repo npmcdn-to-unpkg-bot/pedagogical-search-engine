@@ -1,5 +1,12 @@
 
 .wc-com-app- {
+  $footer-height: 80px;
+
+  &container {
+    position: relative;
+    min-height: 100%;
+  }
+
   &header {
     width: 100%;
     padding: 15px;
@@ -18,7 +25,45 @@
 
       font-weight: 400;
 
-      font-size: 1.3em;
+      font-size: 1.5em;
+    }
+  }
+
+  &content {
+    padding-bottom: $footer-height;
+  }
+
+  &footer {
+    width: 100%;
+    height: $footer-height;
+
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+
+    $distanceToBottom: 20px;
+    $distanceToSide: 30px;
+
+    &-left {
+      position: absolute;
+      left: $distanceToSide;
+      bottom: $distanceToBottom;
+    }
+    &-right {
+      position: absolute;
+      right: $distanceToSide;
+      bottom: $distanceToBottom;
+    }
+
+    &-logo {
+      @extend .wc-com-indie-flower;
+      font-size: 1.4em;
+    }
+    &-date {
+      @extend .wc-com-indie-flower;
+
+      font-style: italic;
+      font-size: 0.9em;
     }
   }
 }

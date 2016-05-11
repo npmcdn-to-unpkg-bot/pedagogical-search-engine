@@ -40,16 +40,59 @@ import {SimpleClassificationService} from "./search/user-study/simple-classifica
     selector: 'wc-app',
     template: `
 
-<div class="wc-com-app-header">
-    <span class="wc-com-app-header-title">
-        Wikichimp
-    </span>
-    <span class="wc-com-app-header-text">
-        Search engine for students
-    </span>
+<div class="wc-com-app-container">
+    <div class="wc-com-app-header">
+        <a [routerLink]="['Search']">
+            <span class="wc-com-app-header-title">
+                Wikichimp
+            </span>
+        </a>
+        <span class="wc-com-app-header-text">
+            Search engine for students
+        </span>
+    </div>
+    
+    <div class="wc-com-app-content">
+        <router-outlet></router-outlet>
+    </div>
+    
+    <div class="wc-com-app-footer">
+        <div class="wc-com-app-footer-left">
+            <span class="wc-com-app-footer-logo">
+                Wikichimp 
+            </span>
+            
+            <span class="wc-com-app-footer-date">
+                {{ _year + "." + _month }}
+            </span>
+        </div>
+        
+        <div class="wc-com-app-footer-right">
+            <span>
+                <a>
+                    Give us Feedback
+                </a>
+            </span>
+            
+            &#187;
+            
+            <span>
+                <a>
+                    Privacy
+                </a>
+            </span>
+            
+            &#187;
+            
+            <span>
+                <a>
+                    How it works
+                </a>
+            </span>
+        </div>
+       
+    </div>
 </div>
-
-<router-outlet></router-outlet>
 
 `,
     directives: [ROUTER_DIRECTIVES],
@@ -61,6 +104,8 @@ import {SimpleClassificationService} from "./search/user-study/simple-classifica
     {path:'/search', name: 'Search', component: SearchCmp, useAsDefault: true}
 ])
 export class AppComponent {
+    private _year = new Date().getFullYear();
+    private _month = new Date().getMonth();
 }
 
 
