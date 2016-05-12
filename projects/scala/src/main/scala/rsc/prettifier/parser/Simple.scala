@@ -1,13 +1,20 @@
 package rsc.prettifier.parser
 
-import rsc.prettifier.lexer.Token
 import rsc.prettifier.lexer.Tokens._
+import rsc.prettifier.lexer.{BookTokenKind, Token}
 import rsc.prettifier.structure._
 import rsc.prettifier.structure.books._
 
 object Simple {
   private def mkText(tokens: List[Token]): String =
     tokens.map(_.rawString).mkString("")
+
+  def instanciate(btk: BookTokenKind, oNumber: Option[Int], oText: Option[String])
+  : Book = btk match {
+    case PART => Part(oNumber, oText)
+    case CHAPTER => Chapter(oNumber, oText)
+    case SECTION => Section(oNumber, oText)
+  }
 
   def process(tokens: List[Token])
   : Structure = {
@@ -19,52 +26,53 @@ object Simple {
     trimed match {
 
         /* Kinded, Whitespace, .. */
-      case Kinded(PART)::WHITESPACE(_)::NUMERATION(ns, _)::SEPARATOR(":")::WHITESPACE(_)::xs =>
+      case BookPart(bp)::WHITESPACE(_)::NUMERATION(ns, _)::SEPARATOR(":")::WHITESPACE(_)::xs =>
         // Part x: ...
-        Part(Some(ns.last), Some(mkText(xs)))
+        instanciate(bp, Some(ns.last), Some(mkText(xs)))
 
-      case Kinded(PART)::WHITESPACE(_)::NUMERATION(ns, _)::WHITESPACE(_)::SEPARATOR(":")::WHITESPACE(_)::xs =>
+      case BookPart(bp)::WHITESPACE(_)::NUMERATION(ns, _)::WHITESPACE(_)::SEPARATOR(":")::WHITESPACE(_)::xs =>
         // Part x : ...
-        Part(Some(ns.last), Some(mkText(xs)))
+        instanciate(bp, Some(ns.last), Some(mkText(xs)))
 
-      case Kinded(PART)::WHITESPACE(_)::NUMERATION(ns, _)::WHITESPACE(_)::SEPARATOR(":")::xs =>
+      case BookPart(bp)::WHITESPACE(_)::NUMERATION(ns, _)::WHITESPACE(_)::SEPARATOR(":")::xs =>
         // Part x :...
-        Part(Some(ns.last), Some(mkText(xs)))
+        instanciate(bp, Some(ns.last), Some(mkText(xs)))
 
-      case Kinded(PART)::WHITESPACE(_)::NUMERATION(ns, _)::WHITESPACE(_)::xs =>
+      case BookPart(bp)::WHITESPACE(_)::NUMERATION(ns, _)::WHITESPACE(_)::xs =>
         // Part x ...
-        Part(Some(ns.last), Some(mkText(xs)))
+        instanciate(bp, Some(ns.last), Some(mkText(xs)))
 
-      case Kinded(PART)::WHITESPACE(_)::SEPARATOR(_)::xs =>
+      case BookPart(bp)::WHITESPACE(_)::SEPARATOR(_)::xs =>
         // Part : ... Part , ... Part ; ... Part :...
-        Part(None, Some(mkText(trim(xs))))
+        instanciate(bp, None, Some(mkText(trim(xs))))
 
-      case Kinded(PART)::WHITESPACE(_)::xs =>
+      case BookPart(bp)::WHITESPACE(_)::xs =>
         // Part ...
-        Part(None, Some(mkText(xs)))
+        instanciate(bp, None, Some(mkText(xs)))
 
 
       /* Kinded, Numeration, .. */
-      case Kinded(PART)::NUMERATION(ns, _)::WHITESPACE(_)::xs =>
+      case BookPart(bp)::NUMERATION(ns, _)::WHITESPACE(_)::xs =>
         // Partx ...
-        Part(Some(ns.last), Some(mkText(xs)))
+        instanciate(bp, Some(ns.last), Some(mkText(xs)))
 
-      case Kinded(PART)::NUMERATION(ns, _)::SEPARATOR(_)::WHITESPACE(_)::xs =>
+      case BookPart(bp)::NUMERATION(ns, _)::SEPARATOR(_)::WHITESPACE(_)::xs =>
         // Partx: ... Partx. ..
-        Part(Some(ns.last), Some(mkText(xs)))
+        instanciate(bp, Some(ns.last), Some(mkText(xs)))
 
-      case Kinded(PART)::NUMERATION(ns, _)::SEPARATOR(_)::xs =>
+      case BookPart(bp)::NUMERATION(ns, _)::SEPARATOR(_)::xs =>
         // Partx:...
-        Part(Some(ns.last), Some(mkText(xs)))
+        instanciate(bp, Some(ns.last), Some(mkText(xs)))
 
 
       /* Kinded, .. */
-      case Kinded(PART)::SEPARATOR(_)::xs =>
+      case BookPart(bp)::SEPARATOR(_)::xs =>
         // Part: ... Part, ... Part; ... Part:...
-        Part(None, Some(mkText(trim(xs))))
+        instanciate(bp, None, Some(mkText(trim(xs))))
 
       /* others */
       case xs =>
+        println(xs)
         Unknown(mkText(xs))
     }
   }

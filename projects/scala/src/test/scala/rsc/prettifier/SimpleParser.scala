@@ -1,32 +1,61 @@
 package rsc.prettifier
 
 import org.scalatest.{FlatSpec, Matchers}
-import rsc.prettifier.lexer.Token
+import rsc.prettifier.lexer.{BookTokenKind, Token}
 import rsc.prettifier.lexer.Tokens._
 import rsc.prettifier.structure._
 import rsc.prettifier.structure.books._
 
 class SimpleParser extends FlatSpec with Matchers {
   val e = new Extractor()
+  val sampleText = "blabla"
+  def getSamples(tag: String, btk: BookTokenKind)
+  : Map[String, Book] = List(
+    (s"$tag 2 $sampleText", parser.Simple.instanciate(btk, Some(2), Some(sampleText))),
+    (s"$tag 2.3. $sampleText", parser.Simple.instanciate(btk, Some(3), Some(sampleText))),
+    (s"$tag 3: $sampleText", parser.Simple.instanciate(btk, Some(3), Some(sampleText))),
+    (s"$tag 3 : $sampleText", parser.Simple.instanciate(btk, Some(3), Some(sampleText))),
+    (s"$tag 3 :$sampleText", parser.Simple.instanciate(btk, Some(3), Some(sampleText))),
+    (s"$tag d $sampleText", parser.Simple.instanciate(btk, Some(4), Some(sampleText))),
+    (s"$tag 2.4 $sampleText", parser.Simple.instanciate(btk, Some(4), Some(sampleText))),
+    (s"$tag 2.4: $sampleText", parser.Simple.instanciate(btk, Some(4), Some(sampleText))),
+    (s"$tag ii: $sampleText", parser.Simple.instanciate(btk, Some(2), Some(sampleText))),
+    (s"$tag II: $sampleText", parser.Simple.instanciate(btk, Some(2), Some(sampleText))),
+    (s"$tag 3.II: $sampleText", parser.Simple.instanciate(btk, Some(2), Some(sampleText))),
+    (s"$tag $sampleText", parser.Simple.instanciate(btk, None, Some(sampleText))),
+    (s"$tag 3. $sampleText", parser.Simple.instanciate(btk, Some(3), Some(sampleText))),
+    (s"${tag}3 $sampleText", parser.Simple.instanciate(btk, Some(3), Some(sampleText))),
+    (s"${tag}3: $sampleText", parser.Simple.instanciate(btk, Some(3), Some(sampleText))),
+    (s"${tag}3. $sampleText", parser.Simple.instanciate(btk, Some(3), Some(sampleText))),
+    (s"${tag}1.2 $sampleText", parser.Simple.instanciate(btk, Some(2), Some(sampleText))),
+    (s"${tag}1.2: $sampleText", parser.Simple.instanciate(btk, Some(2), Some(sampleText)))
+  ).toMap
 
   "Parts" should "be recognized" in {
-    e.extract("Part 2 ...") shouldEqual Part(Some(2), Some("..."))
-    e.extract("Part 3: ...") shouldEqual Part(Some(3), Some("..."))
-    e.extract("Part 3 : ...") shouldEqual Part(Some(3), Some("..."))
-    e.extract("Part 3 :...") shouldEqual Part(Some(3), Some("..."))
-    e.extract("Part d ...") shouldEqual Part(Some(4), Some("..."))
-    e.extract("Part 2.4 ...") shouldEqual Part(Some(4), Some("..."))
-    e.extract("Part 2.4: ...") shouldEqual Part(Some(4), Some("..."))
-    e.extract("Part ii: ...") shouldEqual Part(Some(2), Some("..."))
-    e.extract("Part II: ...") shouldEqual Part(Some(2), Some("..."))
-    e.extract("Part 3.II: ...") shouldEqual Part(Some(2), Some("..."))
-    e.extract("Part ...") shouldEqual Part(None, Some("..."))
-    e.extract("Part 3. ...") shouldEqual Part(Some(3), Some("..."))
-    e.extract("Part3 ...") shouldEqual Part(Some(3), Some("..."))
-    e.extract("Part3: ...") shouldEqual Part(Some(3), Some("..."))
-    e.extract("Part3. ...") shouldEqual Part(Some(3), Some("..."))
-    e.extract("Part1.2 ...") shouldEqual Part(Some(2), Some("..."))
-    e.extract("Part1.2: blabla") shouldEqual Part(Some(2), Some("blabla"))
+    val samples = getSamples("Part", PART)
+
+    samples.foreach {
+      case (input, result) =>
+        e.extract(input) shouldEqual result
+    }
+  }
+
+  "Chapters" should "be recognized" in {
+    val samples = getSamples("ChApTeR", CHAPTER)
+
+    samples.foreach {
+      case (input, result) =>
+        e.extract(input) shouldEqual result
+    }
+  }
+
+  "Sections" should "be recognized" in {
+    val samples = getSamples("section", SECTION)
+
+    samples.foreach {
+      case (input, result) =>
+        e.extract(input) shouldEqual result
+    }
   }
 
   "Trash" should "not be recognized" in {

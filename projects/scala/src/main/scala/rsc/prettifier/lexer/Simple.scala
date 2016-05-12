@@ -7,7 +7,7 @@ object Simple {
 
   import Tokens._
 
-  val keywords = List("part", "chapter", "section", "subsection")
+  val keywords = List("part", "chapter", "section")
 
   val SpaceRegex = """(\s)""".r
 
@@ -33,7 +33,6 @@ object Simple {
         case "part" => new Token(PART)
         case "chapter" => new Token(CHAPTER)
         case "section" => new Token(SECTION)
-        case "subsection" => new Token(SUBSECTION)
 
         case Eci(xs) => NUMERATION(xs.map(NumeralSystem.asInt), xs)
         case _ => TEXT(word)

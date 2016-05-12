@@ -9,18 +9,17 @@ sealed trait TokenKind {
   def rawString: String
 }
 
+sealed trait BookTokenKind extends TokenKind
+
 object Tokens {
-  case object PART extends TokenKind {
+  case object PART extends BookTokenKind {
     def rawString: String = "part"
   }
-  case object CHAPTER extends TokenKind {
+  case object CHAPTER extends BookTokenKind {
     def rawString: String = "chapter"
   }
-  case object SECTION extends TokenKind {
+  case object SECTION extends BookTokenKind {
     def rawString: String = "section"
-  }
-  case object SUBSECTION extends TokenKind {
-    def rawString: String = "subsection"
   }
 
   object TEXTKIND extends TokenKind {
@@ -39,9 +38,12 @@ object Tokens {
     def rawString = "whitespace-kind"
   }
 
-  object Kinded {
-    def unapply(t: Token): Option[TokenKind] = {
-      Some(t.kind)
+  object BookPart {
+    def unapply(t: Token): Option[BookTokenKind] = t.kind match {
+      case PART => Some(PART)
+      case CHAPTER => Some(CHAPTER)
+      case SECTION => Some(SECTION)
+      case _ => None
     }
   }
 
