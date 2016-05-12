@@ -31,6 +31,9 @@ object StringUtils {
       }
   }
 
+  def splitButKeep(s1: String, s2: String)
+  : Array[String] =
+    s1.split(s"""((?=$s2)|(?<=$s2))""")
 
   def normalize(s: String): String = s.replaceAll("[^a-zA-Z0-9 ]", "").toLowerCase.trim
 
