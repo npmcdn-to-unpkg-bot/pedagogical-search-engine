@@ -3,6 +3,7 @@ package rsc.prettifier.parser
 import rsc.prettifier.lexer.Tokens._
 import rsc.prettifier.lexer.{BookTokenKind, Token}
 import rsc.prettifier.structure._
+import rsc.prettifier.structure.others._
 import rsc.prettifier.structure.books._
 
 object Simple {
@@ -70,9 +71,25 @@ object Simple {
         // Part: ... Part, ... Part; ... Part:...
         instanciate(bp, None, Some(mkText(trim(xs))))
 
+      /* Numeration, .. */
+      case NUMERATION(ns, os)::SEPARATOR(":")::WHITESPACE(_)::xs =>
+        // 1: ..
+        Numeration(ns, os, Some(mkText(xs)))
+
+      case NUMERATION(ns, os)::WHITESPACE(_)::SEPARATOR(":")::WHITESPACE(_)::xs =>
+        // 1 : ..
+        Numeration(ns, os, Some(mkText(xs)))
+
+      case NUMERATION(ns, os)::WHITESPACE(_)::SEPARATOR(":")::xs =>
+        // 1 :..
+        Numeration(ns, os, Some(mkText(xs)))
+
+      case NUMERATION(ns, os)::WHITESPACE(_)::xs =>
+        // 1 ..
+        Numeration(ns, os, Some(mkText(xs)))
+
       /* others */
       case xs =>
-        println(xs)
         Unknown(mkText(xs))
     }
   }

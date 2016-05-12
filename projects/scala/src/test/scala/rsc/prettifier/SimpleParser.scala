@@ -5,6 +5,7 @@ import rsc.prettifier.lexer.{BookTokenKind, Token}
 import rsc.prettifier.lexer.Tokens._
 import rsc.prettifier.structure._
 import rsc.prettifier.structure.books._
+import rsc.prettifier.structure.others.Numeration
 
 class SimpleParser extends FlatSpec with Matchers {
   val e = new Extractor()
@@ -56,6 +57,23 @@ class SimpleParser extends FlatSpec with Matchers {
       case (input, result) =>
         e.extract(input) shouldEqual result
     }
+  }
+
+  "Numerations" should "be recognized" in {
+    val text = "hello"
+    e.extract(s"1 $text") shouldEqual new Numeration(List(1), List("1"), Some(text))
+    e.extract(s"1. $text") shouldEqual new Numeration(List(1), List("1"), Some(text))
+    e.extract(s"1.ii. $text") shouldEqual new Numeration(List(1, 2), List("1", "ii"), Some(text))
+    e.extract(s"1.1 $text") shouldEqual new Numeration(List(1, 1), List("1", "1"), Some(text))
+    e.extract(s"a.1 $text") shouldEqual new Numeration(List(1, 1), List("a", "1"), Some(text))
+    e.extract(s" ii.c.4 $text") shouldEqual new Numeration(List(2, 3, 4), List("ii", "c", "4"), Some(text))
+    e.extract(s" \tii.c.4: $text") shouldEqual new Numeration(List(2, 3, 4), List("ii", "c", "4"), Some(text))
+    e.extract(s"1.2.: $text") shouldEqual new Numeration(List(1, 2), List("1", "2"), Some(text))
+    e.extract(s"1.2. : $text") shouldEqual new Numeration(List(1, 2), List("1", "2"), Some(text))
+
+    e.extract(s"a small dog") shouldEqual new Numeration(List(1), List("a"), Some("small dog"))
+    e.extract(s"a. small dog") shouldEqual new Numeration(List(1), List("a"), Some("small dog"))
+    e.extract(s"a: small dog") shouldEqual new Numeration(List(1), List("a"), Some("small dog"))
   }
 
   "Trash" should "not be recognized" in {
