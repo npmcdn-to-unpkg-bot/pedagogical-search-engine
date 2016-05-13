@@ -23,14 +23,14 @@ class PrettifierTests extends FlatSpec with Matchers {
       ))
     ))
 
-    val p1 = Pointer(PointerNameType.Chapter, "Chapter i.1", "About us")
-    val p2 = Pointer(PointerNameType.Chapter, "Chapter i.2", "About the field")
+    val p1 = Pointer(PointerNameType.Chapter, "Chapter 1", "About us")
+    val p2 = Pointer(PointerNameType.Chapter, "Chapter 2", "About the field")
     val p3 = Pointer(PointerNameType.Part, "Part i", "Introduction")
     val p4 = Pointer(PointerNameType.Part, "Part ii", "Advanced topics")
-    val p5 = Pointer(PointerNameType.Chapter, "Chapter ii.1", "Generic algorithms")
-    val p6 = Pointer(PointerNameType.Chapter, "Chapter ii.2", "Advanced data structures")
-    val p7 = Pointer(PointerNameType.Section, "Section ii.1.1", "Sorting lists")
-    val p8 = Pointer(PointerNameType.Section, "Section ii.1.2", "Finding cliques")
+    val p5 = Pointer(PointerNameType.Chapter, "Chapter 1", "Generic algorithms")
+    val p6 = Pointer(PointerNameType.Chapter, "Chapter 2", "Advanced data structures")
+    val p7 = Pointer(PointerNameType.Section, "Section 1.1", "Sorting lists")
+    val p8 = Pointer(PointerNameType.Section, "Section 1.2", "Finding cliques")
 
     val newToc = prettifier.process(toc)
 
@@ -86,8 +86,8 @@ class PrettifierTests extends FlatSpec with Matchers {
     val p4 = Pointer(PointerNameType.None, "", "Advanced topics")
     val p5 = Pointer(PointerNameType.Part, "Part iii", "Generic algorithms")
     val p6 = Pointer(PointerNameType.Part, "Part iv", "Advanced data structures")
-    val p7 = Pointer(PointerNameType.Chapter, "Chapter iii.1", "Sorting lists")
-    val p8 = Pointer(PointerNameType.Chapter, "Chapter iii.2", "Finding cliques")
+    val p7 = Pointer(PointerNameType.Chapter, "Chapter 1", "Sorting lists")
+    val p8 = Pointer(PointerNameType.Chapter, "Chapter 2", "Finding cliques")
 
     val newToc = prettifier.process(toc)
     println(newToc)
@@ -341,16 +341,16 @@ class PrettifierTests extends FlatSpec with Matchers {
 | ..Part ii: About the field
 | Advanced topics
 | ..Part iii: Eneric algorithms
-| ....Chapter iii.1: Sorting lists
-| ......Section iii.1.1: Descending
-| ......Section iii.1.2: Ascending
-| ....Chapter iii.2: Finding cliques
+| ....Chapter 1: Sorting lists
+| ......Section 1.1: Descending
+| ......Section 1.2: Ascending
+| ....Chapter 2: Finding cliques
 | ..Part iv: Advanced data structures
 | Finally
 | ..Part v: Discussion
-| ....Chapter v.1: Controversies
-| ......Section v.1.1: Philosphy
-| ....Chapter v.2: Last part compromises"""
+| ....Chapter 1: Controversies
+| ......Section 1.1: Philosphy
+| ....Chapter 2: Last part compromises"""
 
     newToc.toString shouldEqual expected
   }
@@ -383,20 +383,20 @@ class PrettifierTests extends FlatSpec with Matchers {
 
     val newToc = prettifier.process(toc)
     val expected = """| Part i: Introduction
-| ..Chapter i.1: About us
-| ..Chapter i.2: About the field
+| ..Chapter 1: About us
+| ..Chapter 2: About the field
 | Part ii: Advanced topics
-| ..Chapter ii.1: Eneric algorithms
-| ....Section ii.1.1: Sorting lists
-| ......Section ii.1.1.1: Descending
-| ......Section ii.1.1.2: Ascending
-| ....Section ii.1.2: Finding cliques
-| ..Chapter ii.2: Advanced data structures
+| ..Chapter 1: Eneric algorithms
+| ....Section 1.1: Sorting lists
+| ......Section 1.1.1: Descending
+| ......Section 1.1.2: Ascending
+| ....Section 1.2: Finding cliques
+| ..Chapter 2: Advanced data structures
 | Part iii: Finally
-| ..Chapter iii.1: Discussion
-| ....Section iii.1.1: Controversies
-| ......Section iii.1.1.1: Philosphy
-| ....Section iii.1.2: Last part compromises"""
+| ..Chapter 1: Discussion
+| ....Section 1.1: Controversies
+| ......Section 1.1.1: Philosphy
+| ....Section 1.2: Last part compromises"""
 
     newToc.toString shouldEqual expected
   }
@@ -429,21 +429,21 @@ class PrettifierTests extends FlatSpec with Matchers {
 
     val newToc = prettifier.process(toc)
     val expected = """| Part i: Introduction
-| ..Chapter i.1: About us
-| ..Chapter i.2: About the field
+| ..Chapter 1: About us
+| ..Chapter 2: About the field
 | Part ii: Advanced topics
-| ..Chapter ii.1: Eneric algorithms
-| ....Section ii.1.1: Sorting lists
-| ......Section ii.1.1.1: Descending
-| ......Section ii.1.1.2: Ascending
-| ....Section ii.1.2: Finding cliques
-| ..Chapter ii.2: Advanced data structures
+| ..Chapter 1: Eneric algorithms
+| ....Section 1.1: Sorting lists
+| ......Section 1.1.1: Descending
+| ......Section 1.1.2: Ascending
+| ....Section 1.2: Finding cliques
+| ..Chapter 2: Advanced data structures
 | Part iii: Finally
-| ..Chapter iii.1: Discussion
-| ....Section iii.1.1: Controversies
-| ......Section iii.1.1.1: Philosphy
-| ....Section iii.1.2: Last part compromises"""
+| ..Chapter 1: Discussion
+| ....Section 1.1: Controversies
+| ......Section 1.1.1: Philosphy
+| ....Section 1.2: Last part compromises"""
 
-    println(newToc.toString)// shouldEqual expected
+    newToc.toString shouldEqual expected
   }
 }

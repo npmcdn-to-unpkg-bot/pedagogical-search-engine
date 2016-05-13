@@ -231,6 +231,7 @@ class V1 {
           // Prettify the children
           val numerationBelow = assignment match {
             case PointerNameType.None => num
+            case PointerNameType.Part => "1"
             case _ => s"$num.1"
           }
           val (newChildren, oUpdatedNum) = prettify(
