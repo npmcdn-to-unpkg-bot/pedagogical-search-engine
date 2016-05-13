@@ -10,6 +10,7 @@ import rsc.attributes.Source.Source
 import rsc.attributes._
 import rsc.importers.Importer.Importer
 import rsc.indexers.Indexer.Indexer
+import rsc.prettifier.PrettifierType.Prettifier
 import rsc.snippets.Snippetizer.Snippetizer
 import utils.StringUtils.{hash, normalize}
 import utils.StringUtils.uuid36
@@ -20,6 +21,7 @@ case class Resource(
                      oAnnotator: Option[Annotator] = None,
                      oIndexer: Option[Indexer] = None,
                      oSnippetizer: Option[Snippetizer] = None,
+                     oPrettifier: Option[Prettifier] = None,
                      oImporters: Option[List[Importer]] = None,
                      source: Source,
                      title: Title,

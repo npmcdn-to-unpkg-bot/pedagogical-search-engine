@@ -1,12 +1,14 @@
 package rsc.toc
 
 import rsc.Types.{Nodes, Spots}
+import rsc.attributes.Pointer
 import rsc.indexers.Indices
 
 case class Node(label: String,
                 children: Nodes = Nil,
                 oSpots: Option[Spots] = None,
-                oIndices: Option[Indices] = None) {
+                oIndices: Option[Indices] = None,
+                oPointer: Option[Pointer] = None) {
 
   def childrenRec(): Nodes = childrenWithDepth().map(_._1)
 
@@ -19,12 +21,20 @@ case class Node(label: String,
   def rawString(): String =
     (List(label):::children.map(c => c.rawString())).mkString("\n")
 
+  def bestLabel(): String = oPointer match {
+    case Some(Pointer(name, prefix, label)) =>
+      s"$prefix: $label"
+    case None =>
+      label
+  }
+
   def prettyPrint(spaces: String): String = {
     val affix = children match {
       case Nil => ""
       case _ => "\n" + children.map(c => c.prettyPrint(s"$spaces..")).mkString("\n")
     }
-    s"$spaces$label$affix"
+
+    s"$spaces${bestLabel()}$affix"
   }
 
   def nSiblingsBefore(n: Int, node: Node): List[Node] = {

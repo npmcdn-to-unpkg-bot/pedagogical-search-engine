@@ -8,7 +8,7 @@ import rsc.prettifier.structure.books._
 import rsc.prettifier.structure.others.Numeration
 
 class SimpleParser extends FlatSpec with Matchers {
-  val e = new Extractor()
+  val e = new V1()
   val sampleText = "blabla"
   def getSamples(tag: String, btk: BookTokenKind)
   : Map[String, Book] = List(

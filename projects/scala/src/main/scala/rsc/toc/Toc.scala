@@ -12,4 +12,6 @@ case class Toc(nodes: Nodes) {
   def rawString(): String = nodes.map(node => {
     node.rawString()
   }).mkString("\n")
+
+  override def toString(): String = nodes.map(_.toString).mkString("\n")
 }

@@ -12,6 +12,8 @@ Structure [o: Optional, v: Value]
 		(v:spotlight-0.7.2-wiki-20160113)
 	(o:snippetizer)
 		(v:Simple)
+	(o:prettifier)
+		(v:v1)
 	(source) Identify where does the resource come from
 		(v:coursera)
 		(v:khan) khan-academy
@@ -52,14 +54,14 @@ Structure [o: Optional, v: Value]
 			[spot]
 	(o:tocs) Table of Contents of the resource
 		(nodes)
-			[toc]
+			[node]
 	(o:descriptions) Textual descriptions of the resource
 		(o:spots)
 			[spot]
 
 Brackets-References
 ----------------------------
-[toc]
+[node]
 	(o:label) Label of the TOC entry
 	(o:spots)
 		[spot]
@@ -67,6 +69,14 @@ Brackets-References
 		[indices]
 	(o:children) Entries below this one
 		{array:[toc]}
+	(o:pointer)
+		(name)
+			(v:none)
+			(v:part)
+			(v:chapter)
+			(v:section)
+		(updatedLabel) the node label without the pointer prefix
+			e.g. label: "chapter 1: ..." -> "..."
 
 [spot]
 	(start) cursor-position before the first letter of the spot
