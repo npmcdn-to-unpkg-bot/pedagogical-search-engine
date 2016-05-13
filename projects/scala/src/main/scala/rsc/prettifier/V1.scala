@@ -109,8 +109,10 @@ class V1 {
             val assignments = (0 until depthX).map {
               case depth =>
                 diag.filter { case (dx, _) => dx == depth } match {
-                  case Nil => (0, PointerNameType.None)
-                  case (_, dy)::Nil => dy match {
+                  case Nil =>
+                    (0, PointerNameType.None)
+                  case (_, dy)::Nil =>
+                    dy match {
                     case 0 => (depth, PointerNameType.Part)
                     case 1 => (depth, PointerNameType.Chapter)
                     case _ => (depth, PointerNameType.Section)
@@ -242,7 +244,7 @@ class V1 {
   : List[Diagonal] = {
 
     def diagonal(startX: Int, startY: Int, acc: Diagonal = Nil)
-    : Diagonal = startX < depthX && startY < depthY match {
+    : Diagonal = startX < depthX match {
       case true =>
         diagonal(startX + 1, startY + 1, acc ::: List((startX, startY)))
       case false => acc

@@ -178,4 +178,49 @@ class PrettifierTests extends FlatSpec with Matchers {
     oNewToc.getOrElse("").toString shouldEqual expected
   }
 
+  "Partial toc 4" should "be recognized" in {
+    val toc = new Toc(List(
+      Node("Introduction", children = List(
+        Node("Section 1 About us"),
+        Node("About the field")
+      )),
+      Node("Chapter 2: Advanced topics", children = List(
+        Node("Generic algorithms", children = List(
+          Node("Sorting lists", children = List(
+            Node("Part Descending"),
+            Node("Ascending")
+          )),
+          Node("Finding cliques")
+        )),
+        Node("Advanced data structures")
+      )),
+      Node("Chapter 3 Finally", children = List(
+        Node("Discussion", children = List(
+          Node("Controversies", children = List(
+            Node("Part Philosphy")
+          )),
+          Node("Last Part Compromises")
+        ))
+      ))
+    ))
+
+    val oNewToc = prettifier.processBook(toc)
+    val expected = """| Chapter 1: Introduction
+| ..Section 1.1: About us
+| ..Section 1.2: About the field
+| Chapter 2: Advanced topics
+| ..Section 2.1: Generic algorithms
+| ....Section 2.1.1: Sorting lists
+| ......Section 2.1.1.1: Descending
+| ......Section 2.1.1.2: Ascending
+| ....Section 2.1.2: Finding cliques
+| ..Section 2.2: Advanced data structures
+| Chapter 3: Finally
+| ..Section 3.1: Discussion
+| ....Section 3.1.1: Controversies
+| ......Section 3.1.1.1: Philosphy
+| ....Section 3.1.2: Last part compromises"""
+
+    oNewToc.getOrElse("").toString shouldEqual expected
+  }
 }
