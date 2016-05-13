@@ -146,7 +146,7 @@ class V1 {
             // todo: delete
             println(s"numeration $numeration")
 
-            val newNodes = prettify(
+            val (newNodes, _) = prettify(
               assignments,
               extractions,
               toc.nodes,
@@ -164,38 +164,43 @@ class V1 {
                level: Int,
                numeration: String
               )
-  : List[Node] = _nodes match {
-    case Nil => Nil
+  : (List[Node], String) = _nodes match {
+    case Nil => (Nil, numeration)
     case nodes =>
       // Prettify all nodes (at this level)
       val assignment = assignments.contains(level) match {
         case true => assignments(level)
         case false => PointerNameType.None
       }
-      nodes.foldLeft((numeration, List[Node]())) {
-        case ((num, acc), node) =>
+      val (newNodes, _, lastNumeration) = nodes.foldLeft((List[Node](), numeration, "willbeoverriden")) {
+        case ((acc, num, _), node) =>
           // Get the extracted structure
           val struct = extractions(node)
 
           // Prettify the children
-          val newNumeration = assignment match {
-            case PointerNameType.Part => "1"
+          val numerationBelow = assignment match {
+            case PointerNameType.None => num
             case _ => s"$num.1"
           }
-          val newChildren = prettify(
+          val (newChildren, updatedNum) = prettify(
             assignments,
             extractions,
             node.children,
             level + 1,
-            newNumeration
+            numerationBelow
           )
 
           val newNode = node.copy(oPointer = Some(
-            instantiate(assignment, num, extractText(struct))
+            instantiate(assignment, num, extractText(struct).map(_.capitalize))
           ), children = newChildren)
 
-          (Eci.succ(numeration), acc ::: List(newNode))
-      }._2
+          val newLastNum = assignment match {
+            case PointerNameType.None => updatedNum
+            case _ => num
+          }
+          (acc ::: List(newNode), Eci.succ(newLastNum), newLastNum)
+      }
+      (newNodes, lastNumeration)
   }
 
   def extractText(struct: Structure)

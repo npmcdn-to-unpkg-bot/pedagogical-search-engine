@@ -1,7 +1,7 @@
 package rsc.toc
 
 import rsc.Types.{Nodes, Spots}
-import rsc.attributes.Pointer
+import rsc.attributes.{Pointer, PointerNameType}
 import rsc.indexers.Indices
 
 case class Node(label: String,
@@ -23,7 +23,12 @@ case class Node(label: String,
 
   def bestLabel(): String = oPointer match {
     case Some(Pointer(name, prefix, label)) =>
-      s"$prefix: $label"
+      name match {
+        case PointerNameType.None =>
+          label
+        case _ =>
+          s"$prefix: $label"
+      }
     case None =>
       label
   }
