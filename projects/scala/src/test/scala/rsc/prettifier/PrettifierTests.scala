@@ -32,41 +32,37 @@ class PrettifierTests extends FlatSpec with Matchers {
     val p7 = Pointer(PointerNameType.Section, "Section ii.1.1", "Sorting lists")
     val p8 = Pointer(PointerNameType.Section, "Section ii.1.2", "Finding cliques")
 
-    val oNewToc = prettifier.processBook(toc)
-    oNewToc.nonEmpty shouldBe true
+    val newToc = prettifier.process(toc)
 
-    oNewToc match {
-      case Some(newToc) =>
-        val n1 = newToc.nodes
-        n1.size shouldBe 2
+      val n1 = newToc.nodes
+      n1.size shouldBe 2
 
-        val n2 = n1.head.children
-        n2.size shouldBe 2
+      val n2 = n1.head.children
+      n2.size shouldBe 2
 
-        val n3 = n1(1).children
-        n3.size shouldBe 2
+      val n3 = n1(1).children
+      n3.size shouldBe 2
 
-        val n4 = n3.head.children
-        n4.size shouldBe 2
+      val n4 = n3.head.children
+      n4.size shouldBe 2
 
-        val t1 = n1.head.children.head
-        val t2 = n1.head.children(1)
-        val t3 = n1.head
-        val t4 = n1(1)
-        val t5 = n1(1).children.head
-        val t6 = n1(1).children(1)
-        val t7 = n1(1).children.head.children.head
-        val t8 = n1(1).children.head.children(1)
+      val t1 = n1.head.children.head
+      val t2 = n1.head.children(1)
+      val t3 = n1.head
+      val t4 = n1(1)
+      val t5 = n1(1).children.head
+      val t6 = n1(1).children(1)
+      val t7 = n1(1).children.head.children.head
+      val t8 = n1(1).children.head.children(1)
 
-        t1.oPointer shouldBe Some(p1)
-        t2.oPointer shouldBe Some(p2)
-        t3.oPointer shouldBe Some(p3)
-        t4.oPointer shouldBe Some(p4)
-        t5.oPointer shouldBe Some(p5)
-        t6.oPointer shouldBe Some(p6)
-        t7.oPointer shouldBe Some(p7)
-        t8.oPointer shouldBe Some(p8)
-    }
+      t1.oPointer shouldBe Some(p1)
+      t2.oPointer shouldBe Some(p2)
+      t3.oPointer shouldBe Some(p3)
+      t4.oPointer shouldBe Some(p4)
+      t5.oPointer shouldBe Some(p5)
+      t6.oPointer shouldBe Some(p6)
+      t7.oPointer shouldBe Some(p7)
+      t8.oPointer shouldBe Some(p8)
   }
 
   "Partial toc 2" should "be recognized" in {
@@ -93,42 +89,38 @@ class PrettifierTests extends FlatSpec with Matchers {
     val p7 = Pointer(PointerNameType.Chapter, "Chapter iii.1", "Sorting lists")
     val p8 = Pointer(PointerNameType.Chapter, "Chapter iii.2", "Finding cliques")
 
-    val oNewToc = prettifier.processBook(toc)
-    println(oNewToc.getOrElse(""))
-    oNewToc.nonEmpty shouldBe true
+    val newToc = prettifier.process(toc)
+    println(newToc)
 
-    oNewToc match {
-      case Some(newToc) =>
-        val n1 = newToc.nodes
-        n1.size shouldBe 2
+    val n1 = newToc.nodes
+    n1.size shouldBe 2
 
-        val n2 = n1.head.children
-        n2.size shouldBe 2
+    val n2 = n1.head.children
+    n2.size shouldBe 2
 
-        val n3 = n1(1).children
-        n3.size shouldBe 2
+    val n3 = n1(1).children
+    n3.size shouldBe 2
 
-        val n4 = n3.head.children
-        n4.size shouldBe 2
+    val n4 = n3.head.children
+    n4.size shouldBe 2
 
-        val t1 = n1.head.children.head
-        val t2 = n1.head.children(1)
-        val t3 = n1.head
-        val t4 = n1(1)
-        val t5 = n1(1).children.head
-        val t6 = n1(1).children(1)
-        val t7 = n1(1).children.head.children.head
-        val t8 = n1(1).children.head.children(1)
+    val t1 = n1.head.children.head
+    val t2 = n1.head.children(1)
+    val t3 = n1.head
+    val t4 = n1(1)
+    val t5 = n1(1).children.head
+    val t6 = n1(1).children(1)
+    val t7 = n1(1).children.head.children.head
+    val t8 = n1(1).children.head.children(1)
 
-        t1.oPointer shouldBe Some(p1)
-        t2.oPointer shouldBe Some(p2)
-        t3.oPointer shouldBe Some(p3)
-        t4.oPointer shouldBe Some(p4)
-        t5.oPointer shouldBe Some(p5)
-        t6.oPointer shouldBe Some(p6)
-        t7.oPointer shouldBe Some(p7)
-        t8.oPointer shouldBe Some(p8)
-    }
+    t1.oPointer shouldBe Some(p1)
+    t2.oPointer shouldBe Some(p2)
+    t3.oPointer shouldBe Some(p3)
+    t4.oPointer shouldBe Some(p4)
+    t5.oPointer shouldBe Some(p5)
+    t6.oPointer shouldBe Some(p6)
+    t7.oPointer shouldBe Some(p7)
+    t8.oPointer shouldBe Some(p8)
   }
 
 
@@ -158,7 +150,7 @@ class PrettifierTests extends FlatSpec with Matchers {
       ))
     ))
 
-    val oNewToc = prettifier.processBook(toc)
+    val newToc = prettifier.process(toc)
     val expected = """| Introduction
 | ..About us
 | ..About the field
@@ -175,7 +167,7 @@ class PrettifierTests extends FlatSpec with Matchers {
 | ......Part iii: Philosphy
 | ....Compromises"""
 
-    oNewToc.getOrElse("").toString shouldEqual expected
+    newToc.toString shouldEqual expected
   }
 
   "Partial toc 4" should "be recognized" in {
@@ -204,7 +196,7 @@ class PrettifierTests extends FlatSpec with Matchers {
       ))
     ))
 
-    val oNewToc = prettifier.processBook(toc)
+    val newToc = prettifier.process(toc)
     val expected = """| Chapter 1: Introduction
 | ..Section 1.1: About us
 | ..Section 1.2: About the field
@@ -221,6 +213,237 @@ class PrettifierTests extends FlatSpec with Matchers {
 | ......Section 3.1.1.1: Philosphy
 | ....Section 3.1.2: Last part compromises"""
 
-    oNewToc.getOrElse("").toString shouldEqual expected
+    newToc.toString shouldEqual expected
+  }
+
+
+  "Partial toc 5" should "be recognized" in {
+    val toc = new Toc(List(
+      Node("1. Introduction", children = List(
+        Node("About us"),
+        Node("About the field")
+      )),
+      Node("2. Advanced topics", children = List(
+        Node("Generic algorithms", children = List(
+          Node("Sorting lists", children = List(
+            Node("Descending"),
+            Node("Ascending")
+          )),
+          Node("Finding cliques")
+        )),
+        Node("Advanced data structures")
+      )),
+      Node("C. Finally", children = List(
+        Node("Discussion", children = List(
+          Node("Controversies", children = List(
+            Node("Philosphy")
+          )),
+          Node("Last Part Compromises")
+        ))
+      ))
+    ))
+
+    val newToc = prettifier.process(toc)
+    val expected = """| Chapter 1: Introduction
+| ..Section 1.1: About us
+| ..Section 1.2: About the field
+| Chapter 2: Advanced topics
+| ..Section 2.1: Generic algorithms
+| ....Section 2.1.1: Sorting lists
+| ......Section 2.1.1.1: Descending
+| ......Section 2.1.1.2: Ascending
+| ....Section 2.1.2: Finding cliques
+| ..Section 2.2: Advanced data structures
+| Chapter 3: Finally
+| ..Section 3.1: Discussion
+| ....Section 3.1.1: Controversies
+| ......Section 3.1.1.1: Philosphy
+| ....Section 3.1.2: Last part compromises"""
+
+    newToc.toString shouldEqual expected
+  }
+
+  "Partial toc 6" should "be recognized" in {
+    val toc = new Toc(List(
+      Node("Introduction", children = List(
+        Node("About us"),
+        Node("About the field")
+      )),
+      Node("Advanced topics", children = List(
+        Node("1. Generic algorithms", children = List(
+          Node("1.1. Sorting lists", children = List(
+            Node("Descending"),
+            Node("Ascending")
+          )),
+          Node("Finding cliques")
+        )),
+        Node("1.2 Advanced data structures")
+      )),
+      Node("2. Finally", children = List(
+        Node("2.1 Discussion", children = List(
+          Node("Controversies", children = List(
+            Node("Philosphy")
+          )),
+          Node("Last Part Compromises")
+        ))
+      ))
+    ))
+
+    val newToc = prettifier.process(toc)
+    val expected = """| Chapter 1: Introduction
+| ..Section 1.1: About us
+| ..Section 1.2: About the field
+| Chapter 2: Advanced topics
+| ..Section 2.1: Generic algorithms
+| ....Section 2.1.1: Sorting lists
+| ......Section 2.1.1.1: Descending
+| ......Section 2.1.1.2: Ascending
+| ....Section 2.1.2: Finding cliques
+| ..Section 2.2: Advanced data structures
+| Chapter 3: Finally
+| ..Section 3.1: Discussion
+| ....Section 3.1.1: Controversies
+| ......Section 3.1.1.1: Philosphy
+| ....Section 3.1.2: Last part compromises"""
+
+    newToc.toString shouldEqual expected
+  }
+
+  "Partial toc 7" should "be recognized" in {
+    val toc = new Toc(List(
+      Node("Introduction", children = List(
+        Node("About us"),
+        Node("About the field")
+      )),
+      Node("Advanced topics", children = List(
+        Node("i: eneric algorithms", children = List(
+          Node(" Sorting lists", children = List(
+            Node("Descending"),
+            Node("Ascending")
+          )),
+          Node("Finding cliques")
+        )),
+        Node(" Advanced data structures")
+      )),
+      Node(" Finally", children = List(
+        Node("ii: Discussion", children = List(
+          Node("Controversies", children = List(
+            Node("Philosphy")
+          )),
+          Node("Last Part Compromises")
+        ))
+      ))
+    ))
+
+    val newToc = prettifier.process(toc)
+    val expected = """| Introduction
+| ..Part i: About us
+| ..Part ii: About the field
+| Advanced topics
+| ..Part iii: Eneric algorithms
+| ....Chapter iii.1: Sorting lists
+| ......Section iii.1.1: Descending
+| ......Section iii.1.2: Ascending
+| ....Chapter iii.2: Finding cliques
+| ..Part iv: Advanced data structures
+| Finally
+| ..Part v: Discussion
+| ....Chapter v.1: Controversies
+| ......Section v.1.1: Philosphy
+| ....Chapter v.2: Last part compromises"""
+
+    newToc.toString shouldEqual expected
+  }
+
+  "Partial toc 8" should "be recognized" in {
+    val toc = new Toc(List(
+      Node("Part i: Introduction", children = List(
+        Node("About us"),
+        Node("About the field")
+      )),
+      Node("Advanced topics", children = List(
+        Node("i: eneric algorithms", children = List(
+          Node(" Sorting lists", children = List(
+            Node("Descending"),
+            Node("Ascending")
+          )),
+          Node("Finding cliques")
+        )),
+        Node(" Advanced data structures")
+      )),
+      Node("Finally", children = List(
+        Node("ii: Discussion", children = List(
+          Node("Controversies", children = List(
+            Node("Philosphy")
+          )),
+          Node("Last Part Compromises")
+        ))
+      ))
+    ))
+
+    val newToc = prettifier.process(toc)
+    val expected = """| Part i: Introduction
+| ..Chapter i.1: About us
+| ..Chapter i.2: About the field
+| Part ii: Advanced topics
+| ..Chapter ii.1: Eneric algorithms
+| ....Section ii.1.1: Sorting lists
+| ......Section ii.1.1.1: Descending
+| ......Section ii.1.1.2: Ascending
+| ....Section ii.1.2: Finding cliques
+| ..Chapter ii.2: Advanced data structures
+| Part iii: Finally
+| ..Chapter iii.1: Discussion
+| ....Section iii.1.1: Controversies
+| ......Section iii.1.1.1: Philosphy
+| ....Section iii.1.2: Last part compromises"""
+
+    newToc.toString shouldEqual expected
+  }
+
+  "Partial toc 9" should "be recognized" in {
+    val toc = new Toc(List(
+      Node("i: Introduction", children = List(
+        Node("About us"),
+        Node("About the field")
+      )),
+      Node("Advanced topics", children = List(
+        Node("Chapter 1: eneric algorithms", children = List(
+          Node(" Sorting lists", children = List(
+            Node("Descending"),
+            Node("Ascending")
+          )),
+          Node("Finding cliques")
+        )),
+        Node(" Advanced data structures")
+      )),
+      Node("Finally", children = List(
+        Node("ii: Discussion", children = List(
+          Node("Controversies", children = List(
+            Node("Philosphy")
+          )),
+          Node("Last Part Compromises")
+        ))
+      ))
+    ))
+
+    val newToc = prettifier.process(toc)
+    val expected = """| Part i: Introduction
+| ..Chapter i.1: About us
+| ..Chapter i.2: About the field
+| Part ii: Advanced topics
+| ..Chapter ii.1: Eneric algorithms
+| ....Section ii.1.1: Sorting lists
+| ......Section ii.1.1.1: Descending
+| ......Section ii.1.1.2: Ascending
+| ....Section ii.1.2: Finding cliques
+| ..Chapter ii.2: Advanced data structures
+| Part iii: Finally
+| ..Chapter iii.1: Discussion
+| ....Section iii.1.1: Controversies
+| ......Section iii.1.1.1: Philosphy
+| ....Section iii.1.2: Last part compromises"""
+
+    println(newToc.toString)// shouldEqual expected
   }
 }
