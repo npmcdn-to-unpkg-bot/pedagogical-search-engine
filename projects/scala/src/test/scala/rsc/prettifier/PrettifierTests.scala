@@ -10,16 +10,16 @@ class PrettifierTests extends FlatSpec with Matchers {
 
   "Partial toc 1" should "be recognized" in {
     val toc = new Toc(List(
-      new Node("Introduction", children = List(
-        new Node("Chapter 1. About us"),
-        new Node("Chapter 2. About the field")
+      Node("Introduction", children = List(
+        Node("Chapter 1. About us"),
+        Node("Chapter 2. About the field")
       )),
-      new Node("Advanced topics", children = List(
-        new Node("Generic algorithms", children = List(
-          new Node("Sorting lists"),
-          new Node("Finding cliques")
+      Node("Advanced topics", children = List(
+        Node("Generic algorithms", children = List(
+          Node("Sorting lists"),
+          Node("Finding cliques")
         )),
-        new Node("Advanced data structures")
+        Node("Advanced data structures")
       ))
     ))
 
@@ -71,16 +71,16 @@ class PrettifierTests extends FlatSpec with Matchers {
 
   "Partial toc 2" should "be recognized" in {
     val toc = new Toc(List(
-      new Node("Introduction", children = List(
-        new Node("Part i. About us"),
-        new Node("Part ii. About the field")
+      Node("Introduction", children = List(
+        Node("Part i. About us"),
+        Node("Part ii. About the field")
       )),
-      new Node("Advanced topics", children = List(
-        new Node("Part iii Generic algorithms", children = List(
-          new Node("Sorting lists"),
-          new Node("Finding cliques")
+      Node("Advanced topics", children = List(
+        Node("Part iii Generic algorithms", children = List(
+          Node("Sorting lists"),
+          Node("Finding cliques")
         )),
-        new Node("Advanced data structures")
+        Node("Advanced data structures")
       ))
     ))
 
@@ -129,6 +129,53 @@ class PrettifierTests extends FlatSpec with Matchers {
         t7.oPointer shouldBe Some(p7)
         t8.oPointer shouldBe Some(p8)
     }
+  }
+
+
+  "Partial toc 3" should "be recognized" in {
+    val toc = new Toc(List(
+      Node("Introduction", children = List(
+        Node("About us"),
+        Node("About the field")
+      )),
+      Node("Advanced topics", children = List(
+        Node("Generic algorithms", children = List(
+          Node("Sorting lists", children = List(
+            Node("Part 1: Descending"),
+            Node("Ascending")
+          )),
+          Node("Finding cliques")
+        )),
+        Node("Advanced data structures")
+      )),
+      Node("Finally", children = List(
+        Node("Discussion", children = List(
+          Node("Controversies", children = List(
+            Node("Part 1: Philosphy")
+          )),
+          Node("Compromises")
+        ))
+      ))
+    ))
+
+    val oNewToc = prettifier.processBook(toc)
+    val expected = """| Introduction
+| ..About us
+| ..About the field
+| Advanced topics
+| ..Generic algorithms
+| ....Sorting lists
+| ......Part i: Descending
+| ......Part ii: Ascending
+| ....Finding cliques
+| ..Advanced data structures
+| Finally
+| ..Discussion
+| ....Controversies
+| ......Part iii: Philosphy
+| ....Compromises"""
+
+    oNewToc.getOrElse("").toString shouldEqual expected
   }
 
 }

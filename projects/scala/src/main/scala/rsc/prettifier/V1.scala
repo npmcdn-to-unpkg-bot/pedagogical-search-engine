@@ -164,16 +164,17 @@ class V1 {
                level: Int,
                numeration: String
               )
-  : (List[Node], String) = _nodes match {
-    case Nil => (Nil, numeration)
+  : (List[Node], Option[String]) = _nodes match {
+    case Nil => (Nil, None)
     case nodes =>
       // Prettify all nodes (at this level)
       val assignment = assignments.contains(level) match {
         case true => assignments(level)
         case false => PointerNameType.None
       }
-      val (newNodes, _, lastNumeration) = nodes.foldLeft((List[Node](), numeration, "willbeoverriden")) {
-        case ((acc, num, _), node) =>
+      val init: (List[Node], String, Option[String]) = (Nil, numeration, None)
+      val (newNodes, _, lastNumeration) = nodes.foldLeft(init) {
+        case ((acc, num, oLastNum), node) =>
           // Get the extracted structure
           val struct = extractions(node)
 
@@ -182,7 +183,7 @@ class V1 {
             case PointerNameType.None => num
             case _ => s"$num.1"
           }
-          val (newChildren, updatedNum) = prettify(
+          val (newChildren, oUpdatedNum) = prettify(
             assignments,
             extractions,
             node.children,
@@ -194,11 +195,19 @@ class V1 {
             instantiate(assignment, num, extractText(struct).map(_.capitalize))
           ), children = newChildren)
 
-          val newLastNum = assignment match {
-            case PointerNameType.None => updatedNum
-            case _ => num
+          val oNewLastNum = assignment match {
+            case PointerNameType.None => oUpdatedNum match {
+              case None => oLastNum
+              case _ => oUpdatedNum
+            }
+            case _ => Some(num)
           }
-          (acc ::: List(newNode), Eci.succ(newLastNum), newLastNum)
+          val newNum = oNewLastNum match {
+            case None => num
+            case Some(x) => Eci.succ(x)
+          }
+          println(s"newNode='${newNode.bestLabel()}', num=$num, newNum=$newNum, oNewLastNum=$oNewLastNum")
+          (acc ::: List(newNode), newNum, oNewLastNum)
       }
       (newNodes, lastNumeration)
   }
