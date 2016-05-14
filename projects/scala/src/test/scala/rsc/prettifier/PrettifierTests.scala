@@ -481,4 +481,41 @@ class PrettifierTests extends FlatSpec with Matchers {
 
     newToc.toString shouldEqual expected
   }
+
+  "Toc with keywords 2" should "be recognized" in {
+    val toc = new Toc(List(
+      Node("Introduction", children = List(
+        Node("Session iv. About us"),
+        Node("Week ii. About the field")
+      )),
+      Node("Advanced topics", children = List(
+        Node("Week 3 Generic algorithms", children = List(
+          Node("Sorting lists", children = List(
+            Node("Descending"),
+            Node("Ascending")
+          )),
+          Node("Finding cliques")
+        )),
+        Node("Week 5 Advanced data structures"),
+        Node("Advanced data structures")
+      )),
+      Node("Final words")
+    ))
+
+    val newToc = prettifier.process(toc)
+    val expected = """| Module 1: introduction
+| ..Week 1: about us
+| ..Week 2: about the field
+| Module 2: advanced topics
+| ..Week 3: generic algorithms
+| ....Week 3.1: sorting lists
+| ......Week 3.1.1: descending
+| ......Week 3.1.2: ascending
+| ....Week 3.2: finding cliques
+| ..Week 5: advanced data structures
+| ..Week 6: advanced data structures
+| Module 3: final words"""
+
+    newToc.toString shouldEqual expected
+  }
 }

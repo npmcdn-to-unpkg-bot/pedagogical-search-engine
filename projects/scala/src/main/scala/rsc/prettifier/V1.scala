@@ -144,17 +144,27 @@ class V1 {
           case _ => "Module"
         }
 
-        nodes.foldLeft(num, List[Node]()) {
-          case ((currentNum, acc), node) =>
+        nodes.foldLeft(num, false, List[Node]()) {
+          case ((currentNum, initialized, acc), node) =>
             val enode = enodesMap(node)
 
             val decidedNum = oLevelKind match {
               case None => currentNum
-              case Some(_) =>
-                enode.struct match {
-                  case Keyword(_, Some(x), _) => x.toString
-                  case _ => currentNum
-                }
+              case Some(_) => assignments(level).map {
+                case tkt =>
+                  val rescueNum = initialized match {
+                    case false => "1"
+                    case true => currentNum
+                  }
+
+                  enode.struct match {
+                    case Keyword(tkt2, Some(x), _) => tkt == tkt2 match {
+                      case true => x.toString
+                      case false => rescueNum
+                    }
+                    case _ => rescueNum
+                  }
+              }.getOrElse(currentNum)
             }
 
             // Update the children
@@ -176,8 +186,8 @@ class V1 {
             ))
 
             // Produce the next num
-            (Eci.succ(decidedNum), acc ::: List(newNode))
-        }._2
+            (Eci.succ(decidedNum), true, acc ::: List(newNode))
+        }._3
 
       case Some(kind) =>
         // Yes, we should use this kind
