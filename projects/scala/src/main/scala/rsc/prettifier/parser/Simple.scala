@@ -88,6 +88,27 @@ object Simple {
         // 1 ..
         Numeration(ns, os, Some(mkText(xs)))
 
+      /* Keywords */
+      case KeywordToken(kt)::WHITESPACE(_)::NUMERATION(ns, os)::SEPARATOR(":")::WHITESPACE(_)::xs =>
+        // Week 1: ..
+        Keyword(kt, Some(ns.last), Some(mkText(xs)))
+
+      case KeywordToken(kt)::WHITESPACE(_)::NUMERATION(ns, os)::WHITESPACE(_)::xs =>
+        // Week 1 .., Week 1. ..
+        Keyword(kt, Some(ns.last), Some(mkText(xs)))
+
+      case KeywordToken(kt)::WHITESPACE(_)::WHITESPACE(_)::xs =>
+        // Week ..
+        Keyword(kt, None, Some(mkText(xs)))
+
+      case KeywordToken(kt)::NUMERATION(ns, os)::SEPARATOR(":")::WHITESPACE(_)::xs =>
+        // Week1: ..
+        Keyword(kt, Some(ns.last), Some(mkText(xs)))
+
+      case KeywordToken(kt)::NUMERATION(ns, os)::WHITESPACE(_)::xs =>
+        // Week1 ..
+        Keyword(kt, Some(ns.last), Some(mkText(xs)))
+
       /* others */
       case xs =>
         Unknown(mkText(xs))

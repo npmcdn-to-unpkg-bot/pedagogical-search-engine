@@ -10,6 +10,7 @@ sealed trait TokenKind {
 }
 
 sealed trait BookTokenKind extends TokenKind
+sealed trait KeywordTokenKind extends TokenKind
 
 object Tokens {
   case object PART extends BookTokenKind {
@@ -25,6 +26,36 @@ object Tokens {
   object TEXTKIND extends TokenKind {
     def rawString = "text-kind"
   }
+
+
+  object WEEKKIND extends KeywordTokenKind {
+    def rawString = "week-kind"
+  }
+
+  object SESSIONKIND extends KeywordTokenKind {
+    def rawString = "session-kind"
+  }
+
+  object QUIZKIND extends KeywordTokenKind {
+    def rawString = "quiz-kind"
+  }
+
+  object EXERCISEKIND extends KeywordTokenKind {
+    def rawString = "exercise-kind"
+  }
+
+  object EXAMKIND extends KeywordTokenKind {
+    def rawString = "exam-kind"
+  }
+
+  object UNITKIND extends KeywordTokenKind {
+    def rawString = "unit-kind"
+  }
+
+  object MODULEKIND extends KeywordTokenKind {
+    def rawString = "module-kind"
+  }
+
 
   object NUMERATIONKIND extends TokenKind {
     def rawString = "numeration-kind"
@@ -43,6 +74,19 @@ object Tokens {
       case PART => Some(PART)
       case CHAPTER => Some(CHAPTER)
       case SECTION => Some(SECTION)
+      case _ => None
+    }
+  }
+
+  object KeywordToken {
+    def unapply(t: Token): Option[KeywordTokenKind] = t.kind match {
+      case WEEKKIND => Some(WEEKKIND)
+      case SESSIONKIND => Some(SESSIONKIND)
+      case QUIZKIND => Some(QUIZKIND)
+      case EXERCISEKIND => Some(EXERCISEKIND)
+      case EXAMKIND => Some(EXAMKIND)
+      case UNITKIND => Some(UNITKIND)
+      case MODULEKIND => Some(MODULEKIND)
       case _ => None
     }
   }

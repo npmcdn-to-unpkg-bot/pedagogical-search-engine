@@ -5,7 +5,7 @@ import rsc.prettifier.lexer.{BookTokenKind, Token}
 import rsc.prettifier.lexer.Tokens._
 import rsc.prettifier.structure._
 import rsc.prettifier.structure.books._
-import rsc.prettifier.structure.others.Numeration
+import rsc.prettifier.structure.others.{Keyword, Numeration}
 
 class SimpleParser extends FlatSpec with Matchers {
   val e = new V1()
@@ -81,6 +81,13 @@ class SimpleParser extends FlatSpec with Matchers {
     e.extract("nice 1 buddy") shouldEqual Unknown("nice 1 buddy")
     e.extract("more on this chapter") shouldEqual Unknown("more on this chapter")
     e.extract("see section ii.3.1") shouldEqual Unknown("see section ii.3.1")
+  }
+
+  "Common keywords" should "be recognized" in {
+    e.extract("Week 1 Hello world") shouldEqual Keyword(WEEKKIND, Some(1), Some("hello world"))
+    e.extract("Quiz b: buddy") shouldEqual Keyword(QUIZKIND, Some(2), Some("buddy"))
+    e.extract("Moduleiii: bla") shouldEqual Keyword(MODULEKIND, Some(3), Some("bla"))
+    e.extract("Module3 bla") shouldEqual Keyword(MODULEKIND, Some(3), Some("bla"))
   }
 
   "Trim" should "work" in {

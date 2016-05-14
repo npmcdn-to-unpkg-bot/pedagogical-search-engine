@@ -75,6 +75,8 @@ Brackets-References
 			(v:part)
 			(v:chapter)
 			(v:section)
+			(v:keyword)
+		(prefix) The prettifier assigned a prefix. e.g. "Chapter 1", "Section 1.1"
 		(updatedLabel) the node label without the pointer prefix
 			e.g. label: "chapter 1: ..." -> "..."
 

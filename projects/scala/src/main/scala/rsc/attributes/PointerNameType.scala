@@ -8,4 +8,5 @@ object PointerNameType
   val Part = Value("part")
   val Chapter = Value("chapter")
   val Section = Value("section")
+  val Keyword = Value("keyword")
 }
