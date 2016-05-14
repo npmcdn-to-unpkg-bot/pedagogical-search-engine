@@ -1,9 +1,10 @@
 package rsc.prettifier
 
 import rsc.attributes.{Pointer, PointerNameType}
-import rsc.prettifier.lexer.{Eci, NumeralSystem}
+import rsc.prettifier.lexer.Tokens._
+import rsc.prettifier.lexer.{Eci, KeywordTokenKind, NumeralSystem}
 import rsc.prettifier.structure.books._
-import rsc.prettifier.structure.others.Numeration
+import rsc.prettifier.structure.others.{Keyword, Numeration}
 import rsc.prettifier.structure.{Structure, Unknown}
 import rsc.toc.{Node, Toc}
 
@@ -29,7 +30,7 @@ class V1 {
 
         /*
          * If there are no direct annotations like chapters, etc..
-         * Check if there are numeral indications
+         * Check if there are numeral indications or keywords
          * e.g. 1. , 1.1, ..
          */
         val directAnnotations = enodes.filter {
@@ -44,13 +45,18 @@ class V1 {
           case _ => false
         }
 
-        (directAnnotations, numeralAnnotations) match {
-          case (Nil, Nil) =>
-            // todo: Test for other keywords
+        val keywordAnnotations = enodes.filter {
+          case ENode(Keyword(_, _, _), _, _) => true
+          case _ => false
+        }
+
+        (directAnnotations, numeralAnnotations, keywordAnnotations) match {
+          case (Nil, Nil, Nil) =>
+            // todo: If there are no indications, use prior knowledge
             ???
 
-          case (Nil, _) =>
-            // Infer direct annotations with the numeral ones
+          case (Nil, some, Nil) =>
+            // If there are only numeral annotations, infer direct annotations
             val enodes2 = enodes.map {
               case ENode(Numeration(numbers, original, oText), depth, node) =>
                 val newStruct = original.map(_.toLowerCase) match {
@@ -70,10 +76,136 @@ class V1 {
             }
             processBook(toc, enodes2)
 
-          case _ =>
-            // We have direct annotations!
+          case (Nil, _, some) =>
+            // If there are some keyword annotation and no direct annotations
+            // Use them no matter if there is also any numeral annotations
+            processKeywords(toc, enodes)
+
+          case (some, _, _) =>
+            // We have direct annotations! Use them
             processBook(toc, enodes)
         }
+    }
+  }
+
+  def processKeywords(toc: Toc, enodes: List[ENode])
+  : Toc = {
+
+    // Define assignments between levels and keywordKinds
+    // Kinds are elected by majority
+    val keywordsAndLevels: List[(KeywordTokenKind, Int)] =
+      enodes.flatMap {
+        case ENode(Keyword(kind, _, _), level, _) => List((kind, level))
+        case _ => Nil
+      }
+
+    val assignments: Map[Int, Option[KeywordTokenKind]] =
+      (0 until toc.depth).map {
+        case level =>
+          keywordsAndLevels.filter(_._2 == level) match {
+            case Nil => (level, None)
+            case xs =>
+              val groups = xs.groupBy(_._1).toList
+              val best = groups.sortBy(-_._2.size).head
+              (level, Some(best._1))
+          }
+      }.toMap
+
+    // Prettify recursively
+    toc.copy(nodes = prettifyKeywords(
+      toc.nodes,
+      assignments,
+      enodes.map(e => (e.node, e)).toMap,
+      None,
+      "1",
+      0
+    ))
+  }
+
+  def prettifyKeywords(nodes: List[Node],
+                       assignments: Map[Int, Option[KeywordTokenKind]],
+                       enodesMap: Map[Node, ENode],
+                       oKind: Option[String],
+                       num: String,
+                       level: Int)
+  : List[Node] = {
+    // Are we forced to use a defined kind?
+    oKind match {
+      case None =>
+        // No
+        // Do we have a kind assigned to this level?
+        val oLevelKind = assignments(level).map {
+          case WEEKKIND => "Week"
+          case SESSIONKIND => "Session"
+          case QUIZKIND => "Quiz"
+          case EXERCISEKIND => "Exercise"
+          case EXAMKIND => "Exam"
+          case UNITKIND => "Unit"
+          case _ => "Module"
+        }
+
+        nodes.foldLeft(num, List[Node]()) {
+          case ((currentNum, acc), node) =>
+            val enode = enodesMap(node)
+
+            val decidedNum = oLevelKind match {
+              case None => currentNum
+              case Some(_) =>
+                enode.struct match {
+                  case Keyword(_, Some(x), _) => x.toString
+                  case _ => currentNum
+                }
+            }
+
+            // Update the children
+            val newChildren = prettifyKeywords(
+              node.children,
+              assignments,
+              enodesMap,
+              oLevelKind,
+              s"$decidedNum.1",
+              level + 1
+            )
+
+            // Update the current node
+            val newNode = node.copy(children = newChildren, oPointer = Some(
+              Pointer(
+                PointerNameType.Keyword,
+                s"${oLevelKind.getOrElse("Module")} $decidedNum",
+                extractText(enode.struct).getOrElse(""))
+            ))
+
+            // Produce the next num
+            (Eci.succ(decidedNum), acc ::: List(newNode))
+        }._2
+
+      case Some(kind) =>
+        // Yes, we should use this kind
+        nodes.foldLeft(num, List[Node]()) {
+          case ((currentNum, acc), node) =>
+            val enode = enodesMap(node)
+
+            // Update the children
+            val newChildren = prettifyKeywords(
+              node.children,
+              assignments,
+              enodesMap,
+              oKind,
+              s"$currentNum.1",
+              level + 1
+            )
+
+            // Update the current node
+            val newNode = node.copy(children = newChildren, oPointer = Some(
+              Pointer(
+                PointerNameType.Keyword,
+                s"$kind $currentNum",
+                extractText(enode.struct).getOrElse(""))
+            ))
+
+            // Produce the next num
+            (Eci.succ(currentNum), acc ::: List(newNode))
+        }._2
     }
   }
 
@@ -81,17 +213,8 @@ class V1 {
   : Toc = {
     val pairs = enodes.map(e => (e.node, e.depth))
 
-    // todo: delete
-    println(s"enodes")
-    enodes.map {
-      case e => println((e.depth, e.struct))
-    }
-
     // Process the toc
     val depthX = pairs.map(_._2).max + 1
-
-    // todo: delete
-    println(s"depth: $depthX")
 
     /*
      * -2: Numeration
@@ -115,16 +238,9 @@ class V1 {
         (depth, -1)
     }
 
-
-    // todo: delete
-    println(s"elements: \n $elements")
-
     // Count how many elements are on each diagonals
     val diagonals = getDiagonals(depthX, 3) // Consider elements [0, 1, 2]
 
-
-    // todo: delete
-    println("diagonals")
     diagonals.foreach {
       case diagonal => println(diagonal)
     }
@@ -141,17 +257,10 @@ class V1 {
         (diagonal, count)
     }
 
-    // todo: delete
-    println("counts")
-    counts.map(println)
-
     // Select the best diagonal
     val best = counts.sortBy {
-      case (diag, count) => (-count, -diag.size)
+      case (xs, count) => (-count, -xs.size)
     }.head
-
-    // todo: delete
-    println(s"best: $best")
 
     val diag = best._1
 
@@ -170,23 +279,11 @@ class V1 {
         }
     }.toMap
 
-    // todo: delete
-    println(s"assignments")
-    assignments.map(println)
-
     // Prettify the nodes
     val extractions = enodes.map {
       case ENode(struct, _, node) =>
         (node, struct)
     }.toMap
-
-    // todo: delete
-    println(s"extractions:")
-    extractions.foreach {
-      case (node, struct) =>
-        println(s"${node.label}: $struct")
-    }
-
 
     val numeration = diag.sortBy(_._1).head match {
       case (_, y) => y match {
@@ -194,9 +291,6 @@ class V1 {
         case _ => "1"
       }
     }
-
-    // todo: delete
-    println(s"numeration $numeration")
 
     val (newNodes, _) = prettify(
       assignments,
@@ -269,6 +363,7 @@ class V1 {
     case Chapter(_, x) => x
     case Section(_, x) => x
     case Unknown(x) => Some(x)
+    case Keyword(_, _, x) => x
     case Numeration(_, _, x) => x
   }
 

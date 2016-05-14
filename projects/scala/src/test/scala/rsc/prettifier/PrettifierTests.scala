@@ -203,14 +203,14 @@ class PrettifierTests extends FlatSpec with Matchers {
 | Chapter 2: Advanced topics
 | ..Section 2.1: Generic algorithms
 | ....Section 2.1.1: Sorting lists
-| ......Section 2.1.1.1: Descending
+| ......Section 2.1.1.1: Part descending
 | ......Section 2.1.1.2: Ascending
 | ....Section 2.1.2: Finding cliques
 | ..Section 2.2: Advanced data structures
 | Chapter 3: Finally
 | ..Section 3.1: Discussion
 | ....Section 3.1.1: Controversies
-| ......Section 3.1.1.1: Philosphy
+| ......Section 3.1.1.1: Part philosphy
 | ....Section 3.1.2: Last part compromises"""
 
     newToc.toString shouldEqual expected
@@ -443,6 +443,41 @@ class PrettifierTests extends FlatSpec with Matchers {
 | ....Section 1.1: Controversies
 | ......Section 1.1.1: Philosphy
 | ....Section 1.2: Last part compromises"""
+
+    newToc.toString shouldEqual expected
+  }
+
+  "Toc with keywords 1" should "be recognized" in {
+    val toc = new Toc(List(
+      Node("Week 1. Introduction", children = List(
+        Node("i. About us"),
+        Node("ii. About the field")
+      )),
+      Node("Week 2. Advanced topics", children = List(
+        Node("1. Generic algorithms", children = List(
+          Node("Sorting lists", children = List(
+            Node("Descending"),
+            Node("Ascending")
+          )),
+          Node("Finding cliques")
+        )),
+        Node("2. Advanced data structures")
+      )),
+      Node("Final words")
+    ))
+
+    val newToc = prettifier.process(toc)
+    val expected = """| Week 1: introduction
+| ..Week 1.1: about us
+| ..Week 1.2: about the field
+| Week 2: advanced topics
+| ..Week 2.1: generic algorithms
+| ....Week 2.1.1: sorting lists
+| ......Week 2.1.1.1: descending
+| ......Week 2.1.1.2: ascending
+| ....Week 2.1.2: finding cliques
+| ..Week 2.2: advanced data structures
+| Week 3: final words"""
 
     newToc.toString shouldEqual expected
   }

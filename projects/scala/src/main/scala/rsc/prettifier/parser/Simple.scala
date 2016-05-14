@@ -43,14 +43,6 @@ object Simple {
         // Part x ...
         instanciate(bp, Some(ns.last), Some(mkText(xs)))
 
-      case BookPart(bp)::WHITESPACE(_)::SEPARATOR(_)::xs =>
-        // Part : ... Part , ... Part ; ... Part :...
-        instanciate(bp, None, Some(mkText(trim(xs))))
-
-      case BookPart(bp)::WHITESPACE(_)::xs =>
-        // Part ...
-        instanciate(bp, None, Some(mkText(xs)))
-
 
       /* Kinded, Numeration, .. */
       case BookPart(bp)::NUMERATION(ns, _)::WHITESPACE(_)::xs =>
@@ -64,12 +56,6 @@ object Simple {
       case BookPart(bp)::NUMERATION(ns, _)::SEPARATOR(_)::xs =>
         // Partx:...
         instanciate(bp, Some(ns.last), Some(mkText(xs)))
-
-
-      /* Kinded, .. */
-      case BookPart(bp)::SEPARATOR(_)::xs =>
-        // Part: ... Part, ... Part; ... Part:...
-        instanciate(bp, None, Some(mkText(trim(xs))))
 
       /* Numeration, .. */
       case NUMERATION(ns, os)::SEPARATOR(":")::WHITESPACE(_)::xs =>
@@ -96,10 +82,6 @@ object Simple {
       case KeywordToken(kt)::WHITESPACE(_)::NUMERATION(ns, os)::WHITESPACE(_)::xs =>
         // Week 1 .., Week 1. ..
         Keyword(kt, Some(ns.last), Some(mkText(xs)))
-
-      case KeywordToken(kt)::WHITESPACE(_)::WHITESPACE(_)::xs =>
-        // Week ..
-        Keyword(kt, None, Some(mkText(xs)))
 
       case KeywordToken(kt)::NUMERATION(ns, os)::SEPARATOR(":")::WHITESPACE(_)::xs =>
         // Week1: ..

@@ -7,6 +7,12 @@ case class Toc(nodes: Nodes) {
     (node, offset)::node.childrenWithDepth(offset + 1)
   })
 
+  // Warning, it is expressed in number of levels
+  def depth(): Int = nodes match {
+    case Nil => 0
+    case xs => xs.map(_.depth(1)).max
+  }
+
   def nodesRec(): Nodes = nodesWithDepth().map(_._1)
 
   def rawString(): String = nodes.map(node => {

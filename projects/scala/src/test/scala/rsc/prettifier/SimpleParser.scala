@@ -23,7 +23,6 @@ class SimpleParser extends FlatSpec with Matchers {
     (s"$tag ii: $sampleText", parser.Simple.instanciate(btk, Some(2), Some(sampleText))),
     (s"$tag II: $sampleText", parser.Simple.instanciate(btk, Some(2), Some(sampleText))),
     (s"$tag 3.II: $sampleText", parser.Simple.instanciate(btk, Some(2), Some(sampleText))),
-    (s"$tag $sampleText", parser.Simple.instanciate(btk, None, Some(sampleText))),
     (s"$tag 3. $sampleText", parser.Simple.instanciate(btk, Some(3), Some(sampleText))),
     (s"${tag}3 $sampleText", parser.Simple.instanciate(btk, Some(3), Some(sampleText))),
     (s"${tag}3: $sampleText", parser.Simple.instanciate(btk, Some(3), Some(sampleText))),

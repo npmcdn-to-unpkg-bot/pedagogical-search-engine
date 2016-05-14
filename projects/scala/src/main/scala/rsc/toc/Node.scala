@@ -10,6 +10,12 @@ case class Node(label: String,
                 oIndices: Option[Indices] = None,
                 oPointer: Option[Pointer] = None) {
 
+  // Warning, it is expressed in number of levels
+  def depth(offset: Int = 1): Int = children match {
+    case Nil => offset
+    case xs => xs.map(_.depth(offset + 1)).max
+  }
+
   def childrenRec(): Nodes = childrenWithDepth().map(_._1)
 
   def childrenWithDepth(offset: Int = 0): List[(Node, Int)] = {
