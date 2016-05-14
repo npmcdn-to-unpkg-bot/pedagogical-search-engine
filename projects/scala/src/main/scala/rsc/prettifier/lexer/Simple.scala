@@ -43,7 +43,17 @@ object Simple {
         case "unit" => new Token(UNITKIND)
         case "module" => new Token(MODULEKIND)
 
-        case Eci(xs) => NUMERATION(xs.map(NumeralSystem.asInt), xs)
+        case Eci(xs) =>
+          val xsInted = xs.map {
+            // c, d are commonly used to numerate (e.g. a,b,c,d)
+            // and should not be considered as roman numerals
+            case x if x.equals("c") | x.equals("d") =>
+              NumeralSystem.alphaToInt(x)
+
+            case x => NumeralSystem.asInt(x)
+          }
+          NUMERATION(xsInted, xs)
+
         case _ => TEXT(word)
       }
     }

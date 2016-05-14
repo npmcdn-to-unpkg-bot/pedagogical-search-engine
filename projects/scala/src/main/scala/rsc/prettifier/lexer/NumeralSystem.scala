@@ -27,8 +27,8 @@ object NumeralSystem {
   }
 
   def asInt(s: String): Int = s.toUpperCase() match {
-    case alphabeticalUpper() => alphaToInt(s)
     case romanUpper() => romanToInt(s)
+    case alphabeticalUpper() => alphaToInt(s)
     case _ => Integer.valueOf(s)
   }
 
