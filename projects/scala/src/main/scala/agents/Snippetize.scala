@@ -1,123 +1,54 @@
 package agents
 
 import java.io.File
-import java.util.concurrent.Executors
 
+import agents.helpers.FileExplorer
 import org.json4s.native.JsonMethods._
 import rsc.indexers.Indexer
+import rsc.snippets.Simple
 import rsc.writers.Json
 import rsc.{Formatters, Resource}
-import utils.{Files, Logger, Settings}
-import rsc.snippets.{Simple, Snippetizer}
 
-import scala.concurrent.duration._
-import scala.concurrent.{Await, ExecutionContext, Future}
-import scala.util.Success
+import scala.concurrent.{ExecutionContext, Future}
 
-object Snippetize extends Formatters {
-  def main(args: Array[String]): Unit = {
+object Snippetize extends App with Formatters {
+  // Create the file explorer
+  val explorer = new FileExplorer("snippetizer", forceProcess = true)
 
-    // Initialize
-    val start = System.nanoTime()
-    val settings = new Settings()
-    val snippetizer = new Simple()
+  // Create the snippetizer
+  val snippetizer = new Simple()
 
-    // Create the thread pools
-    val cores: Int = Runtime.getRuntime().availableProcessors()
-    val tasksQueue = ExecutionContext.
-      fromExecutor(Executors.newFixedThreadPool(cores))
+  // Define how each file is processed
+  def process(file: File, ec: ExecutionContext): Future[Unit] = {
+    // Open the resource
+    val json = parse(file)
+    val r = json.extract[Resource]
+    val absolute = file.getAbsolutePath
 
-    Logger.info(s"Start indexing: #tasks=#cores=${cores}")
-
-    // For each resource-file
-    val futures = Files.explore(
-      new File(settings.Resources.folder)).flatMap(file => {
-      val name = file.file.getAbsolutePath
-
-      try {
-        // Parse it
-        val json = parse(file.file)
-        val r = json.extract[Resource]
-
-        // Was it already indexed?
-        val indexed = r.oIndexer match {
-          case None => false
-          case Some(i) => i match {
-            case Indexer.Graph => true
-            case _ => false
-          }
-        }
-        val snippetized = r.oSnippetizer match {
-          case None => false
-          case Some(i) => i match {
-            case Snippetizer.Simple => true
-            case _ => false
-          }
-        }
-
-        // Test minimal conditions
-        (indexed, snippetized) match {
-          case (false, _) => {
-            Logger.info(s"Skipping - Resource not indexed: $name")
-            Nil
-          }
-          case (_, true) => {
-            Logger.info(s"Skipping - Resource already snippetized: $name")
-            Nil
-          }
-          case (true, false) => {
-            val future = Future {
-              Logger.info(s"Processing ${file.file.getAbsolutePath}")
-
-              try {
-                //  Snippetize
-                val newR = snippetizer.snippetize(r)
-
-                // Write the result
-                Json.write(newR, Some(file.file.getAbsolutePath))
-                Logger.info(s"OK: $name")
-
-                // Everything went OK
-                true
-              } catch {
-                // In something went wrong
-                case e: Throwable => {
-                  val error = e.getClass.getName
-                  e.printStackTrace()
-                  Logger.error(s"Failed($error): $name")
-                  false
-                }
-              }
-            }(tasksQueue)
-
-            List(future)
-          }
-        }
-      } catch {
-        case e => {
-          Logger.info(s"Cannot parse: $name")
-          Nil
-        }
+    // Was it already indexed?
+    val indexed = r.oIndexer match {
+      case None => false
+      case Some(i) => i match {
+        case Indexer.Graph => true
+        case _ => false
       }
-    })
+    }
 
-    val merge = Future.sequence(futures)(implicitly, tasksQueue)
-    val finalize = merge.andThen({
-      case Success(xs) => {
-        // Measure execution time
-        val stop = System.nanoTime()
-        val elapsed = (stop - start) / (1000*1000*1000) // in seconds
+    indexed match {
+      case false =>
+        Future.failed(new Exception(s"Resource not indexed: $absolute"))
 
-        // Log success
-        val succeeded = xs.filter(b => b).size
-        val failed = xs.size - succeeded
-        Logger.info(s"Finished globally: succeeded($succeeded), failed($failed), elapsed(${elapsed}s)")
+      case true =>
+        //  Snippetize
+        val newR = snippetizer.snippetize(r)
 
-        // todo: Fix this - it should exit automatically
-        System.exit(0)
-      }
-    })(tasksQueue)
+        // Write the result
+        Json.write(newR, Some(absolute))
 
-    Await.result(finalize, 10 days)
+        Future.successful()
+    }
+
   }
+
+  explorer.launch(process)
 }
