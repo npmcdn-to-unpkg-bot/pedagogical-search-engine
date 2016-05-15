@@ -12,7 +12,8 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 
 class FileExplorer(jobName: String = Calendar.getInstance.getTime.toString,
                    nbTasks: Int = Runtime.getRuntime.availableProcessors(),
-                   settings: Settings = new Settings()
+                   settings: Settings = new Settings(),
+                   forceProcess: Boolean = false
                   ) {
   
   def launch(process: (File, ExecutionContext) => Future[Any])
@@ -33,11 +34,23 @@ class FileExplorer(jobName: String = Calendar.getInstance.getTime.toString,
     // Create a monitoring system
     var shutDownMonitoring = false
 
-    val totCounter = new AtomicInteger(0)
+    val okCounter = new AtomicInteger(0)
     val skippedCounter = new AtomicInteger(0)
+    val exceptionCounter = new AtomicInteger(0)
 
     val monitoring = Future {
       val waitedMs = new AtomicInteger(0)
+
+      def displayStatistics() = {
+        val ok = okCounter.get()
+        val skipped = skippedCounter.get()
+        val exception = exceptionCounter.get()
+
+        val tot = ok + skipped + exception
+
+        // Log the stats
+        Logger.info(s"Statistics(rsc/min): tot=$tot (ok=$ok, skipped=$skipped, exception=$exception)")
+      }
 
       while(!shutDownMonitoring) {
         val sleepMs = 1 * 1000
@@ -46,14 +59,11 @@ class FileExplorer(jobName: String = Calendar.getInstance.getTime.toString,
 
         if(waited > 60 * 1000) {
           waitedMs.getAndSet(0)
-          val tot = totCounter.get()
-          val skipped = skippedCounter.get()
-
-          // Log the stats
-          Logger.info(s"Monitoring(rsc/min): tot=$tot, skipped=$skipped")
+          displayStatistics()
         }
       }
-      Logger.info(s"Monitoring was shut down. tot=${totCounter.get()}, skipped=${skippedCounter.get()}")
+      displayStatistics()
+      Logger.info(s"Monitoring was shut down.")
       true
     }(utilsQueue)
 
@@ -88,7 +98,7 @@ class FileExplorer(jobName: String = Calendar.getInstance.getTime.toString,
         // Check whether the file was already processed
         val donePath = s"${output.getAbsolutePath}/${file.getName}.done"
 
-        new File(donePath).exists() match {
+        !forceProcess && new File(donePath).exists() match {
           case true =>
             Logger.info(s"Skipping, already processed: ${file.getName}")
             skippedCounter.incrementAndGet()
@@ -109,17 +119,24 @@ class FileExplorer(jobName: String = Calendar.getInstance.getTime.toString,
                * and since each process takes memory, we might run out
                * of memory.
                */
-              val future = process(file, workingQueue)
-              Await.result(future, Duration.Inf)
-            }(tasksQueue)
+              try {
+                val future = process(file, workingQueue)
+                Await.result(future, Duration.Inf)
 
-            // Indicate that we are done
-            Files.write("", donePath)
-            totCounter.incrementAndGet()
+                // Indicate that we are done
+                Files.write("", donePath)
+                okCounter.incrementAndGet()
+              } catch {
+                case e: Throwable =>
+                  exceptionCounter.incrementAndGet()
+                  Logger.info(s"File Explorer: A process throwed an exeption with this message: ${e.getMessage}")
+              }
+            }(tasksQueue)
         }
       }
     } catch {
       case e: Throwable =>
+        // Fatal error (for the file explorer)
         Logger.error(s"File Explorer got an error: ${e.getMessage}")
     }
 
