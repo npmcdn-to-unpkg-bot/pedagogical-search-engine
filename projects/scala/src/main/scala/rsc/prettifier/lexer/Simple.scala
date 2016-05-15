@@ -31,7 +31,17 @@ object Simple {
         case ";" => SEPARATOR(";")
         case SpaceRegex(x) => WHITESPACE(x)
 
-        case "part" => new Token(PART)
+
+        case "part" =>
+          /*
+           * It could also be the keyword "part" that appear
+           * as a keyword in an online course.
+           * This annotations is by default referring to books and
+           * later stages may take into account some prior knowledge
+           * and decide to change the interpretation.
+           */
+          new Token(PART)
+
         case "chapter" => new Token(CHAPTER)
         case "section" => new Token(SECTION)
 

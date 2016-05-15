@@ -56,6 +56,10 @@ object Tokens {
     def rawString = "module-kind"
   }
 
+  object PARTKEYWORDKIND extends KeywordTokenKind {
+    def rawString = "part-keyword-kind"
+  }
+
 
   object NUMERATIONKIND extends TokenKind {
     def rawString = "numeration-kind"
@@ -87,6 +91,7 @@ object Tokens {
       case EXAMKIND => Some(EXAMKIND)
       case UNITKIND => Some(UNITKIND)
       case MODULEKIND => Some(MODULEKIND)
+      case PARTKEYWORDKIND => Some(PARTKEYWORDKIND)
       case _ => None
     }
   }

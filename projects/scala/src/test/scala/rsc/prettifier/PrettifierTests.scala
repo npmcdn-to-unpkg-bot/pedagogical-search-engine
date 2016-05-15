@@ -355,7 +355,7 @@ class PrettifierTests extends FlatSpec with Matchers {
     newToc.toString shouldEqual expected
   }
 
-  "Partial toc 8" should "be recognized" in {
+  "Book toc 8" should "be recognized" in {
     val toc = new Toc(List(
       Node("Part i: Introduction", children = List(
         Node("About us"),
@@ -382,21 +382,21 @@ class PrettifierTests extends FlatSpec with Matchers {
     ))
 
     val newToc = prettifier.process(toc)
-    val expected = """| Part i: Introduction
-| ..Chapter 1: About us
-| ..Chapter 2: About the field
-| Part ii: Advanced topics
-| ..Chapter 1: Eneric algorithms
-| ....Section 1.1: Sorting lists
-| ......Section 1.1.1: Descending
-| ......Section 1.1.2: Ascending
-| ....Section 1.2: Finding cliques
-| ..Chapter 2: Advanced data structures
-| Part iii: Finally
-| ..Chapter 1: Discussion
-| ....Section 1.1: Controversies
-| ......Section 1.1.1: Philosphy
-| ....Section 1.2: Last part compromises"""
+    val expected = """| Introduction
+| ..Part i: About us
+| ..Part ii: About the field
+| Advanced topics
+| ..Part iii: Eneric algorithms
+| ....Chapter 1: Sorting lists
+| ......Section 1.1: Descending
+| ......Section 1.2: Ascending
+| ....Chapter 2: Finding cliques
+| ..Part iv: Advanced data structures
+| Finally
+| ..Part v: Discussion
+| ....Chapter 1: Controversies
+| ......Section 1.1: Philosphy
+| ....Chapter 2: Last part compromises"""
 
     newToc.toString shouldEqual expected
   }
@@ -515,6 +515,33 @@ class PrettifierTests extends FlatSpec with Matchers {
 | ..Week 5: advanced data structures
 | ..Week 6: advanced data structures
 | Module 3: final words"""
+
+    newToc.toString shouldEqual expected
+  }
+
+  "Toc with keywords 3" should "be recognized" in {
+    val toc = new Toc(List(
+      Node("Part 1 Introduction", children = List(
+        Node("Session ii About us"),
+        Node("Quiz 1 About the field")
+      )),
+      Node("Part 2 Advanced topics", children = List(
+        Node("Session ii Generic algorithms"),
+        Node("Week 5 Advanced data structures"),
+        Node("Advanced data structures")
+      )),
+      Node("Module 3 Final words")
+    ))
+
+    val newToc = prettifier.process(toc, forceKeywordMode = true)
+    val expected = """| Part 1: introduction
+| ..Part 1.1: about us
+| ..Part 1.2: about the field
+| Part 2: advanced topics
+| ..Part 2.1: generic algorithms
+| ..Part 2.2: advanced data structures
+| ..Part 2.3: advanced data structures
+| Part 3: final words"""
 
     newToc.toString shouldEqual expected
   }

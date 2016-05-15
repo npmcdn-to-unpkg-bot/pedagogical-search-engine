@@ -17,8 +17,10 @@ class V1 {
   : Structure =
     parser.Simple.process(lexer.Simple.process(s))
 
-  def process(toc: Toc)
-  : Toc = {
+  def process(toc: Toc,
+              forceKeywordMode: Boolean = false,
+              forceBookMode: Boolean = false)
+  : Toc =
     toc.nodesWithDepth(offset = 0) match {
       case Nil => toc
       case pairs =>
@@ -28,68 +30,69 @@ class V1 {
             ENode(extract(node.label), depth, node)
         }
 
-        /*
-         * If there are no direct annotations like chapters, etc..
-         * Check if there are numeral indications or keywords
-         * e.g. 1. , 1.1, ..
-         */
-        val directAnnotations = enodes.filter {
-          case ENode(Part(_, _), _, _) => true
-          case ENode(Chapter(_, _), _, _) => true
-          case ENode(Section(_, _), _, _) => true
-          case _ => false
+        if(forceKeywordMode) {
+          processKeywords(toc, enodes)
+        } else if (forceBookMode) {
+          processBook(toc, enodes)
+        } else {
+          processGuess(toc, enodes)
         }
+  }
 
-        val numeralAnnotations = enodes.filter {
-          case ENode(Numeration(_, _, _), _, _) => true
-          case _ => false
-        }
+  private def processGuess(toc: Toc,
+                   enodes: List[ENode]) = {
+    /*
+     * If there are no direct annotations like chapters, etc..
+     * Check if there are numeral indications or keywords
+     * e.g. 1. , 1.1, ..
+     */
+    val directAnnotations = enodes.filter {
+      case ENode(Part(_, _), _, _) => true
+      case ENode(Chapter(_, _), _, _) => true
+      case ENode(Section(_, _), _, _) => true
+      case _ => false
+    }
 
-        val keywordAnnotations = enodes.filter {
-          case ENode(Keyword(_, _, _), _, _) => true
-          case _ => false
-        }
+    val numeralAnnotations = enodes.filter {
+      case ENode(Numeration(_, _, _), _, _) => true
+      case _ => false
+    }
 
-        (directAnnotations, numeralAnnotations, keywordAnnotations) match {
-          case (Nil, Nil, Nil) =>
-            // todo: If there are no indications, use prior knowledge
-            ???
+    val keywordAnnotations = enodes.filter {
+      case ENode(Keyword(_, _, _), _, _) => true
+      case _ => false
+    }
 
-          case (Nil, some, Nil) =>
-            // If there are only numeral annotations, infer direct annotations
-            val enodes2 = enodes.map {
-              case ENode(Numeration(numbers, original, oText), depth, node) =>
-                val newStruct = original.map(_.toLowerCase) match {
-                  case NumeralSystem.romanlower()::xs => xs.size match {
-                    case 0 => Part(Some(numbers.last), oText)
-                    case 1 => Chapter(Some(numbers.last), oText)
-                    case _ => Section(Some(numbers.last), oText)
-                  }
-                  case xs => xs.size match {
-                    case 1 => Chapter(Some(numbers.last), oText)
-                    case _ => Section(Some(numbers.last), oText)
-                  }
-                }
-                ENode(newStruct, depth, node)
+    (directAnnotations, numeralAnnotations, keywordAnnotations) match {
+      case (Nil, Nil, Nil) =>
+        // todo: If there are no indications, use prior knowledge
+        ???
 
-              case x => x
-            }
-            processBook(toc, enodes2)
+      case (Nil, some, Nil) =>
+        // If there are only numeral annotations, infer direct annotations
+        processBook(toc, enodes)
 
-          case (Nil, _, some) =>
-            // If there are some keyword annotation and no direct annotations
-            // Use them no matter if there is also any numeral annotations
-            processKeywords(toc, enodes)
+      case (Nil, _, some) =>
+        // If there are some keyword annotation and no direct annotations
+        // Use them no matter if there is also any numeral annotations
+        processKeywords(toc, enodes)
 
-          case (some, _, _) =>
-            // We have direct annotations! Use them
-            processBook(toc, enodes)
-        }
+      case (some, _, _) =>
+        // We have direct annotations! Use them
+        processBook(toc, enodes)
     }
   }
 
-  def processKeywords(toc: Toc, enodes: List[ENode])
+  private def processKeywords(toc: Toc, _enodes: List[ENode])
   : Toc = {
+
+    // Convert book "Part" annotation into the keyword "Part"..
+    val enodes = _enodes.map {
+      case ENode(Part(oNumer, oText), depth, node) =>
+        ENode(Keyword(PARTKEYWORDKIND, oNumer, oText), depth, node)
+
+      case x => x
+    }
 
     // Define assignments between levels and keywordKinds
     // Kinds are elected by majority
@@ -122,7 +125,7 @@ class V1 {
     ))
   }
 
-  def prettifyKeywords(nodes: List[Node],
+  private def prettifyKeywords(nodes: List[Node],
                        assignments: Map[Int, Option[KeywordTokenKind]],
                        enodesMap: Map[Node, ENode],
                        oKind: Option[String],
@@ -141,6 +144,7 @@ class V1 {
           case EXERCISEKIND => "Exercise"
           case EXAMKIND => "Exam"
           case UNITKIND => "Unit"
+          case PARTKEYWORDKIND => "Part"
           case _ => "Module"
         }
 
@@ -219,8 +223,26 @@ class V1 {
     }
   }
 
-  def processBook(toc: Toc, enodes: List[ENode])
+  private def processBook(toc: Toc, _enodes: List[ENode])
   : Toc = {
+    val enodes = _enodes.map {
+      case ENode(Numeration(numbers, original, oText), depth, node) =>
+        val newStruct = original.map(_.toLowerCase) match {
+          case NumeralSystem.romanlower()::xs => xs.size match {
+            case 0 => Part(Some(numbers.last), oText)
+            case 1 => Chapter(Some(numbers.last), oText)
+            case _ => Section(Some(numbers.last), oText)
+          }
+          case xs => xs.size match {
+            case 1 => Chapter(Some(numbers.last), oText)
+            case _ => Section(Some(numbers.last), oText)
+          }
+        }
+        ENode(newStruct, depth, node)
+
+      case x => x
+    }
+
     val pairs = enodes.map(e => (e.node, e.depth))
 
     // Process the toc
@@ -235,16 +257,18 @@ class V1 {
      * 2: Section
      */
     val elements = enodes.map {
-      case ENode(Part(_, _), depth, node) =>
+      case ENode(Part(_, _), depth, _) =>
         (depth, 0)
-      case ENode(Chapter(_, _), depth, node) =>
+      case ENode(Chapter(_, _), depth, _) =>
         (depth, 1)
-      case ENode(Section(_, _), depth, node) =>
+      case ENode(Section(_, _), depth, _) =>
         (depth, 2)
 
-      case ENode(Numeration(_, _, _), depth, node) =>
+      /*case ENode(Keyword(_, _, _), depth, _) =>
+        (depth, -3)
+      */case ENode(Numeration(_, _, _), depth, _) =>
         (depth, -2)
-      case ENode(Unknown(_), depth, node) =>
+      case ENode(Unknown(_), depth, _) =>
         (depth, -1)
     }
 
@@ -312,7 +336,7 @@ class V1 {
     toc.copy(nodes = newNodes)
   }
 
-  def prettify(assignments: Map[Int, PointerNameType.PointerName],
+  private def prettify(assignments: Map[Int, PointerNameType.PointerName],
                extractions: Map[Node, Structure],
                _nodes: List[Node],
                level: Int,
@@ -367,7 +391,7 @@ class V1 {
       (newNodes, lastNumeration)
   }
 
-  def extractText(struct: Structure)
+  private def extractText(struct: Structure)
   : Option[String] = struct match {
     case Part(_, x) => x
     case Chapter(_, x) => x
@@ -377,7 +401,7 @@ class V1 {
     case Numeration(_, _, x) => x
   }
 
-  def instantiate(pointerType: PointerNameType.PointerName,
+  private def instantiate(pointerType: PointerNameType.PointerName,
                   numeration: String,
                   oText: Option[String])
   : Pointer = {
@@ -395,7 +419,7 @@ class V1 {
     Pointer(pointerType, prefix, text)
   }
 
-  def getDiagonals(depthX: Int, depthY: Int)
+  private def getDiagonals(depthX: Int, depthY: Int)
   : List[Diagonal] = {
 
     def diagonal(startX: Int, startY: Int, acc: Diagonal = Nil)
