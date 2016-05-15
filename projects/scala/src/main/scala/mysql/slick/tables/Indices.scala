@@ -7,7 +7,8 @@ extends Table[Types.Indices](tag, "indices") {
   def uri = column[String]("Uri")
   def entryId = column[String]("EntryId")
   def score = column[Double]("Score")
-  def resourceId = column[String]("resourceId")
+  def resourceId = column[String]("ResourceId")
+  def typeText = column[String]("TypeText")
 
-  override def * = (uri, entryId, score, resourceId)
+  override def * = (uri, entryId, score, resourceId, typeText)
 }

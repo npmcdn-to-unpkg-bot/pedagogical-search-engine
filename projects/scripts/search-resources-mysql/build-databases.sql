@@ -19,6 +19,7 @@ CREATE TABLE `indices` (
   `EntryId` CHAR(36) CHARACTER SET 'utf8' NOT NULL,
   `Score` DOUBLE NULL,
   `ResourceId` CHAR(36) CHARACTER SET 'utf8' NOT NULL,
+  `TypeText` VARCHAR(255) CHARACTER SET 'utf8' NULL,
 PRIMARY KEY (`Uri`, `EntryId`));
 
 Drop
@@ -29,7 +30,6 @@ Drop
 CREATE TABLE `details` (
   `EntryId` CHAR(36) CHARACTER SET 'utf8' NOT NULL,
   `Title` VARCHAR(255) CHARACTER SET 'utf8' NULL,
-  `Type` VARCHAR(255) CHARACTER SET 'utf8' NULL,
   `Href` TEXT CHARACTER SET 'utf8' NULL,
   `Snippet` TEXT CHARACTER SET 'utf8' NULL,
 PRIMARY KEY (`EntryId`));

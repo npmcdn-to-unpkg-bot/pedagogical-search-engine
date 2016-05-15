@@ -10,6 +10,7 @@ extends Table[Types.CacheEntry](tag, "cache-entries") {
   def entryId = column[String]("EntryId")
   def rank = column[Int]("Rank")
   def source = column[String]("Source")
+  def typeText = column[String]("TypeText")
 
-  override def * = (autoId, searchHash, entryId, rank, source)
+  override def * = (autoId, searchHash, entryId, rank, source, typeText)
 }
