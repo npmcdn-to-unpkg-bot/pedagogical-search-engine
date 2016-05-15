@@ -16,7 +16,7 @@ class FileExplorer(jobName: String = Calendar.getInstance.getTime.toString,
                    forceProcess: Boolean = false
                   ) {
   
-  def launch(process: (File, ExecutionContext) => Future[Any])
+  def launch(process: (File, ExecutionContext) => Future[Unit])
   : Unit = {
 
     val start = System.nanoTime()
@@ -94,13 +94,14 @@ class FileExplorer(jobName: String = Calendar.getInstance.getTime.toString,
 
       while(it.hasNext) {
         val file = it.next().asInstanceOf[File]
+        val absolutePath = file.getAbsolutePath
 
         // Check whether the file was already processed
         val donePath = s"${output.getAbsolutePath}/${file.getName}.done"
 
         !forceProcess && new File(donePath).exists() match {
           case true =>
-            Logger.info(s"Skipping, already processed: ${file.getName}")
+            Logger.info(s"Skipping, already processed: $absolutePath")
             skippedCounter.incrementAndGet()
 
           case false =>
@@ -126,10 +127,12 @@ class FileExplorer(jobName: String = Calendar.getInstance.getTime.toString,
                 // Indicate that we are done
                 Files.write("", donePath)
                 okCounter.incrementAndGet()
+                Logger.info(s"File Explorer: File OK: $absolutePath")
               } catch {
                 case e: Throwable =>
                   exceptionCounter.incrementAndGet()
-                  Logger.info(s"File Explorer: A process throwed an exeption with this message: ${e.getMessage}")
+                  Logger.info(s"File Explorer: Processing file '$absolutePath' " +
+                    s"throwed an exeption with this message: ${e.getMessage}")
               }
             }(tasksQueue)
         }

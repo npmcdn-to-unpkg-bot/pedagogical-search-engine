@@ -265,9 +265,9 @@ class V1 {
       case ENode(Section(_, _), depth, _) =>
         (depth, 2)
 
-      /*case ENode(Keyword(_, _, _), depth, _) =>
+      case ENode(Keyword(_, _, _), depth, _) =>
         (depth, -3)
-      */case ENode(Numeration(_, _, _), depth, _) =>
+      case ENode(Numeration(_, _, _), depth, _) =>
         (depth, -2)
       case ENode(Unknown(_), depth, _) =>
         (depth, -1)
@@ -275,10 +275,6 @@ class V1 {
 
     // Count how many elements are on each diagonals
     val diagonals: List[Diagonal] = getDiagonals(depthX, 3) // Consider elements [0, 1, 2]
-
-    diagonals.foreach {
-      case diagonal => println(diagonal)
-    }
 
     val counts = diagonals.map {
       case diagonal =>
@@ -391,7 +387,6 @@ class V1 {
             case None => num
             case Some(x) => Eci.succ(x)
           }
-          println(s"newNode='${newNode.bestLabel()}', num=$num, newNum=$newNum, oNewLastNum=$oNewLastNum")
           (acc ::: List(newNode), newNum, oNewLastNum)
       }
       (newNodes, lastNumeration)
