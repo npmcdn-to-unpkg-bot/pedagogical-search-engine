@@ -1,20 +1,16 @@
 package rsc.importers
 
-import mysql.slick.tables.{Details, DictionaryDisambiguations, DictionaryRedirects, DictionaryTitles, Indices, Types}
-import rsc.{Formatters, Resource, Utils}
-import rsc.attributes.Source._
+import mysql.slick.tables.{Details, Indices, Types}
 import rsc.importers.Importer.{Importer, SlickMysql}
 import rsc.toc.{Node, Toc}
+import rsc.{Formatters, Resource, Utils}
 import slick.driver.MySQLDriver.api._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class SlickMysql(_ec: ExecutionContext, db: Database) extends Formatters {
+class SlickMysql(db: Database) extends Formatters {
 
-  implicit val ec: ExecutionContext = _ec
-
-
-  def importResource(r: Resource)
+  def importResource(r: Resource, ec: ExecutionContext)
   : Future[Resource] = {
     // Create the slick "table-queries"
     val indicesTQ = TableQuery[Indices]
@@ -50,7 +46,7 @@ class SlickMysql(_ec: ExecutionContext, db: Database) extends Formatters {
     r.title.oIndices match {
       case None => Nil
       case Some(indices) => indices.values.map {
-        case index => (index.uri, indices.entryId, index.score, r.resourceId)
+        case index => (index.uri, indices.entryId, index.score, r.resourceId, r.source.toString)
       }
     }
   }
@@ -59,14 +55,12 @@ class SlickMysql(_ec: ExecutionContext, db: Database) extends Formatters {
   : Seq[Types.Details] =
     r.title.oIndices match {
       case None => Nil
-      case Some(indices) => {
+      case Some(indices) =>
         // Collect the details
         val title = r.title.label
-        val typeVal = typeDetail(r)
         val href = hrefDetail(r)
         val snippet = getSnippetText(r.title.oIndices)
-        Seq((indices.entryId, title, typeVal, href, snippet))
-      }
+        Seq((indices.entryId, title, href, snippet))
     }
 
   def getSnippetText(oIndices: Option[rsc.indexers.Indices])
@@ -93,13 +87,11 @@ class SlickMysql(_ec: ExecutionContext, db: Database) extends Formatters {
   def nodeDetail(node: Node, r: Resource)
   : Seq[Types.Details] = node.oIndices match {
     case None => Nil
-    case Some(indices) => {
+    case Some(indices) =>
       val title = r.title.label
-      val typeVal = typeDetail(r)
       val href = hrefDetail(r)
       val snippet = getSnippetText(node.oIndices)
-      Seq((indices.entryId, title, typeVal, href, snippet))
-    }
+      Seq((indices.entryId, title, href, snippet))
   }
 
   def nodesIndices(r: Resource)
@@ -116,25 +108,15 @@ class SlickMysql(_ec: ExecutionContext, db: Database) extends Formatters {
 
   def nodeIndices(node: Node, r: Resource)
   : Seq[Types.Indices] = {
-    val snippet = getSnippetText(node.oIndices)
     node.oIndices match {
       case None => Nil
       case Some(indices) => indices.values.map {
-        case index => {
+        case index =>
           val uri = index.uri
           val score = index.score
-          (uri, indices.entryId, score, r.resourceId)
-        }
+          (uri, indices.entryId, score, r.resourceId, r.source.toString)
       }
     }
-  }
-
-  def typeDetail(r: Resource): String = r.source match {
-    case Coursera => "Coursera"
-    case Khan => "Khan Academy"
-    case MIT => "MIT"
-    case Safari => "Book"
-    case Scholarpedia => "Scholarpedia"
   }
 
   def hrefDetail(r: Resource): Option[String] = Utils.getUrl(r)
