@@ -16,7 +16,7 @@ class FileExplorer(jobName: String = Calendar.getInstance.getTime.toString,
                    forceProcess: Boolean = false
                   ) {
   
-  def launch(process: (File, ExecutionContext) => Future[Unit])
+  def launch(process: (File, ExecutionContext) => Future[Any])
   : Unit = {
 
     val start = System.nanoTime()
@@ -132,7 +132,7 @@ class FileExplorer(jobName: String = Calendar.getInstance.getTime.toString,
                 case e: Throwable =>
                   exceptionCounter.incrementAndGet()
                   Logger.info(s"File Explorer: Processing file '$absolutePath' " +
-                    s"throwed an exeption with this message: ${e.getMessage}")
+                    s"throwed an exeption(${e.getClass.getName}) with this message: ${e.getMessage}")
               }
             }(tasksQueue)
         }
