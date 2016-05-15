@@ -65,8 +65,7 @@ class V1 {
 
     (directAnnotations, numeralAnnotations, keywordAnnotations) match {
       case (Nil, Nil, Nil) =>
-        // todo: If there are no indications, use prior knowledge
-        ???
+        processKeywords(toc, enodes)
 
       case (Nil, some, Nil) =>
         // If there are only numeral annotations, infer direct annotations
@@ -131,96 +130,98 @@ class V1 {
                        oKind: Option[String],
                        num: String,
                        level: Int)
-  : List[Node] = {
-    // Are we forced to use a defined kind?
-    oKind match {
-      case None =>
-        // No
-        // Do we have a kind assigned to this level?
-        val oLevelKind = assignments(level).map {
-          case WEEKKIND => "Week"
-          case SESSIONKIND => "Session"
-          case QUIZKIND => "Quiz"
-          case EXERCISEKIND => "Exercise"
-          case EXAMKIND => "Exam"
-          case UNITKIND => "Unit"
-          case PARTKEYWORDKIND => "Part"
-          case _ => "Module"
-        }
+  : List[Node] = nodes match {
+    case Nil => Nil
+    case _ =>
+      // Are we forced to use a defined kind?
+      oKind match {
+        case None =>
+          // No
+          // Do we have a kind assigned to this level?
+          val oLevelKind = assignments(level).map {
+            case WEEKKIND => "Week"
+            case SESSIONKIND => "Session"
+            case QUIZKIND => "Quiz"
+            case EXERCISEKIND => "Exercise"
+            case EXAMKIND => "Exam"
+            case UNITKIND => "Unit"
+            case PARTKEYWORDKIND => "Part"
+            case _ => "Module"
+          }
 
-        nodes.foldLeft(num, false, List[Node]()) {
-          case ((currentNum, initialized, acc), node) =>
-            val enode = enodesMap(node)
+          nodes.foldLeft(num, false, List[Node]()) {
+            case ((currentNum, initialized, acc), node) =>
+              val enode = enodesMap(node)
 
-            val decidedNum = oLevelKind match {
-              case None => currentNum
-              case Some(_) => assignments(level).map {
-                case tkt =>
-                  val rescueNum = initialized match {
-                    case false => "1"
-                    case true => currentNum
-                  }
-
-                  enode.struct match {
-                    case Keyword(tkt2, Some(x), _) => tkt == tkt2 match {
-                      case true => x.toString
-                      case false => rescueNum
+              val decidedNum = oLevelKind match {
+                case None => currentNum
+                case Some(_) => assignments(level).map {
+                  case tkt =>
+                    val rescueNum = initialized match {
+                      case false => "1"
+                      case true => currentNum
                     }
-                    case _ => rescueNum
-                  }
-              }.getOrElse(currentNum)
-            }
 
-            // Update the children
-            val newChildren = prettifyKeywords(
-              node.children,
-              assignments,
-              enodesMap,
-              oLevelKind,
-              s"$decidedNum.1",
-              level + 1
-            )
+                    enode.struct match {
+                      case Keyword(tkt2, Some(x), _) => tkt == tkt2 match {
+                        case true => x.toString
+                        case false => rescueNum
+                      }
+                      case _ => rescueNum
+                    }
+                }.getOrElse(currentNum)
+              }
 
-            // Update the current node
-            val newNode = node.copy(children = newChildren, oPointer = Some(
-              Pointer(
-                PointerNameType.Keyword,
-                s"${oLevelKind.getOrElse("Module")} $decidedNum",
-                extractText(enode.struct).getOrElse(""))
-            ))
+              // Update the children
+              val newChildren = prettifyKeywords(
+                node.children,
+                assignments,
+                enodesMap,
+                oLevelKind,
+                s"$decidedNum.1",
+                level + 1
+              )
 
-            // Produce the next num
-            (Eci.succ(decidedNum), true, acc ::: List(newNode))
-        }._3
+              // Update the current node
+              val newNode = node.copy(children = newChildren, oPointer = Some(
+                Pointer(
+                  PointerNameType.Keyword,
+                  s"${oLevelKind.getOrElse("Module")} $decidedNum",
+                  extractText(enode.struct).getOrElse(""))
+              ))
 
-      case Some(kind) =>
-        // Yes, we should use this kind
-        nodes.foldLeft(num, List[Node]()) {
-          case ((currentNum, acc), node) =>
-            val enode = enodesMap(node)
+              // Produce the next num
+              (Eci.succ(decidedNum), true, acc ::: List(newNode))
+          }._3
 
-            // Update the children
-            val newChildren = prettifyKeywords(
-              node.children,
-              assignments,
-              enodesMap,
-              oKind,
-              s"$currentNum.1",
-              level + 1
-            )
+        case Some(kind) =>
+          // Yes, we should use this kind
+          nodes.foldLeft(num, List[Node]()) {
+            case ((currentNum, acc), node) =>
+              val enode = enodesMap(node)
 
-            // Update the current node
-            val newNode = node.copy(children = newChildren, oPointer = Some(
-              Pointer(
-                PointerNameType.Keyword,
-                s"$kind $currentNum",
-                extractText(enode.struct).getOrElse(""))
-            ))
+              // Update the children
+              val newChildren = prettifyKeywords(
+                node.children,
+                assignments,
+                enodesMap,
+                oKind,
+                s"$currentNum.1",
+                level + 1
+              )
 
-            // Produce the next num
-            (Eci.succ(currentNum), acc ::: List(newNode))
-        }._2
-    }
+              // Update the current node
+              val newNode = node.copy(children = newChildren, oPointer = Some(
+                Pointer(
+                  PointerNameType.Keyword,
+                  s"$kind $currentNum",
+                  extractText(enode.struct).getOrElse(""))
+              ))
+
+              // Produce the next num
+              (Eci.succ(currentNum), acc ::: List(newNode))
+          }._2
+      }
   }
 
   private def processBook(toc: Toc, _enodes: List[ENode])
@@ -273,7 +274,7 @@ class V1 {
     }
 
     // Count how many elements are on each diagonals
-    val diagonals = getDiagonals(depthX, 3) // Consider elements [0, 1, 2]
+    val diagonals: List[Diagonal] = getDiagonals(depthX, 3) // Consider elements [0, 1, 2]
 
     diagonals.foreach {
       case diagonal => println(diagonal)
@@ -292,11 +293,16 @@ class V1 {
     }
 
     // Select the best diagonal
-    val best = counts.sortBy {
+    val diag = counts.sortBy {
       case (xs, count) => (-count, -xs.size)
-    }.head
+    }.head match {
+      case (_, 0) =>
+        // In the case that there are no annotations
+        // Take the full diagonal (the biggest one)
+        diagonals.sortBy(-_.size).head
 
-    val diag = best._1
+      case (d, _) => d
+    }
 
     // Create the assignments between depth and structures
     val assignments = (0 until depthX).map {
@@ -422,18 +428,22 @@ class V1 {
   private def getDiagonals(depthX: Int, depthY: Int)
   : List[Diagonal] = {
 
-    def diagonal(startX: Int, startY: Int, acc: Diagonal = Nil)
-    : Diagonal = startX < depthX match {
-      case true =>
-        diagonal(startX + 1, startY + 1, acc ::: List((startX, startY)))
-      case false => acc
-    }
-
     val lineX = (0 until depthX).toList
     val lineY = (1 until depthY).toList
-    val diagonalsX = lineX.map { case x => diagonal(x, 0) }
-    val diagonalsY = lineY.map { case y => diagonal(0, y) }
+    val diagonalsX = lineX.map { case x => getDiagonal(x, 0, depthX, depthY) }
+    val diagonalsY = lineY.map { case y => getDiagonal(0, y, depthX, depthY) }
 
     diagonalsX ::: diagonalsY
+  }
+
+  private def getDiagonal(startX: Int,
+                          startY: Int,
+                          depthX: Int,
+                          depthY: Int,
+                          acc: Diagonal = Nil)
+  : Diagonal = startX < depthX match {
+    case true =>
+      getDiagonal(startX + 1, startY + 1, depthX, depthY, acc ::: List((startX, startY)))
+    case false => acc
   }
 }
