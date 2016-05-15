@@ -13,19 +13,18 @@ class Simple {
     // Process the tocs
     val r2 = r.oTocs match {
       case None => r1
-      case Some(tocs) => {
+      case Some(tocs) =>
         // Snippetize the tocs
         val newTocs = tocs.map {
-          case toc => {
+          case toc =>
             // Snippetize the nodes
             val newNodes = toc.nodes.map {
-              case node => snippetizeNodeRec(node, 0, None)
+              case node =>
+                snippetizeNodeRec(node, 0, None)
             }
             toc.copy(nodes = newNodes)
           }
-        }
         r1.copy(oTocs = Some(newTocs))
-      }
     }
 
     // Return the snippetized resource
@@ -34,7 +33,7 @@ class Simple {
 
   def snippetizeTitle(r: Resource): Resource = r.title.oIndices match {
     case None => r
-    case Some(indices) => {
+    case Some(indices) =>
       // Extract the uris of the indices
       val uris = extractUris(indices)
 
@@ -56,14 +55,13 @@ class Simple {
       val descriptionOL = r.oDescriptions match {
         case None => Nil
         case Some(descriptions) => descriptions.map {
-          case description => {
+          case description =>
             Line(
               Source.description,
               description.text,
               collectThere(description.oSpots, uris),
               1
             )
-          }
         }
       }
 
@@ -71,14 +69,13 @@ class Simple {
       val keywordsOL = r.oKeywords match {
         case None => Nil
         case Some(keywords) => keywords.map {
-          case keyword => {
+          case keyword =>
             Line(
               Source.keywords,
               keyword.label,
               collectThere(keyword.oSpots, uris),
               1
             )
-          }
         }
       }
 
@@ -86,14 +83,13 @@ class Simple {
       val categoriesOL = r.oCategories match {
         case None => Nil
         case Some(categories) => categories.map {
-          case category => {
+          case category =>
             Line(
               Source.categories,
               category.label,
               collectThere(category.oSpots, uris),
               1
             )
-          }
         }
       }
 
@@ -101,14 +97,13 @@ class Simple {
       val domainsOL = r.oDomains match {
         case None => Nil
         case Some(domains) => domains.map {
-          case domain => {
+          case domain =>
             Line(
               Source.domains,
               domain.label,
               collectThere(domain.oSpots, uris),
               1
             )
-          }
         }
       }
 
@@ -116,14 +111,13 @@ class Simple {
       val subdomainsOL = r.oSubdomains match {
         case None => Nil
         case Some(subdomains) => subdomains.map {
-          case subdomain => {
+          case subdomain =>
             Line(
               Source.subdomains,
               subdomain.label,
               collectThere(subdomain.oSpots, uris),
               1
             )
-          }
         }
       }
 
@@ -133,7 +127,6 @@ class Simple {
       val newIndices = indices.copy(oSnippet = Some(snippet))
       val newTitle = r.title.copy(oIndices = Some(newIndices))
       r.copy(title = newTitle)
-    }
   }
 
   def extractUris(indices: Indices): Set[String] =
@@ -152,12 +145,12 @@ class Simple {
     : Node = {
     node.oIndices match {
       case None => node
-      case Some(indices) => {
+      case Some(indices) =>
         // Extract the uris of the indices
         val uris: Set[String] = extractUris(indices)
 
         // Collect the top-line
-        val topLine = Line(Source.toc, node.label, collectThere(node.oSpots, uris), 2 + level)
+        val topLine = Line(Source.toc, node.bestLabel(), collectThere(node.oSpots, uris), 2 + level)
 
         // Collect the other-lines "depth-first"
         val otherLines: List[Line] = node.children.flatMap {
@@ -169,7 +162,6 @@ class Simple {
         val newIndices = indices.copy(oSnippet = Some(snippet))
 
         node.copy(oIndices = Some(newIndices))
-      }
     }
   }
 
@@ -184,7 +176,7 @@ class Simple {
     // Collect the indices from the candidates of this entry
     val xs = collectThere(node.oSpots, uris) match {
       case Nil => Nil
-      case indices => List(Line(Source.toc, node.label, indices, 2 + level))
+      case indices => List(Line(Source.toc, node.bestLabel(), indices, 2 + level))
     }
 
     // Collect below
