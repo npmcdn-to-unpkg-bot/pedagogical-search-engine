@@ -23,11 +23,11 @@ extends IndexEntry with FullEntry {
 
   def slickEntryTuple(searchHash: Int)
   : mysql.slick.tables.Types.CacheEntry =
-    (-1, searchHash, entryId, rank, "bing")
+    (-1, searchHash, entryId, rank, "bing", source.toString)
 
   def slickDetailTuple()
   : mysql.slick.tables.Types.CacheDetail =
-    (-1, entryId, title, source.toString,
+    (-1, entryId, title,
       url, org.json4s.native.Serialization.write(snippet), Some(timestamp))
 
   override def engine: Engine = EngineType.Bing
