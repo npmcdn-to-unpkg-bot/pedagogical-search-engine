@@ -2,14 +2,6 @@ spray.can.server.server-header = "Sir Roger"
 spray.can.server.parsing.max-content-length = 1k
 spray.can.client.parsing.max-response-reason-length = 512
 
-spray.can {
-  server {
-    server-header = ""
-    parsing {
-      max-content-length = 1k
-    }
-  }
-}
 wikichimp {
   workingDir = "???"
   spotlight {
