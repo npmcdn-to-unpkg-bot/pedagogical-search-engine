@@ -16,15 +16,25 @@ object ResourceWriter {
       case Success(e) => List(e)
       case _ => Nil
     }
-    val nodes: List[JObject] =
-      r.oTocs.map(tocs => {
-        tocs.flatMap(toc => toc.nodesRec().flatMap(node => {
-          nodeResource(r, node) match {
-            case Success(e) => List(e)
-            case Failure(e) => Nil
-          }
-        }))
-      }).getOrElse(Nil)
+
+    // We can produce a elasticsearch (es) document for each node
+    // Then a custom made query to es could return the best node for each resource.
+    // However, since such advanced query is not yet made, we disable this option.
+    val withNodes = false
+    val nodes: List[JObject] = withNodes match {
+      case true =>
+        r.oTocs.map(tocs => {
+          tocs.flatMap(toc => toc.nodesRec().flatMap(node => {
+            nodeResource(r, node) match {
+              case Success(e) => List(e)
+              case Failure(e) => Nil
+            }
+          }))
+        }).getOrElse(Nil)
+
+      case false =>
+        Nil
+    }
 
     title:::nodes
   }
