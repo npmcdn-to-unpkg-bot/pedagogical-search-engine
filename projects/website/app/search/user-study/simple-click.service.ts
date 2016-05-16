@@ -18,23 +18,17 @@ export class SimpleClickService extends ClickService {
         rank: number,
         quality: Quality
     ) {
-        // Extract the uris
-        let uris: Array<String> = [];
-        for(let st of searchTerms) {
-            uris.push(st.uri);
-        }
-
-
         // Save the click
         let url = this._settings.STUDY_URL + "/clicks";
 
         let headers = new Headers({ 'Content-Type': 'application/json' });
         let options = new RequestOptions({ headers: headers });
         let body = JSON.stringify({
-            "uris": uris,
+            "searchTerms": SearchTerm.wsRepresentation(searchTerms),
             "entryId": entryId,
             "rank": rank,
-            "quality": Quality[quality]
+            "quality": Quality[quality],
+            "filter": "all"
         });
 
         return this._http.post(url, body, options);

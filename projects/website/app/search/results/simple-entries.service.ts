@@ -9,6 +9,8 @@ import {Spot} from "./spot";
 import {Line} from "./line";
 import {Response} from "./response";
 import {Quality} from "./quality";
+import {NbResults} from "./NbResults";
+import {Filter} from "./Filter";
 
 @Injectable()
 export class SimpleEntriesService extends EntriesService {
@@ -20,30 +22,17 @@ export class SimpleEntriesService extends EntriesService {
         @Inject('SETTINGS') private _settings
     ){}
 
-    list(searchTearms: Array<SearchTerm>, from: number, to: number):Observable<Response> {
-        // Extract the uris
-        let requestTerms: Array<any> = [];
-        for(let searchTerm of searchTearms) {
-            if(searchTerm.uri.length > 0) {
-                requestTerms.push({
-                    "label": searchTerm.label,
-                    "uri": searchTerm.uri
-                });
-            } else {
-                requestTerms.push({
-                    "label": searchTerm.label
-                });
-            }
-        }
-
+    list(searchTerms: Array<SearchTerm>, from: number, to: number, filter: Filter)
+    :Observable<Response> {
         // Fetch the entries
         let url = this._settings.ENTRIES_URL;
         let headers = new Headers({ 'Content-Type': 'application/json' });
         let options = new RequestOptions({ headers: headers });
         let body = JSON.stringify({
-            "searchTerms": requestTerms,
+            "searchTerms": SearchTerm.wsRepresentation(searchTerms),
             "from": from,
-            "to": to
+            "to": to,
+            "filter": Filter[filter]
         });
 
         return this._http.post(url, body, options)
@@ -53,7 +42,7 @@ export class SimpleEntriesService extends EntriesService {
                 // Check for entries
                 let jsonEntries = json["entries"];
                 if(jsonEntries.length == 0) {
-                    return new Response([], 0);
+                    return new Response([], new NbResults());
                 }
 
                 // Extract the entries
@@ -62,7 +51,7 @@ export class SimpleEntriesService extends EntriesService {
                     // Extract basic information
                     let entryId = e["entryId"];
                     let title = e["title"];
-                    let typeText = e["typeText"];
+                    let typeText = e["source"] + " - " + e["engine"];
                     let href = e["href"];
                     let rank: number = +e["rank"];
                     let quality = Quality[e["quality"]];
@@ -100,7 +89,7 @@ export class SimpleEntriesService extends EntriesService {
                     return a.rank - b.rank;
                 });
 
-                return new Response(entries, json["nbResults"]);
+                return new Response(ordered, new NbResults(json["nbResults"]));
             })
             .catch(res => {
                 console.log("Error with entries-service:");

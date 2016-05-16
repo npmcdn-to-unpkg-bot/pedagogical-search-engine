@@ -20,7 +20,7 @@ export class MockEntriesService extends EntriesService {
         for(let i = from; i <= to; i++) {
             entries.push(this._newEntry());
         }
-        let response = new Response(entries, 43);
+        let response = new Response(entries);
 
         return Observable.of(response).delay(this.latencyMs);
     }
@@ -40,6 +40,6 @@ export class MockEntriesService extends EntriesService {
         } else {
             quality = Quality.high;
         }
-        return new Entry(title, type, href, new Snippet([new Line(snippet, [])]), quality, 1);
+        return new Entry("123", title, type, href, new Snippet([new Line(snippet, [])]), quality, 1);
     }
 }

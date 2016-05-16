@@ -14,12 +14,25 @@ import {Observable} from "rxjs/Observable";
 import {HighlightService} from "../../utils/highlight.service";
 import {WordsService} from "../../utils/words.service";
 import {LineHighlightService} from "./line-highlight.service";
+import {Filter} from "./Filter";
 
 @Component({
     selector: 'wc-search-results',
     template: `
     
 <div class="wc-com-results-container">
+    
+    <button (click)="_navigateToFilter(_freeValue)">
+        Free results 
+        <span [textContent]="_nbResultsText(_freeValue)"></span>
+     </button>
+     
+    <button (click)="_navigateToFilter(_paidValue)">
+        Paid results
+        <span [textContent]="_nbResultsText(_paidValue)"></span>
+     </button>
+     
+     {{ _filter | json }}
 
     <div class="wc-com-results-entry"
         *ngFor="#entry of _response?.entries">
@@ -104,9 +117,11 @@ export class ResultsCmp {
     @Input('searchTerms') private _searchTerms: Array<SearchTerm> = [];
 
     private _response: Response;
+    private _filter: Filter = Filter.free;
+    private _freeValue: Filter = Filter.free;
+    private _paidValue: Filter = Filter.paid;
     private _from: number = 0;
     private _step: number = 10;
-    private _relevant: Classification = Classification.relevant;
     private _irrelevant: Classification = Classification.irrelevant;
 
     constructor(
@@ -122,6 +137,12 @@ export class ResultsCmp {
         if(pageNo > 0) {
             this._from = (pageNo - 1) * this._step;
         }
+
+        // Is there any filter in the url?
+        let filter = _routeParams.get('filter');
+        if(filter) {
+            this._filter = Filter[filter];
+        }
     }
 
     // Life-cycle hooks
@@ -133,6 +154,35 @@ export class ResultsCmp {
     }
 
     // Private
+    private _nbResultsText(filter: Filter): String {
+        if(this._response && this._response.nbResults && this._response.nbResults.get(filter)) {
+            let n: number = this._response.nbResults.get(filter);
+            return `(${n})`;
+        } else {
+            return ""
+        }
+    }
+    private _navigateToFilter(filter: Filter) {
+        this._navigate(filter, 1);
+    }
+    private _navigateToPage(pageNo: number): void {
+        this._navigate(undefined, pageNo);
+    }
+    private _navigate(pFilter: Filter = undefined,
+                      pPageNo: number = undefined) {
+        let newParams = {
+            q: this._routeParams.get("q")
+        };
+
+
+        if("filter" in this._routeParams.params || pFilter) {
+            newParams["filter"] = pFilter? Filter[pFilter]: this._routeParams.get("filter");
+        }
+        if("page" in this._routeParams.params || pPageNo) {
+            newParams["page"] = pPageNo? pPageNo: this._routeParams.get("page");
+        }
+        this._router.navigate(['Search', newParams]);
+    }
     private _classify(entry: Entry, classification: Classification): void {
         // Log the classification
         let stream: Observable<any> = this._clsService.saveClassification(
@@ -195,7 +245,8 @@ export class ResultsCmp {
             let entriesObs = this._entriesService.list(
                 this._searchTerms,
                 this._from,
-                this._to()
+                this._to(),
+                this._filter
             );
             entriesObs.subscribe(res => {
                 // Debug case: there are no results
@@ -210,7 +261,7 @@ export class ResultsCmp {
     }
     private _hasMultiplePages(): boolean {
         if(this._response) {
-            return this._response.nbResults > this._step;
+            return this._response.countResults(this._filter) > this._step;
         } else {
             return false;
         }
@@ -222,7 +273,7 @@ export class ResultsCmp {
         if(!this._response) {
             return 0;
         } else {
-            return Math.ceil(this._response.nbResults / this._step);
+            return Math.ceil(this._response.countResults(this._filter) / this._step);
         }
     }
     private _pages(): Array<number> {
@@ -238,12 +289,5 @@ export class ResultsCmp {
         event.stopPropagation();
 
         this._navigateToPage(pageNo);
-    }
-    private _navigateToPage(pageNo: number): void {
-        let newParams = {
-            q: this._routeParams.get("q"),
-            page: pageNo
-        };
-        this._router.navigate(['Search', newParams]);
     }
 }
