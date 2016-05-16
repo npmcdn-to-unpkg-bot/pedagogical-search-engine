@@ -2,10 +2,10 @@ package ws.indices
 
 
 import slick.jdbc.JdbcBackend._
-import utils.{Logger, Settings, StringUtils}
-import ws.indices.response.{Entry, NbResults, QualityType, Response}
+import utils.{Logger, Settings}
 import ws.indices.bing.BingFetcher
 import ws.indices.indexentry.{FullBing, FullWFT, FullWikichimp}
+import ws.indices.response.{Entry, NbResults, QualityType, Response}
 import ws.indices.spraythings.FilterParameterType.FilterParameter
 import ws.indices.spraythings.{FilterParameterType, Search, SearchTerm}
 
@@ -48,20 +48,7 @@ class SearchExecutor(settings: Settings) {
 
     } else {
       // The input sounds reasonable but perform a in-depth validation
-      val searchTerms = search.searchTerms.flatMap {
-        case SearchTerm(l1, o1) =>
-          // We lower case the label, because do not want to register
-          // two different searchs for "A" and "a"
-          // e.g. this will mean to ask Bing two times for search "a"
-          val l2 = l1.trim().toLowerCase()
-          val o2 = o1.map(StringUtils.normalizeUri)
-
-          if(l2.length > 0 && o2.getOrElse(".").length > 0) {
-            List(SearchTerm(l2, o2))
-          } else {
-            Nil
-          }
-      }
+      val searchTerms = SearchTerm.validationSkim(search.searchTerms).toList
       if(searchTerms.isEmpty) {
         rejectResponse
       } else {

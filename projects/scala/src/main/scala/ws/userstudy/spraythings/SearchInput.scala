@@ -1,3 +1,7 @@
 package ws.userstudy.spraythings
 
-case class SearchInput(uris: List[String]) {}
+import ws.indices.spraythings.SearchTerm
+
+case class SearchInput(searchTerms: List[SearchTerm]) {
+
+}

@@ -1,6 +1,8 @@
 package ws.userstudy.spraythings
 
-case class ClassificationInput(uris: List[String],
+import ws.indices.spraythings.SearchTerm
+
+case class ClassificationInput(searchTerms: List[SearchTerm],
                                entryId: String,
                                classification: String,
                                filter: String) {}

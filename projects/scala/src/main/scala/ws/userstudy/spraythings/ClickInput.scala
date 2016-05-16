@@ -1,7 +1,10 @@
 package ws.userstudy.spraythings
 
-case class ClickInput(uris: List[String],
+import ws.indices.spraythings.SearchTerm
+
+case class ClickInput(searchTerms: List[SearchTerm],
                       entryId: String,
                       rank: Int,
                       quality: String,
-                      filter: String) {}
+                      filter: String) {
+}

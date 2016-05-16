@@ -1,9 +1,16 @@
 package ws.indices.spraythings
 
+import utils.StringUtils
+
 import scala.util.hashing.MurmurHash3
 
 case class SearchTerm(label: String, uri: Option[String]) {
 
+  // It is important to normalize, otherwise we could register
+  // two different searches for "A" and "a"
+  def normalize(): SearchTerm =
+    SearchTerm(label.trim().toLowerCase(),
+      uri.map(StringUtils.normalizeUri))
 }
 
 object SearchTerm {
@@ -16,6 +23,18 @@ object SearchTerm {
       }
     }
     MurmurHash3.unorderedHash(elements)
+  }
+
+  def validationSkim(searchTerms: TraversableOnce[SearchTerm])
+  : TraversableOnce[SearchTerm] = searchTerms.flatMap {
+    case x =>
+      val normalized = x.normalize()
+
+      if(normalized.label.length > 0 && normalized.uri.getOrElse(".").length > 0) {
+        List(x)
+      } else {
+        Nil
+      }
   }
 
   def uris(searchTerms: TraversableOnce[SearchTerm])

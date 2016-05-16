@@ -1,7 +1,6 @@
 package ws.indices.spraythings
 
 import org.json4s.Formats
-import org.json4s.native.Serialization.write
 import rsc.Formatters
 import spray.http.MediaTypes.`application/json`
 import spray.httpx.Json4sSupport

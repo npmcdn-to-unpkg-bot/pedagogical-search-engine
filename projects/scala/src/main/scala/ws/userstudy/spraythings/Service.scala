@@ -1,14 +1,18 @@
 package ws.userstudy.spraythings
 
+import org.json4s.Formats
+import rsc.Formatters
+import spray.httpx.Json4sSupport
 import spray.routing.HttpService
-import ws.userstudy.Executor
-import ws.userstudy.spraythings.JsonSupport._
 import ws.spraythings.CORSSupport
+import ws.userstudy.Executor
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
 
-trait Service extends HttpService with CORSSupport {
+trait Service extends HttpService with CORSSupport with Json4sSupport with Formatters {
+
+  override implicit def json4sFormats: Formats = formats
 
   val executor = new Executor()
 

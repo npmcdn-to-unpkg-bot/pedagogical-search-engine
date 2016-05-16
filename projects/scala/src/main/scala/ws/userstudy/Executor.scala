@@ -1,9 +1,8 @@
 package ws.userstudy
 
 import slick.jdbc.JdbcBackend._
-import utils.StringUtils
 import ws.indices.response.QualityType
-import ws.indices.spraythings.FilterParameterType
+import ws.indices.spraythings.{FilterParameterType, SearchTerm}
 import ws.userstudy.enum.ClassificationType
 import ws.userstudy.spraythings.{ClassificationInput, ClickInput}
 
@@ -21,21 +20,29 @@ class Executor {
     val filter = FilterParameterType.withName(clickInput.filter)
     if(clickInput.entryId.length > 36) {
       Future.failed(new Exception("EntryId is too long (>36)"))
+
     } else if(clickInput.rank < 0) {
       Future.failed(new Exception("Rank is less than o"))
-    } else {
-      val quality = QualityType.fromString(clickInput.quality)
-      val uris = clickInput.uris.map(uri => StringUtils.normalizeUri(uri)).toSet
 
-      // Save the click
-      val action = Queries.saveClick(
-        uris,
-        clickInput.entryId,
-        clickInput.rank,
-        quality,
-        filter
-      )
-      db.run(action)
+    } else {
+      val searchTerms = SearchTerm.validationSkim(clickInput.searchTerms).toList
+
+      searchTerms.nonEmpty match {
+        case true =>
+          // Save the click
+          val quality = QualityType.fromString(clickInput.quality)
+          val action = Queries.saveClick(
+            searchTerms,
+            clickInput.entryId,
+            clickInput.rank,
+            quality,
+            filter
+          )
+          db.run(action)
+
+        case false =>
+          Future.failed(new Exception("No search terms"))
+      }
     }
   }
 
@@ -46,11 +53,19 @@ class Executor {
     val filter = FilterParameterType.withName(ci.filter)
     if(ci.entryId.length > 36) {
       Future.failed(new Exception("EntryId is too long (>36)"))
+
     } else {
-      val cls = ClassificationType.withName(ci.classification)
-      val uris = ci.uris.map(uri => StringUtils.normalizeUri(uri)).toSet
-      val action = Queries.saveCl(uris, ci.entryId, cls, filter)
-      db.run(action)
+      val searchTerms = SearchTerm.validationSkim(ci.searchTerms).toList
+
+      searchTerms.isEmpty match {
+        case true =>
+          Future.failed(new Exception("No search terms"))
+
+        case false =>
+          val cls = ClassificationType.withName(ci.classification)
+          val action = Queries.saveCl(searchTerms, ci.entryId, cls, filter)
+          db.run(action)
+      }
     }
   }
 }
