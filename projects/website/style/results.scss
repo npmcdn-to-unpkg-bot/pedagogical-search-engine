@@ -1,7 +1,7 @@
 
 .wc-com-results- {
   &container {
-    margin-top: 30px;
+    margin-top: 15px;
     padding-left: 5%;
     max-width: 720px;
   }
@@ -9,6 +9,47 @@
   &entry {
     padding: 0px;
     margin-bottom: 35px;
+  }
+
+  &tab- {
+    &container {
+      width: 100%;
+
+      margin-bottom: 30px;
+
+      border-bottom: 1px dashed lightgray;
+    }
+
+    &link {
+      color: dimgrey;
+      display: inline-block;
+
+      cursor: pointer;
+
+      padding-left: 20px;
+      padding-right: 20px;
+      padding-top: 10px;
+      padding-bottom: 10px;
+    }
+
+    &link-deactivated {
+      cursor: default !important;
+      color: dimgrey !important;
+    }
+
+    &link-deactivated:hover {
+      cursor: default !important;
+      color: dimgrey !important;
+    }
+
+    &link-selected {
+      @extend .wc-com-colors-codes-ok;
+      font-weight: bold;
+    }
+
+    &link:hover {
+      color: black;
+    }
   }
 
   &link {

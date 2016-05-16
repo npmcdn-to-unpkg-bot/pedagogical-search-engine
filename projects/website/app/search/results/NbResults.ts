@@ -5,7 +5,6 @@ export class NbResults {
         if(mapping) {
             this._map = mapping;
         } else {
-            console.log("yop");
             this.set(Filter.all, 0);
             this.set(Filter.free, 0);
             this.set(Filter.paid, 0);

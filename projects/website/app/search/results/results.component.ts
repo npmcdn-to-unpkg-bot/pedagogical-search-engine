@@ -22,17 +22,38 @@ import {Filter} from "./Filter";
     
 <div class="wc-com-results-container">
     
-    <button (click)="_navigateToFilter(_freeValue)">
-        Free results 
-        <span [textContent]="_nbResultsText(_freeValue)"></span>
-     </button>
-     
-    <button (click)="_navigateToFilter(_paidValue)">
-        Paid results
-        <span [textContent]="_nbResultsText(_paidValue)"></span>
-     </button>
-     
-     {{ _filter | json }}
+    <div class="wc-com-results-tab-container"
+         *ngIf="_searchTerms?.length     > 0">
+        <div class="wc-com-results-tab-link">
+            <span (click)="_navigateToFilter(_freeValue)"
+                  [class.wc-com-results-tab-link-selected]="_filter == _freeValue"
+                  *ngIf="_nbResults(_freeValue) > 0">
+                <span *ngIf="_filter == _freeValue">&#187;</span>
+                Online courses 
+                (<span [textContent]="_nbResults(_freeValue)"></span>)
+            </span>
+            <span *ngIf="_nbResults(_freeValue) == 0"
+                  class="wc-com-results-tab-link-deactivated">
+                <span *ngIf="_filter == _freeValue">&#187;</span>
+                No Online courses 
+            </span>
+        </div>
+        
+        <div class="wc-com-results-tab-link">
+            <span (click)="_navigateToFilter(_paidValue)"
+                  [class.wc-com-results-tab-link-selected]="_filter == _paidValue"
+                  *ngIf="_nbResults(_paidValue) > 0">
+                <span *ngIf="_filter == _paidValue">&#187;</span>
+                Books
+                (<span [textContent]="_nbResults(_paidValue)"></span>)
+            </span>
+            <span *ngIf="_nbResults(_paidValue) == 0"
+                  class="wc-com-results-tab-link-deactivated">
+                <span *ngIf="_filter == _paidValue">&#187;</span>
+                No Books
+            </span>
+        </div>
+    </div>
 
     <div class="wc-com-results-entry"
         *ngFor="#entry of _response?.entries">
@@ -154,12 +175,11 @@ export class ResultsCmp {
     }
 
     // Private
-    private _nbResultsText(filter: Filter): String {
+    private _nbResults(filter: Filter): number {
         if(this._response && this._response.nbResults && this._response.nbResults.get(filter)) {
-            let n: number = this._response.nbResults.get(filter);
-            return `(${n})`;
+            return this._response.nbResults.get(filter);
         } else {
-            return ""
+            return 0;
         }
     }
     private _navigateToFilter(filter: Filter) {
