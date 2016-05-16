@@ -9,6 +9,7 @@ import rsc.importers.Importer
 import rsc.indexers.Indexer
 import rsc.prettifier.PrettifierType
 import ws.indices.indexentry.EngineType
+import ws.indices.spraythings.FilterParameterType
 
 trait Formatters {
   implicit val formats = DefaultFormats ++ Seq(
@@ -21,6 +22,7 @@ trait Formatters {
     new EnumNameSerializer(snippets.Snippetizer),
     new EnumNameSerializer(EngineType),
     new EnumNameSerializer(PointerNameType),
-    new EnumNameSerializer(PrettifierType)
+    new EnumNameSerializer(PrettifierType),
+    new EnumNameSerializer(FilterParameterType)
   ) + ShortTypeHints(List(classOf[Spotlight]))
 }

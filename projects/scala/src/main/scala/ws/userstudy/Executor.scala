@@ -3,6 +3,7 @@ package ws.userstudy
 import slick.jdbc.JdbcBackend._
 import utils.StringUtils
 import ws.indices.response.QualityType
+import ws.indices.spraythings.FilterParameterType
 import ws.userstudy.enum.ClassificationType
 import ws.userstudy.spraythings.{ClassificationInput, ClickInput}
 
@@ -17,7 +18,8 @@ class Executor {
   def saveClick(clickInput: ClickInput)
   : Future[Unit] = {
     // Validate the input
-    if(clickInput.entryId.size > 36) {
+    val filter = FilterParameterType.withName(clickInput.filter)
+    if(clickInput.entryId.length > 36) {
       Future.failed(new Exception("EntryId is too long (>36)"))
     } else if(clickInput.rank < 0) {
       Future.failed(new Exception("Rank is less than o"))
@@ -30,7 +32,8 @@ class Executor {
         uris,
         clickInput.entryId,
         clickInput.rank,
-        quality
+        quality,
+        filter
       )
       db.run(action)
     }
@@ -40,12 +43,13 @@ class Executor {
   def saveCl(ci: ClassificationInput)
   : Future[Unit] = {
     // Validate the input
-    if(ci.entryId.size > 36) {
+    val filter = FilterParameterType.withName(ci.filter)
+    if(ci.entryId.length > 36) {
       Future.failed(new Exception("EntryId is too long (>36)"))
     } else {
       val cls = ClassificationType.withName(ci.classification)
       val uris = ci.uris.map(uri => StringUtils.normalizeUri(uri)).toSet
-      val action = Queries.saveCl(uris, ci.entryId, cls)
+      val action = Queries.saveCl(uris, ci.entryId, cls, filter)
       db.run(action)
     }
   }

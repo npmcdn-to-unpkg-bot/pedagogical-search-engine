@@ -4,7 +4,7 @@ import java.util.concurrent.atomic.AtomicInteger
 
 import utils.Settings
 import ws.indices.SearchExecutor
-import ws.indices.spraythings.{Search, SearchTerm}
+import ws.indices.spraythings.{FilterParameterType, Search, SearchTerm}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
@@ -42,7 +42,7 @@ object MysqlService extends App {
     // generate the request itself
     val start = System.nanoTime()
 
-    service.search(Search(searchTerms, Some(30), Some(39))).map(rs => {
+    service.search(Search(searchTerms, Some(30), Some(39), Some(FilterParameterType.All))).map(rs => {
       val elapsed = elapsedMs(start)
 
       // Filter a bit the outliers

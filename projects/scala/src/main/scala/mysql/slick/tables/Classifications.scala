@@ -9,8 +9,9 @@ extends Table[Types.Classification](tag, "classifications") {
   def autoId = column[Int]("AutoId", O.PrimaryKey, O.AutoInc)
   def searchHash = column[Int]("SearchHash")
   def entryId = column[String]("EntryId")
+  def filter = column[String]("Filter")
   def classification = column[String]("Classification")
   def timestamp = column[Option[Timestamp]]("Timestamp")
 
-  override def * = (autoId, searchHash, entryId, classification, timestamp)
+  override def * = (autoId, searchHash, entryId, filter, classification, timestamp)
 }

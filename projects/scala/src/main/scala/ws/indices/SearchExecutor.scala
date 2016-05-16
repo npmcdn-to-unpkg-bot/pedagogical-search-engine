@@ -3,10 +3,11 @@ package ws.indices
 
 import slick.jdbc.JdbcBackend._
 import utils.{Logger, Settings, StringUtils}
-import ws.indices.response.{Entry, QualityType, Response}
+import ws.indices.response.{Entry, NbResults, QualityType, Response}
 import ws.indices.bing.BingFetcher
 import ws.indices.indexentry.{FullBing, FullWFT, FullWikichimp}
-import ws.indices.spraythings.{Search, SearchTerm}
+import ws.indices.spraythings.FilterParameterType.FilterParameter
+import ws.indices.spraythings.{FilterParameterType, Search, SearchTerm}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -39,7 +40,7 @@ class SearchExecutor(settings: Settings) {
     val distance = to - from + 1
 
     // First validations: discard huge inputs
-    val rejectResponse = Future.successful(Response(Nil, 0))
+    val rejectResponse = Future.successful(Response(Nil, NbResults(0, 0, 0)))
     if(search.searchTerms.size > 10 ||
       from > to || from < 0 || to >= N_MAX ||
       distance < 1 || distance > 10) {
@@ -64,29 +65,34 @@ class SearchExecutor(settings: Settings) {
       if(searchTerms.isEmpty) {
         rejectResponse
       } else {
-        unvalidatedSearch(searchTerms, from, to)
+        unvalidatedSearch(searchTerms, from, to,
+          search.filter.getOrElse(FilterParameterType.All))
       }
     }
   }
 
-  def unvalidatedSearch(searchTerms: List[SearchTerm], from: Int, to: Int)
+  def unvalidatedSearch(searchTerms: List[SearchTerm],
+                        from: Int,
+                        to: Int,
+                        filter: FilterParameter)
   : Future[Response] = {
 
     // Log the search
-    val logAction = Queries.saveSearch(searchTerms, from, to)
+    val logAction = Queries.saveSearch(searchTerms, from, to, filter)
     val logFuture = db.run(logAction).recover {
       case e =>
         // We do not really care about failures
-        Logger.info("there was a log failure")
+        Logger.stackTrace("there was a log failure", e)
     }
 
     // Fetch all the best indices (without their details yet)
-    val indicesFuture = indicesFetcher.wcAndBing(searchTerms, N_MAX).flatMap(indexEntries => {
-      // fetch the details in the [from, to] interval
-      val interval = indexEntries.slice(from, to + 1)
-      detailsFetcher.resolve(interval, searchTerms).map(r => (r, indexEntries.size))
+    val indicesFuture = indicesFetcher.wcAndBing(searchTerms, N_MAX, filter).flatMap {
+      case (indexEntries, nbResults) =>
+        // fetch the details in the [from, to] interval
+        val interval = indexEntries.slice(from, to + 1)
+        detailsFetcher.resolve(interval, searchTerms).map(r => (r, nbResults))
 
-    }).map {
+    }.map {
       case (indices, totalNb) =>
         // create the public entries
         val entries: List[response.Entry] = indices.zipWithIndex.map {

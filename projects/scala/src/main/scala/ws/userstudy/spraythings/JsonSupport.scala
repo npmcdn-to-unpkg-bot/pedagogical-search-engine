@@ -5,6 +5,6 @@ import spray.json.DefaultJsonProtocol
 
 object JsonSupport extends DefaultJsonProtocol with SprayJsonSupport {
   implicit val SearchInputFormat = jsonFormat(SearchInput, "uris")
-  implicit val ClickInputFormat = jsonFormat(ClickInput, "uris", "entryId", "rank", "quality")
-  implicit val ClassificationInputFormat = jsonFormat(ClassificationInput, "uris", "entryId", "classification")
+  implicit val ClickInputFormat = jsonFormat(ClickInput, "uris", "entryId", "rank", "quality", "filter")
+  implicit val ClassificationInputFormat = jsonFormat(ClassificationInput, "uris", "entryId", "classification", "filter")
 }

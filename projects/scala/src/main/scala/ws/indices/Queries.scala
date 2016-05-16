@@ -8,6 +8,7 @@ import slick.driver.MySQLDriver.api._
 import slick.jdbc.{GetResult, PositionedParameters, PositionedResult, SetParameter}
 import ws.indices.enums.EngineSourceType
 import ws.indices.indexentry.{FullBing, IndexEntry, PartialBing, PartialWikichimp}
+import ws.indices.spraythings.FilterParameterType.FilterParameter
 import ws.indices.spraythings.SearchTerm
 
 
@@ -101,12 +102,13 @@ object Queries {
 
   implicit val format = DefaultFormats
 
-  def saveSearch(searchTerms: List[SearchTerm], from: Int, to: Int) = {
+  def saveSearch(searchTerms: List[SearchTerm], from: Int, to: Int,
+                 filter: FilterParameter) = {
     val searchHash: Int = SearchTerm.searchHash(searchTerms)
     val jsonLog: String = org.json4s.native.Serialization.write(searchTerms)
 
     DBIO.seq(
-      searchesTQ += (-1, searchHash, jsonLog, from, to, None)
+      searchesTQ += (-1, searchHash, filter.toString, jsonLog, from, to, None)
     )
   }
 
