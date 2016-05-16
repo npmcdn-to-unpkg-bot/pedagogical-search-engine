@@ -15,6 +15,7 @@ CREATE TABLE `cache-entries` (
     `EntryId` VARCHAR(36) CHARACTER SET 'utf8',
     `Rank` SMALLINT,
     `Source` VARCHAR(16) CHARACTER SET 'utf8',
+    `TypeText` VARCHAR(255) CHARACTER SET 'utf8',
 
 	PRIMARY KEY(`AutoId`))
 	CHARACTER SET 'utf8';
@@ -30,7 +31,6 @@ CREATE TABLE `cache-details` (
 	INDEX entryid_idx (`EntryId`),
     
     `Title` VARCHAR(255) CHARACTER SET 'utf8',
-    `TypeText` VARCHAR(255) CHARACTER SET 'utf8',
     `Url` VARCHAR(255) CHARACTER SET 'utf8',
     `Snippet` TEXT CHARACTER SET 'utf8',
     `Timestamp` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

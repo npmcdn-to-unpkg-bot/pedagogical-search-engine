@@ -3,7 +3,6 @@ package ws.indices
 import java.sql.Timestamp
 
 import slick.jdbc.JdbcBackend.Database
-import ws.indices.enums.WebsiteSourceType
 import ws.indices.indexentry._
 import ws.indices.snippet.Snippet
 import ws.indices.spraythings.SearchTerm
@@ -25,10 +24,10 @@ class DetailsFetcher(db: Database) {
       entries.foldLeft(emptyAcc) {
         case ((accPB, accPW), entry) => entry match {
 
-          case c@PartialBing(_,_) =>
+          case c@PartialBing(_, _, _) =>
             (c::accPB, accPW)
 
-          case c@PartialWikichimp(_,_,_) =>
+          case c@PartialWikichimp(_, _, _, _) =>
             (accPB, c::accPW)
 
           case _ =>
@@ -46,23 +45,21 @@ class DetailsFetcher(db: Database) {
           case entry if entry.isInstanceOf[FullEntry] =>
             entry.asInstanceOf[FullEntry]
 
-          case PartialBing(entryId, rank) =>
+          case PartialBing(entryId, rank, source) =>
             val d = detailsMap(entryId)
 
             val title = d._2
-            val url = d._4
-            val source = FullBing.inferSource(url)
-            val snippet = Snippet.fromSnippetJSON(d._5)
-            val timestamp = d._6
+            val url = d._3
+            val snippet = Snippet.fromSnippetJSON(d._4)
+            val timestamp = d._5
             FullBing(entryId, rank, title, source, url, snippet, timestamp)
 
-          case PartialWikichimp(entryId, sumScore, resourceId) =>
+          case PartialWikichimp(entryId, sumScore, resourceId, source) =>
             val d = detailsMap(entryId)
 
             val title = d._2
-            val url = d._4
-            val source = WebsiteSourceType.fromWcTypeField(d._3)
-            val rscSnippet = rsc.snippets.Snippet.fromJSONString(d._5)
+            val url = d._3
+            val rscSnippet = rsc.snippets.Snippet.fromJSONString(d._4)
             val uris = SearchTerm.uris(searchTerms)
             val snippet = Snippet.fromRscSnippet(rscSnippet, uris.toSet)
 
@@ -72,7 +69,7 @@ class DetailsFetcher(db: Database) {
     }
   }
 
-  type row = (String, String, String, String, String, Timestamp)
+  type row = (String, String, String, String, Timestamp)
 
   def getDetails(entryIds: Set[String])
   : Future[Map[String, (row)]] = {

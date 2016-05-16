@@ -3,14 +3,12 @@ package ws.indices
 import java.sql.Timestamp
 
 import org.json4s.DefaultFormats
+import rsc.attributes.Source
 import slick.driver.MySQLDriver.api._
 import slick.jdbc.{GetResult, PositionedParameters, PositionedResult, SetParameter}
-import utils.StringUtils
 import ws.indices.enums.EngineSourceType
 import ws.indices.indexentry.{FullBing, IndexEntry, PartialBing, PartialWikichimp}
 import ws.indices.spraythings.SearchTerm
-
-import scala.util.hashing.MurmurHash3
 
 
 object Queries {
@@ -35,13 +33,15 @@ object Queries {
       val entryId = rs.nextString()
       val scoreThing = rs.nextDouble()
       val resourceId = rs.nextString()
+      val typeText = Source.fromString(rs.nextString())
 
       // Match the type of the row
       source match {
         case _ if source.equals(EngineSourceType.Wikichimp.toString) =>
-          PartialWikichimp(entryId, scoreThing, resourceId)
+          PartialWikichimp(entryId, scoreThing, resourceId, typeText)
+
         case _ if source.equals(EngineSourceType.Bing.toString) =>
-          PartialBing(entryId, scoreThing.toInt)
+          PartialBing(entryId, scoreThing.toInt, typeText)
       }
     }
   }
@@ -61,7 +61,8 @@ object Queries {
     Source,
     EntryId,
     Rank,
-    ''
+    '',
+    TypeText
   FROM `cache-entries`
     WHERE
     SearchHash = #$searchHash
@@ -76,7 +77,8 @@ object Queries {
     'wikichimp',
     EntryId,
     SUM(Score),
-    MIN(ResourceId)
+    MIN(ResourceId),
+    MIN(TypeText)
   FROM indices
   WHERE
     Uri IN ($uris#${",?" * (uris.size - 1)})
@@ -88,7 +90,8 @@ object Queries {
     Source,
     EntryId,
     Rank,
-    ''
+    '',
+    TypeText
   FROM `cache-entries`
     WHERE
     SearchHash = #$searchHash
@@ -125,7 +128,6 @@ object Queries {
 	SELECT
 		EntryId,
 		Title,
-		TypeText,
 		url,
 		Snippet,
 		Timestamp
@@ -135,14 +137,13 @@ object Queries {
 	SELECT
 		EntryId,
 		Title,
-		Type,
 		Href,
 		Snippet,
     '2016-04-29 14:45:48'
 	FROM details
     WHERE EntryId IN ($uris#${",?" * (uris.size - 1)})
 );
-    """.as[(String, String, String, String, String, Timestamp)]
+    """.as[(String, String, String, String, Timestamp)]
   }
 }
 

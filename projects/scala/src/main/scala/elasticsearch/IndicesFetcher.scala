@@ -5,7 +5,7 @@ import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri}
 import elasticsearch.parsers.Highlight
 import org.elasticsearch.common.settings.Settings
 import org.elasticsearch.search.highlight.HighlightField
-import ws.indices.enums.WebsiteSourceType
+import rsc.attributes.Source
 import ws.indices.indexentry.FullWFT
 import ws.indices.snippet.Snippet
 
@@ -73,7 +73,7 @@ class IndicesFetcher(esIndex: String,
           case false => Snippet(Nil)
         }
 
-        FullWFT(entryId, score, resourceId, title, WebsiteSourceType.withName(source),
+        FullWFT(entryId, score, resourceId, title, Source.fromString(source),
           url, snippet)
       })
     })

@@ -3,9 +3,9 @@ package ws.indices.indexentry
 import java.sql.Timestamp
 
 import org.json4s.DefaultFormats
+import rsc.attributes.Source
+import rsc.attributes.Source.Source
 import ws.indices.bing.BingJsonProtocol.BingApiResult
-import ws.indices.enums.WebsiteSourceType
-import ws.indices.enums.WebsiteSourceType.WebsiteSource
 import ws.indices.indexentry.EngineType.Engine
 import ws.indices.snippet.{Line, Snippet}
 import ws.indices.spraythings.SearchTerm
@@ -13,7 +13,7 @@ import ws.indices.spraythings.SearchTerm
 case class FullBing(entryId: String,
                     rank: Int,
                     title: String,
-                    source: WebsiteSource,
+                    source: Source,
                     url: String,
                     snippet: Snippet,
                     timestamp: Timestamp)
@@ -34,22 +34,6 @@ extends IndexEntry with FullEntry {
 }
 
 object FullBing {
-  def inferSource(url: String): WebsiteSource = {
-    if(url.contains("coursera.org")) {
-      WebsiteSourceType.Coursera
-    } else if(url.contains("mit.edu")) {
-      WebsiteSourceType.Mit
-    } else if(url.contains("safaribooksonline.com")) {
-      WebsiteSourceType.Safari
-    } else if(url.contains("scholarpedia.org")) {
-      WebsiteSourceType.Scholarpedia
-    } else if(url.contains("khanacademy.org")) {
-      WebsiteSourceType.Khan
-    } else {
-      WebsiteSourceType.Web
-    }
-  }
-
   def beautifyBingTitle(title: String): String = {
     title
       .replace("| Khan Academy", "")
@@ -88,7 +72,7 @@ object FullBing {
           entryId,
           rank,
           beautifyBingTitle(title),
-          inferSource(url),
+          Source.fromUrl(url),
           url,
           snippet,
           new Timestamp(new java.util.Date().getTime))

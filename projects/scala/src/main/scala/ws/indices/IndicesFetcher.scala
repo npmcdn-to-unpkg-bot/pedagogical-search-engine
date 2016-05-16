@@ -49,8 +49,8 @@ class IndicesFetcher(db: Database, bf: BingFetcher,
         val (partialBingRows, wcWithDup) = indexRows
           .foldLeft((List[PartialBing](), List[PartialWikichimp]())) {
             case ((bingAcc, wikichimpAcc), row) => row match {
-              case r@PartialBing(_, _) => (bingAcc ::: List(r), wikichimpAcc)
-              case r@PartialWikichimp(_, _, _) => (bingAcc, wikichimpAcc ::: List(r))
+              case r@PartialBing(_, _, _) => (bingAcc ::: List(r), wikichimpAcc)
+              case r@PartialWikichimp(_, _, _, _) => (bingAcc, wikichimpAcc ::: List(r))
             }
           }
 
@@ -72,7 +72,7 @@ class IndicesFetcher(db: Database, bf: BingFetcher,
         // If there are no bing rows, go fetch them
         partialBingRows match {
           case Nil =>
-            val futureApiResult = bf.search(searchText, 0, 10)
+            val futureApiResult: Future[BingApiResult] = bf.search(searchText, 0, 10)
 
             // Remove duplicates based on titles
             futureApiResult.map(apiResult => {
@@ -126,8 +126,8 @@ class IndicesFetcher(db: Database, bf: BingFetcher,
 
   private def randomButConsistent(entry: IndexEntry): String = {
     entry match {
-      case PartialBing(entryId, _) => entryId
-      case PartialWikichimp(entryId, _, _) => entryId
+      case PartialBing(entryId, _, _) => entryId
+      case PartialWikichimp(entryId, _, _, _) => entryId
       case c@FullBingMatch(_) => c.entryId
       case x if x.isInstanceOf[FullWFT] => x.asInstanceOf[FullWFT].entryId
     }

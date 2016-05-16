@@ -5,7 +5,6 @@ import slick.jdbc.JdbcBackend._
 import utils.{Logger, Settings, StringUtils}
 import ws.indices.response.{Entry, QualityType, Response}
 import ws.indices.bing.BingFetcher
-import ws.indices.enums.WebsiteSourceType
 import ws.indices.indexentry.{FullBing, FullWFT, FullWikichimp}
 import ws.indices.spraythings.{Search, SearchTerm}
 
@@ -95,7 +94,7 @@ class SearchExecutor(settings: Settings) {
             Entry(
               entryId,
               title,
-              WebsiteSourceType.toPublicString(source),
+              source.toString,
               url,
               snippet.toJSONString,
               QualityType.unknown,
@@ -107,7 +106,7 @@ class SearchExecutor(settings: Settings) {
             Entry(
               entryId,
               title,
-              WebsiteSourceType.toPublicString(source),
+              source.toString,
               url,
               snippet.toJSONString,
               QualityType.qualityFromScore(score, SearchTerm.uris(searchTerms).size),
@@ -119,7 +118,7 @@ class SearchExecutor(settings: Settings) {
             Entry(
               entryId,
               title,
-              WebsiteSourceType.toPublicString(source),
+              source.toString,
               url,
               snippet.toJSONString,
               QualityType.unknown,
