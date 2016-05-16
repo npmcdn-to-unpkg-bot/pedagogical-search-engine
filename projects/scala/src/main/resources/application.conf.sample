@@ -36,7 +36,7 @@ wikichimp {
   userStudy {
       slick {
         driver = "com.mysql.jdbc.Driver"
-        url = "jdbc:mysql://"?ip?"/tocpic"
+        url = "jdbc:mysql://"?ip?"/wikichimp?useSSL=false"
 
         databaseName = ???
         user = ???
@@ -66,7 +66,7 @@ wikichimp {
     import {
       slick {
         driver = "com.mysql.jdbc.Driver"
-        url = "jdbc:mysql://"?ip?"/tocpic"
+        url = "jdbc:mysql://"?ip?"/wikichimp?useSSL=false"
 
         databaseName = ???
         user = ???
@@ -87,7 +87,7 @@ wikichimp {
       }
       slick {
         driver = "com.mysql.jdbc.Driver"
-        url = "jdbc:mysql://"?ip?"/tocpic"
+        url = "jdbc:mysql://"?ip?"/wikichimp?useSSL=false"
 
         databaseName = ???
         user = ???
@@ -109,7 +109,7 @@ wikichimp {
     }
     slick {
       driver = "com.mysql.jdbc.Driver"
-      url = "jdbc:mysql://"?ip?"/tocpic"
+      url = "jdbc:mysql://"?ip?"/wikichimp?useSSL=false"
 
       databaseName = ???
       user = ???
