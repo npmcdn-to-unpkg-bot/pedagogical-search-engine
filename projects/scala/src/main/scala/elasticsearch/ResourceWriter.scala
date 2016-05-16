@@ -52,7 +52,7 @@ object ResourceWriter {
     Try {
       val entryId = getEntryId(r.title.oIndices)
 
-      produceResource(r.title.label, r.source, node.label,
+      produceResource(r.title.label, r.source, node.bestLabel(),
         bodyText(r), entryId, r.resourceId, getHref(r))
     }
 

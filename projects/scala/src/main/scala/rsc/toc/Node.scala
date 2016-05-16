@@ -25,7 +25,7 @@ case class Node(label: String,
   }
 
   def rawString(): String =
-    (List(label):::children.map(c => c.rawString())).mkString("\n")
+    (List(bestLabel()):::children.map(c => c.rawString())).mkString("\n")
 
   def bestLabel(): String = oPointer match {
     case Some(Pointer(name, prefix, label)) =>

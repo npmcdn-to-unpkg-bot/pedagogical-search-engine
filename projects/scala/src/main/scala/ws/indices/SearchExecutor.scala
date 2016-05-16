@@ -22,7 +22,7 @@ class SearchExecutor(settings: Settings) {
     settings.ElasticSearch.esIndex,
     settings.ElasticSearch.esType,
     settings.ElasticSearch.ip,
-    settings.ElasticSearch.port
+    settings.ElasticSearch.javaApiPort
   )
   private val indicesFetcher = new IndicesFetcher(db, bingFetcher, esIndicesFetcher)
   private val detailsFetcher = new DetailsFetcher(db)
