@@ -36,6 +36,7 @@ import {SearchCmp} from "./search/search.component";
 import {ClassificationService} from "./search/user-study/classification.service";
 import {SimpleClassificationService} from "./search/user-study/simple-classification.service";
 import {AboutCmp} from "./about/about.component";
+import {HowItWorksCmp} from "./about/howitworks.component";
 
 @Component({
     selector: 'wc-app',
@@ -78,7 +79,7 @@ import {AboutCmp} from "./about/about.component";
             &#187;
             
             <span>
-                <a>
+                <a [routerLink]="['HowItWorks']">
                     How it works
                 </a>
             </span>
@@ -103,7 +104,8 @@ import {AboutCmp} from "./about/about.component";
 })
 @RouteConfig([
     {path:'/search', name: 'Search', component: SearchCmp, useAsDefault: true},
-    {path:'/about', name: 'About', component: AboutCmp}
+    {path:'/about', name: 'About', component: AboutCmp},
+    {path:'/howitworks', name: 'HowItWorks', component: HowItWorksCmp}
 ])
 export class AppComponent {
     private _year = new Date().getFullYear();

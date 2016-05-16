@@ -13,19 +13,18 @@ import {Component} from "angular2/core";
         </p>
         
         <p>
-            It is also my ongoing master thesis.
+            It tries a novel approach and is my ongoing master thesis.
         </p>
         
         <!-- <h2>How to contribute</h2> Talk to me -->
         
         <h2>What about Privacy</h2>
         <p>
-            Your searches and clicks is your data <br>
-            and it is beautiful this way
+            Your searches and clicks is your data
         </p>
         
         <p>
-            but your data is also a great fuel to improve the <br>
+            but it is also a great fuel to improve the <br>
             results through statistical studies if collected anonymously.
         </p>
         
