@@ -1,15 +1,53 @@
+import {ROUTER_DIRECTIVES} from "angular2/router";
+import {Component} from "angular2/core";
 
-/*
- Your searches and clicks is your data
- and it is beautiful this way
-
- but your data is also a great fuel to improve the
- results through statistical studies if collected anonymously.
-
- Here is our compromise: 
- We forget about you as soon as you leave.
- No cookies, no browser tracking.
-
- We log the clicks, the searches but
- We do not associate this data with you.
- */
+@Component({
+    selector: 'wc-app',
+    template: `
+    
+    <div class="wc-com-about-container">
+        <h2>What is Wikichimp</h2>
+        <p>
+             Wikichimp is a search engine.<br>
+             It helps browsing pedagogical documents like books & online courses.
+        </p>
+        
+        <p>
+            It is also my ongoing master thesis.
+        </p>
+        
+        <!-- <h2>How to contribute</h2> Talk to me -->
+        
+        <h2>What about Privacy</h2>
+        <p>
+            Your searches and clicks is your data <br>
+            and it is beautiful this way
+        </p>
+        
+        <p>
+            but your data is also a great fuel to improve the <br>
+            results through statistical studies if collected anonymously.
+        </p>
+        
+         <h3>Here is my compromise</h3>
+        <p>
+            I forget about you as soon as you leave. <br>
+            No cookies, no browser tracking.
+        </p>
+        
+        <p>
+            I log the clicks, the searches but
+            I do not associate this data with you.
+        </p>
+    </div>
+ 
+         `,
+    directives: [ROUTER_DIRECTIVES],
+    providers: [
+    ]
+})
+export class AboutCmp {
+    constructor() {
+        console.log("yop");
+    }
+}

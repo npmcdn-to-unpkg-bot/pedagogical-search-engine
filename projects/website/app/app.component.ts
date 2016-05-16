@@ -35,6 +35,7 @@ import {RouteConfig, ROUTER_DIRECTIVES} from "angular2/router";
 import {SearchCmp} from "./search/search.component";
 import {ClassificationService} from "./search/user-study/classification.service";
 import {SimpleClassificationService} from "./search/user-study/simple-classification.service";
+import {AboutCmp} from "./about/about.component";
 
 @Component({
     selector: 'wc-app',
@@ -48,7 +49,7 @@ import {SimpleClassificationService} from "./search/user-study/simple-classifica
             </span>
         </a>
         <span class="wc-com-app-header-text">
-            Search engine for students
+            Search engine by & for students
         </span>
     </div>
     
@@ -78,15 +79,15 @@ import {SimpleClassificationService} from "./search/user-study/simple-classifica
             
             <span>
                 <a>
-                    Privacy
+                    How it works
                 </a>
             </span>
             
             &#187;
             
             <span>
-                <a>
-                    How it works
+                <a [routerLink]="['About']">
+                    About
                 </a>
             </span>
         </div>
@@ -101,7 +102,8 @@ import {SimpleClassificationService} from "./search/user-study/simple-classifica
     ]
 })
 @RouteConfig([
-    {path:'/search', name: 'Search', component: SearchCmp, useAsDefault: true}
+    {path:'/search', name: 'Search', component: SearchCmp, useAsDefault: true},
+    {path:'/about', name: 'About', component: AboutCmp}
 ])
 export class AppComponent {
     private _year = new Date().getFullYear();
