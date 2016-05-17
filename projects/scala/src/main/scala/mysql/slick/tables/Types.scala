@@ -11,7 +11,7 @@ object Types {
   type DictionaryTitles = (String, String, Int, Int)
   type CacheEntry = (Int, Int, String, Int, String, String)
   type CacheDetail = (Int, String, String, String, String, Option[Timestamp])
-  type Searches = (Int, Int, String, String, Int, Int, Option[Timestamp])
-  type Clicks = (Int, String, Int, String, Int, String, Option[Timestamp])
-  type Classification = (Int, Int, String, String, String, Option[Timestamp])
+  type Searches = (Int, Int, Option[Int], String, String, Option[Timestamp])
+  type Clicks = (Int, String, Int, Option[Int], Int, Option[Timestamp])
+  type Classification = (Int, Int, String, Option[Int], String, Option[Timestamp])
 }

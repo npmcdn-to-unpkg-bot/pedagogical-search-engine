@@ -1,8 +1,7 @@
 package ws.userstudy
 
 import slick.jdbc.JdbcBackend._
-import ws.indices.response.QualityType
-import ws.indices.spraythings.{FilterParameterType, SearchTerm}
+import ws.indices.spraythings.SearchTerm
 import ws.userstudy.enum.ClassificationType
 import ws.userstudy.spraythings.{ClassificationInput, ClickInput}
 
@@ -17,7 +16,6 @@ class Executor {
   def saveClick(clickInput: ClickInput)
   : Future[Unit] = {
     // Validate the input
-    val filter = FilterParameterType.withName(clickInput.filter)
     if(clickInput.entryId.length > 36) {
       Future.failed(new Exception("EntryId is too long (>36)"))
 
@@ -30,13 +28,11 @@ class Executor {
       searchTerms.nonEmpty match {
         case true =>
           // Save the click
-          val quality = QualityType.fromString(clickInput.quality)
           val action = Queries.saveClick(
             searchTerms,
             clickInput.entryId,
             clickInput.rank,
-            quality,
-            filter
+            clickInput.sid
           )
           db.run(action)
 
@@ -50,7 +46,6 @@ class Executor {
   def saveCl(ci: ClassificationInput)
   : Future[Unit] = {
     // Validate the input
-    val filter = FilterParameterType.withName(ci.filter)
     if(ci.entryId.length > 36) {
       Future.failed(new Exception("EntryId is too long (>36)"))
 
@@ -62,9 +57,14 @@ class Executor {
           Future.failed(new Exception("No search terms"))
 
         case false =>
-          val cls = ClassificationType.withName(ci.classification)
-          val action = Queries.saveCl(searchTerms, ci.entryId, cls, filter)
-          db.run(action)
+          try {
+            val cls = ClassificationType.withName(ci.classification)
+            val action = Queries.saveCl(searchTerms, ci.entryId, cls, ci.sid)
+            db.run(action)
+          } catch {
+            case e: Throwable =>
+              Future.failed(e)
+          }
       }
     }
   }

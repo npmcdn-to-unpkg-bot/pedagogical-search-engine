@@ -17,9 +17,8 @@ CREATE TABLE `clicks` (
 	INDEX entryid_idx (`EntryId`(10)),
     
 	`SearchHash` INT,
-    `Filter` VARCHAR(32) CHARACTER SET 'utf8',
+	`Sid` INT,
 	`Rank` SMALLINT,
-	`Quality` VARCHAR(32) CHARACTER SET 'utf8',
     `Timestamp` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     
 	PRIMARY KEY (`AutoId`))
@@ -41,7 +40,7 @@ CREATE TABLE `classifications` (
     `EntryId` VARCHAR(36) CHARACTER SET 'utf8',
 	INDEX entry_idx (`SearchHash`, `EntryId`),
     
-    `Filter` VARCHAR(32) CHARACTER SET 'utf8',
+	`Sid` INT,
     `Classification` VARCHAR(16) CHARACTER SET 'utf8',
     `Timestamp` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     
@@ -64,10 +63,9 @@ CREATE TABLE `searches` (
     `SearchHash` INT,
 	INDEX searchhash_idx (`SearchHash`),
     
-    `Filter` VARCHAR(32) CHARACTER SET 'utf8',
-    `JsonLog` TEXT CHARACTER SET 'utf8',
-    `From` INT,
-    `To` INT,
+	`Sid` INT,
+    `SearchLog` TEXT CHARACTER SET 'utf8',
+    `ResultLog` TEXT CHARACTER SET 'utf8',
     `Timestamp` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     
 

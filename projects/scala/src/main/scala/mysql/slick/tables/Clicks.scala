@@ -9,10 +9,9 @@ extends Table[Types.Clicks](tag, "clicks") {
   def autoId = column[Int]("AutoId", O.PrimaryKey, O.AutoInc)
   def entryId = column[String]("EntryId")
   def searchHash = column[Int]("SearchHash")
-  def filter = column[String]("Filter")
+  def sid = column[Option[Int]]("Sid")
   def rank = column[Int]("Rank")
-  def quality = column[String]("Quality")
   def timestamp = column[Option[Timestamp]]("Timestamp")
 
-  override def * = (autoId, entryId, searchHash, filter, rank, quality, timestamp)
+  override def * = (autoId, entryId, searchHash, sid, rank, timestamp)
 }

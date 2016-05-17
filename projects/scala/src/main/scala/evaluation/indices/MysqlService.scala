@@ -42,7 +42,7 @@ object MysqlService extends App {
     // generate the request itself
     val start = System.nanoTime()
 
-    service.search(Search(searchTerms, Some(30), Some(39), Some(FilterParameterType.All))).map(rs => {
+    service.search(Search(searchTerms, Some(30), Some(39), Some(FilterParameterType.All), None)).map(rs => {
       val elapsed = elapsedMs(start)
 
       // Filter a bit the outliers

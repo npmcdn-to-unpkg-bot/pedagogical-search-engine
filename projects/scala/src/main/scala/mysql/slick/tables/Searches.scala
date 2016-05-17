@@ -8,11 +8,10 @@ class Searches(tag: Tag)
 extends Table[Types.Searches](tag, "searches") {
   def autoId = column[Int]("AutoId", O.PrimaryKey, O.AutoInc)
   def searchHash = column[Int]("SearchHash")
-  def filter = column[String]("Filter")
-  def jsonLog = column[String]("JsonLog")
-  def from = column[Int]("From")
-  def to = column[Int]("To")
+  def sid = column[Option[Int]]("Sid")
+  def searchLog = column[String]("SearchLog")
+  def resultLog = column[String]("ResultLog")
   def timestamp = column[Option[Timestamp]]("Timestamp")
 
-  override def * = (autoId, searchHash, filter, jsonLog, from, to, timestamp)
+  override def * = (autoId, searchHash, sid, searchLog, resultLog, timestamp)
 }

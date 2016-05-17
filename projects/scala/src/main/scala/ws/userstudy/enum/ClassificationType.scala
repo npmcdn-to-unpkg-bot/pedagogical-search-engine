@@ -6,6 +6,4 @@ extends Enumeration{
 
   val relevant = Value("relevant")
   val irrelevant = Value("irrelevant")
-  val relevantPatch = Value("rlvpatch")
-  val irrelevantPatch = Value("irlvpatch")
 }

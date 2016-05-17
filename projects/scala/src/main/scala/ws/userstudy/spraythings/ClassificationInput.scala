@@ -5,4 +5,4 @@ import ws.indices.spraythings.SearchTerm
 case class ClassificationInput(searchTerms: List[SearchTerm],
                                entryId: String,
                                classification: String,
-                               filter: String) {}
+                               sid: Option[Int]) {}

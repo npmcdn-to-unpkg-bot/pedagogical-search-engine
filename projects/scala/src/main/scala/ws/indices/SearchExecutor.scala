@@ -1,6 +1,7 @@
 package ws.indices
 
 
+import org.json4s.native.Serialization.write
 import slick.jdbc.JdbcBackend._
 import utils.{Logger, Settings}
 import ws.indices.bing.BingFetcher
@@ -12,7 +13,7 @@ import ws.indices.spraythings.{FilterParameterType, Search, SearchTerm}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class SearchExecutor(settings: Settings) {
+class SearchExecutor(settings: Settings) extends rsc.Formatters {
 
   // Create the service itself
   private val db = Database.forConfig("wikichimp.indices.ws.slick")
@@ -53,7 +54,7 @@ class SearchExecutor(settings: Settings) {
         rejectResponse
       } else {
         unvalidatedSearch(searchTerms, from, to,
-          search.filter.getOrElse(FilterParameterType.All))
+          search.filter.getOrElse(FilterParameterType.All), search.sid)
       }
     }
   }
@@ -61,19 +62,11 @@ class SearchExecutor(settings: Settings) {
   def unvalidatedSearch(searchTerms: List[SearchTerm],
                         from: Int,
                         to: Int,
-                        filter: FilterParameter)
+                        filter: FilterParameter,
+                        sid: Option[Int])
   : Future[Response] = {
-
-    // Log the search
-    val logAction = Queries.saveSearch(searchTerms, from, to, filter)
-    val logFuture = db.run(logAction).recover {
-      case e =>
-        // We do not really care about failures
-        Logger.stackTrace("there was a log failure", e)
-    }
-
     // Fetch all the best indices (without their details yet)
-    val indicesFuture = indicesFetcher.wcAndBing(searchTerms, N_MAX, filter).flatMap {
+    indicesFetcher.wcAndBing(searchTerms, N_MAX, filter).flatMap {
       case (indexEntries, nbResults) =>
         // fetch the details in the [from, to] interval
         val interval = indexEntries.slice(from, to + 1)
@@ -91,8 +84,7 @@ class SearchExecutor(settings: Settings) {
               url,
               snippet.toJSONString,
               QualityType.unknown,
-              rank,
-              c.engine
+              rank
             )
 
           case (c@FullWikichimp(entryId, score, _, title, source, url, snippet), rank) =>
@@ -103,8 +95,7 @@ class SearchExecutor(settings: Settings) {
               url,
               snippet.toJSONString,
               QualityType.qualityFromScore(score, SearchTerm.uris(searchTerms).size),
-              rank,
-              c.engine
+              rank
             )
 
           case (c@FullWFT(entryId, score, resourceId, title, source, url, snippet), rank) =>
@@ -115,8 +106,7 @@ class SearchExecutor(settings: Settings) {
               url,
               snippet.toJSONString,
               QualityType.unknown,
-              rank,
-              c.engine
+              rank
             )
         }
 
@@ -140,12 +130,23 @@ class SearchExecutor(settings: Settings) {
 
         // Create the public response
         Response(inherited, totalNb)
-    }
+    }.flatMap {
+      case response =>
+        // Log the search
+        val searchLog = write(SearchLog(from, to, filter, searchTerms))
+        val resultLog = write(response)
+        val logAction = Queries.saveSearch(searchTerms, sid,
+          searchLog, resultLog)
 
-    // Quick off the tasks in parallel
-    for {
-      _ <- logFuture
-      response <- indicesFuture
-    } yield response
+        // Return anyway the response
+        db.run(logAction).map {
+          case _ => response
+        }.recover {
+          case e =>
+            // We do not really care about failures
+            Logger.stackTrace("there was a log failure", e)
+            response
+        }
+    }
   }
 }
