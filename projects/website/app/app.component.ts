@@ -37,6 +37,7 @@ import {ClassificationService} from "./search/user-study/classification.service"
 import {SimpleClassificationService} from "./search/user-study/simple-classification.service";
 import {AboutCmp} from "./about/about.component";
 import {HowItWorksCmp} from "./about/howitworks.component";
+import {FeedbackCmp} from "./about/feedback.component";
 
 @Component({
     selector: 'wc-app',
@@ -71,8 +72,8 @@ import {HowItWorksCmp} from "./about/howitworks.component";
         
         <div class="wc-com-app-footer-right">
             <span>
-                <a>
-                    Give us Feedback
+                <a [routerLink]="['Feedback']">
+                    Give Feedback
                 </a>
             </span>
             
@@ -105,7 +106,8 @@ import {HowItWorksCmp} from "./about/howitworks.component";
 @RouteConfig([
     {path:'/search', name: 'Search', component: SearchCmp, useAsDefault: true},
     {path:'/about', name: 'About', component: AboutCmp},
-    {path:'/howitworks', name: 'HowItWorks', component: HowItWorksCmp}
+    {path:'/howitworks', name: 'HowItWorks', component: HowItWorksCmp},
+    {path:'/feedback', name: 'Feedback', component: FeedbackCmp}
 ])
 export class AppComponent {
     private _year = new Date().getFullYear();
