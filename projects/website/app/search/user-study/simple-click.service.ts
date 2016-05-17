@@ -3,12 +3,14 @@ import {Http, Headers, RequestOptions} from "angular2/http";
 import {SearchTerm} from "../search-terms/SearchTerm";
 import {Quality} from "../results/quality";
 import {ClickService} from "./click.service";
+import {UserstudyService} from "../../userstudy/userstudy";
 
 @Injectable()
 export class SimpleClickService extends ClickService {
     constructor(
         private _http: Http,
-        @Inject('SETTINGS') private _settings
+        @Inject('SETTINGS') private _settings,
+        @Inject(UserstudyService) private _usService
     ) {}
 
     // Public method
@@ -28,7 +30,8 @@ export class SimpleClickService extends ClickService {
             "entryId": entryId,
             "rank": rank,
             "quality": Quality[quality],
-            "filter": "all"
+            "filter": "all",
+            "sid": this._usService.sid
         });
 
         return this._http.post(url, body, options);

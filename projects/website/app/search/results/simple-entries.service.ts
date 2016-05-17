@@ -11,6 +11,7 @@ import {Response} from "./response";
 import {Quality} from "./quality";
 import {NbResults} from "./NbResults";
 import {Filter} from "./Filter";
+import {UserstudyService} from "../../userstudy/userstudy";
 
 @Injectable()
 export class SimpleEntriesService extends EntriesService {
@@ -19,7 +20,8 @@ export class SimpleEntriesService extends EntriesService {
 
     constructor(
         private _http: Http,
-        @Inject('SETTINGS') private _settings
+        @Inject('SETTINGS') private _settings,
+        @Inject(UserstudyService) private _usService
     ){}
 
     list(searchTerms: Array<SearchTerm>, from: number, to: number, filter: Filter)
@@ -32,7 +34,8 @@ export class SimpleEntriesService extends EntriesService {
             "searchTerms": SearchTerm.wsRepresentation(searchTerms),
             "from": from,
             "to": to,
-            "filter": Filter[filter]
+            "filter": Filter[filter],
+            "sid": this._usService.sid
         });
 
         return this._http.post(url, body, options)

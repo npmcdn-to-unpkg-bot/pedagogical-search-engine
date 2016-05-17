@@ -1,18 +1,18 @@
 import {Injectable, Inject} from "angular2/core";
-import {Http, Headers, RequestOptions} from "angular2/http";
+import {Http, Headers, RequestOptions, Response as HttpResponse} from "angular2/http";
 import {SearchTerm} from "../search-terms/SearchTerm";
 import {ClassificationService} from "./classification.service";
 import {Classification} from "../results/classification";
-import privateMemberModifier = ts.ScriptElementKindModifier.privateMemberModifier;
 import {Entry} from "../results/entry";
-import {Response} from "../results/response";
-import {Response as HttpResponse} from 'angular2/http'
+import {UserstudyService} from "../../userstudy/userstudy";
+import privateMemberModifier = ts.ScriptElementKindModifier.privateMemberModifier;
 
 @Injectable()
 export class SimpleClassificationService extends ClassificationService {
     constructor(
         private _http: Http,
-        @Inject('SETTINGS') private _settings
+        @Inject('SETTINGS') private _settings,
+        @Inject(UserstudyService) private _usService
     ) {}
 
     private _cache: Array<Classification> = [];
@@ -52,21 +52,16 @@ export class SimpleClassificationService extends ClassificationService {
         }
         this._cache[entryId] = classification;
 
-        // Extract the uris
-        let uris: Array<String> = [];
-        for(let st of searchTerms) {
-            uris.push(st.uri);
-        }
-
         // Save the click
         let url = this._settings.STUDY_URL + "/classifications";
 
         let headers = new Headers({ 'Content-Type': 'application/json' });
         let options = new RequestOptions({ headers: headers });
         let body = JSON.stringify({
-            "uris": uris,
+            "searchTerms": SearchTerm.wsRepresentation(searchTerms),
             "entryId": entryId,
-            "classification": Classification[classification]
+            "classification": Classification[classification],
+            "sid": this._usService.sid
         });
 
         return this._http.post(url, body, options).map((res: HttpResponse) => {
