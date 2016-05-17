@@ -38,6 +38,7 @@ import {SimpleClassificationService} from "./search/user-study/simple-classifica
 import {AboutCmp} from "./about/about.component";
 import {HowItWorksCmp} from "./about/howitworks.component";
 import {FeedbackCmp} from "./about/feedback.component";
+import {UserstudyService} from "./userstudy/userstudy";
 
 @Component({
     selector: 'wc-app',
@@ -100,7 +101,8 @@ import {FeedbackCmp} from "./about/feedback.component";
 `,
     directives: [ROUTER_DIRECTIVES],
     providers: [
-        provide(ClassificationService, {useClass: SimpleClassificationService})
+        provide(ClassificationService, {useClass: SimpleClassificationService}),
+        provide(UserstudyService, {useClass: UserstudyService})
     ]
 })
 @RouteConfig([

@@ -1,5 +1,6 @@
 import {ROUTER_DIRECTIVES} from "angular2/router";
 import {Component} from "angular2/core";
+import {UserstudyService} from "../userstudy/userstudy";
 
 @Component({
     selector: 'wc-app',
@@ -81,15 +82,18 @@ import {Component} from "angular2/core";
     ]
 })
 export class FeedbackCmp {
-    constructor() {}
+    constructor(private _usService: UserstudyService) {}
 
     private _clickQ1(value: string): void {
         console.log(`Q1: Clicked ${value}`);
+        console.log(`SessionId: ${this._usService.sid}`);
     }
     private _clickQ2(value: string): void {
-        console.log(`Q1: Clicked ${value}`);
+        console.log(`Q2: Clicked ${value}`);
+        console.log(`SessionId: ${this._usService.sid}`);
     }
     private _clickQ3(value: string): void {
-        console.log(`Q1: Clicked ${value}`);
+        console.log(`Q3: Clicked ${value}`);
+        console.log(`SessionId: ${this._usService.sid}`);
     }
 }
