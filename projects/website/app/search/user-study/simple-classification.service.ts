@@ -43,13 +43,6 @@ export class SimpleClassificationService extends ClassificationService {
         if(!(entryId in this._msgCache)) {
             this._msgCache[entryId] = this._possibleThanksMsg();
         }
-        if(entryId in this._cache) {
-            if(classification === Classification.relevant) {
-                classification = Classification.rlvpatch;
-            } else {
-                classification = Classification.irlvpatch;
-            }
-        }
         this._cache[entryId] = classification;
 
         // Save the click
@@ -74,20 +67,21 @@ export class SimpleClassificationService extends ClassificationService {
         return Object.keys(this._cache).length;
     }
 
+    public getClassification(entry: Entry)
+    : Classification {
+        return this.isClassified(entry)? this._cache[entry.entryId]: null;
+    }
 
-    public isClassified(entry: Entry): boolean {
+    public isClassified(entry: Entry)
+    : boolean {
         return (entry.entryId in this._cache);
     }
-    public isRelevant(entry: Entry): boolean {
-        return this.isClassified(entry) &&
-            (this._cache[entry.entryId] === Classification.relevant ||
-            this._cache[entry.entryId] === Classification.rlvpatch);
+
+    public isClassifiedAs(entry: Entry, classification: Classification)
+    : boolean {
+        return (this.isClassified(entry) && this.getClassification(entry) == classification);
     }
-    public isIrrelevant(entry: Entry): boolean {
-        return this.isClassified(entry) &&
-            (this._cache[entry.entryId] === Classification.irrelevant ||
-            this._cache[entry.entryId] === Classification.irlvpatch);
-    }
+
     public thxMsg(entry: Entry): String {
         return (entry.entryId in this._msgCache)? this._msgCache[entry.entryId]: '';
     }

@@ -1,9 +1,10 @@
 
 export enum Classification {
-    relevant,
     irrelevant,
-    rlvpatch,
     irlvpatch,
-    rlvunselect,
-    irlunselect
+    irlvunselect,
+
+    relevant,
+    rlvpatch,
+    rlvunselect
 }

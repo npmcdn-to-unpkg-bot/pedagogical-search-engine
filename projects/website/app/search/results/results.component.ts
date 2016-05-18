@@ -86,9 +86,16 @@ import {Filter} from "./Filter";
                  [innerHTML]="_lineHService.highlight(line)"></div>
         </div>
         <div class="wc-com-results-rating-container">
+            Rate this result &#187;
             <button
-                [class.button-selected-bad]="_clsService.isIrrelevant(entry)"
+                *ngIf="!_clsService.isClassifiedAs(entry, _irrelevant)"
                 (click)="_classify(entry, _irrelevant)">
+                Bad match
+            </button>
+            <button
+                *ngIf="_clsService.isClassifiedAs(entry, _irrelevant)"
+                class="button-selected-bad"
+                (click)="_classify(entry, _irlvunselect)">
                 Bad match
             </button>
             <span *ngIf="_clsService.isClassified(entry)"
@@ -146,6 +153,7 @@ export class ResultsCmp {
     private _from: number = 0;
     private _step: number = 10;
     private _irrelevant: Classification = Classification.irrelevant;
+    private _irlvunselect: Classification = Classification.irlvunselect;
 
     constructor(
         @Inject(EntriesService) private _entriesService: EntriesService,
