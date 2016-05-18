@@ -64,14 +64,16 @@ import {Filter} from "./Filter";
             </span>
             
             <a *ngIf="!entry.hasHref()"
+               target="_blank"
                 [href]="entry.epflHref()"
-               (mousedown)="_logAndGoTo($event, entry, entry.epflHref())">
+               (mousedown)="_logClick(entry)">
                 <b [textContent]="entry.title"></b>
             </a>
             <a *ngIf="entry.hasHref()"
+               target="_blank"
                 class="wc-com-results-link wc-com-results-link-ok"
                 [href]="entry.href"
-               (mousedown)="_logAndGoTo($event, entry, entry.href)">
+               (mousedown)="_logClick(entry)">
                 <b [textContent]="entry.title"></b>
             </a>
             
@@ -215,16 +217,7 @@ export class ResultsCmp {
             console.log(res.text());
         });
     }
-    private _logAndGoTo(e: MouseEvent, entry: Entry, url: String): void {
-        // Prevent following the link until we logged the click
-        let openNewPage = false;
-        if (e.ctrlKey || e.metaKey || e.button === 1) {
-            openNewPage = true;
-        }
-        if(!openNewPage) {
-            e.preventDefault();
-        }
-
+    private _logClick(entry: Entry): void {
         // Log the click
         let clickStream = this._clickService.saveClick(
             this._searchTerms,
@@ -234,13 +227,6 @@ export class ResultsCmp {
 
         clickStream.subscribe((res: HttpResponse) => {
             console.log(`Click logged: ${res.text()}`);
-
-            // In the case of a direct click to the link
-            // Follow it
-            if(!openNewPage && e.button === 0) {
-                console.log(`Going to ${url}`);
-                window.location.href = url;
-            }
         });
     }
     private _isCurrentPage(pageNo: number): boolean {
