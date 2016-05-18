@@ -54,7 +54,23 @@ export class SimpleEntriesService extends EntriesService {
                     // Extract basic information
                     let entryId = e["entryId"];
                     let title = e["title"];
-                    let typeText = e["source"] + " - " + e["engine"];
+                    let typeText = e["source"];
+
+                    // Beautify the source
+                    if(typeText === 'khan') {
+                        typeText = 'KhanAcademy.org';
+                    } else if(typeText === 'mit') {
+                        typeText = 'MIT University';
+                    } else if(typeText === 'coursera') {
+                        typeText = 'Coursera.org';
+                    } else if(typeText === 'scholarpedia') {
+                        typeText = 'Scholarpedia.org';
+                    } else if(typeText === 'safari') {
+                        typeText = '';
+                    }  else if(typeText.length > 0) {
+                        typeText = typeText[0].toUpperCase() + typeText.substr(1)
+                    }
+
                     let href = e["href"];
                     let rank: number = +e["rank"];
                     let quality = Quality[e["quality"]];
