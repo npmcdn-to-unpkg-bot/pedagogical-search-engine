@@ -1,14 +1,15 @@
 import {Injectable, Inject} from "angular2/core";
-import {UserstudyService} from "../userstudy/userstudy";
 import {MessageService} from "../message.service";
 import {Observable} from "rxjs/Observable";
-import {Response} from "angular2/http";
+import {LocalStorageService} from "../utils/LocalStorageEmitter";
+import {LocalStorage} from "../utils/WebStorage";
 
 @Injectable()
 export class FeedbackService {
-    constructor(@Inject(MessageService) private _msService: MessageService) {}
-    
-    private _cache = {};
+    constructor(@Inject(MessageService) private _msService: MessageService,
+                storageService: LocalStorageService) {}
+
+    @LocalStorage() private _cache = {};
 
     // Private methods
     private static _jsonRep(id: string, value: string): string {

@@ -4,7 +4,7 @@ import {Component} from "angular2/core";
 @Component({
     selector: 'wc-app',
     template: `
-    
+
     <div class="wc-com-about-container">
         <h2>What is Wikichimp</h2>
         <p>
@@ -42,11 +42,7 @@ import {Component} from "angular2/core";
  
          `,
     directives: [ROUTER_DIRECTIVES],
-    providers: [
-    ]
+    providers: []
 })
 export class AboutCmp {
-    constructor() {
-        console.log("yop");
-    }
 }

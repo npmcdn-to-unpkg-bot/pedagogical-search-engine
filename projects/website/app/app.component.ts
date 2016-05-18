@@ -41,6 +41,7 @@ import {FeedbackCmp} from "./feedback/feedback.component";
 import {UserstudyService} from "./userstudy/userstudy";
 import {MessageService} from "./message.service";
 import {FeedbackService} from "./feedback/feedback.service";
+import {LocalStorageService} from "./utils/LocalStorageEmitter";
 
 @Component({
     selector: 'wc-app',
@@ -50,7 +51,7 @@ import {FeedbackService} from "./feedback/feedback.service";
     <div class="wc-com-app-header">
         <a [routerLink]="['Search']">
             <span class="wc-com-app-header-title">
-                Wikichimp
+                Wikichimp 
             </span>
         </a>
         <span class="wc-com-app-header-text">
@@ -106,7 +107,8 @@ import {FeedbackService} from "./feedback/feedback.service";
         provide(ClassificationService, {useClass: SimpleClassificationService}),
         provide(UserstudyService, {useClass: UserstudyService}),
         provide(MessageService, {useClass: MessageService}),
-        provide(FeedbackService, {useClass: FeedbackService})
+        provide(FeedbackService, {useClass: FeedbackService}),
+        LocalStorageService
     ]
 })
 @RouteConfig([

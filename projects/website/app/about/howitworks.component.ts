@@ -54,7 +54,5 @@ import {Component} from "angular2/core";
     ]
 })
 export class HowItWorksCmp {
-    constructor() {
-        console.log("yop");
-    }
+    constructor() {}
 }
