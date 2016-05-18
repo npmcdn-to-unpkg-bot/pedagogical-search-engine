@@ -1,10 +1,11 @@
 import {ROUTER_DIRECTIVES} from "angular2/router";
-import {Component} from "angular2/core";
+import {Component, ViewChild} from "angular2/core";
 import {UserstudyService} from "../userstudy/userstudy";
 import {MessageService} from "../message.service";
 import {Q1Cmp} from "./questions/q1.component";
 import {Q2Cmp} from "./questions/q2.component";
 import {Q3Cmp} from "./questions/q3.component";
+import {FeedbackService} from "./feedback.service";
 
 @Component({
     selector: 'wc-app',
@@ -26,10 +27,11 @@ import {Q3Cmp} from "./questions/q3.component";
         </p>
         
         <form>
-            <textarea #comment class="wc-com-feedback-textarea"></textarea>
+            <textarea [(ngModel)]="comment" class="wc-com-feedback-textarea"
+                      maxlength="5000"></textarea>
             
             <div class="wc-com-feedback-button-container">
-                <button (click)="_submitComment(comment.value)">
+                <button (click)="_submitComment()">
                     Submit this comment
                 </button>
                 <span class="wc-com-feedback-saved-text"
@@ -45,15 +47,24 @@ import {Q3Cmp} from "./questions/q3.component";
     ]
 })
 export class FeedbackCmp {
-    constructor(private _msService: MessageService) {}
+    constructor(private _msService: MessageService,
+                private _feedbackService: FeedbackService) {
+        if(this._feedbackService.hasBeenAnswered(this._id)) {
+            this.comment = this._feedbackService.getAnswer(this._id);
+            this._commentMsg = this._savedMsg;
+        }
+    }
 
+    public comment;
+    private _id = 'textfeedback';
     private _commentMsg = "";
+    private _savedMsg = "You comment has been saved";
 
-    private _submitComment(value: string): void {
+    private _submitComment(): void {
         this._commentMsg = "";
-        this._msService.log('comment', value).subscribe(res => {
-            this._commentMsg = "You comment has been saved";
-            console.log(res.text());
+        this._feedbackService.saveAnswer(this._id, this.comment).subscribe(res => {
+            this._commentMsg = this._savedMsg;
+            console.log(res.statusText);
         });
     }
 }
