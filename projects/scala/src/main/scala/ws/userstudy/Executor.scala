@@ -3,7 +3,7 @@ package ws.userstudy
 import slick.jdbc.JdbcBackend._
 import ws.indices.spraythings.SearchTerm
 import ws.userstudy.enum.ClassificationType
-import ws.userstudy.spraythings.{ClassificationInput, ClickInput}
+import ws.userstudy.spraythings.{ClassificationInput, ClickInput, MessageInput}
 
 import scala.concurrent.Future
 
@@ -65,6 +65,24 @@ class Executor {
             case e: Throwable =>
               Future.failed(e)
           }
+      }
+    }
+  }
+
+  // Save a message
+  def saveMessage(message: MessageInput)
+  : Future[Any] = {
+    // Validate the input
+    if(message.category.length > 36) {
+      Future.failed(new Exception("Category is too long (>36)"))
+    } else {
+      try {
+        val category = message.category.trim.toLowerCase
+        val action = Queries.saveMessage(category, message.content, message.sid)
+        db.run(action)
+      } catch {
+        case e: Throwable =>
+          Future.failed(e)
       }
     }
   }

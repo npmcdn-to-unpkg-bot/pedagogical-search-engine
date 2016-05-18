@@ -1,5 +1,5 @@
 spray.can.server.server-header = "Sir Roger"
-spray.can.server.parsing.max-content-length = 1k
+spray.can.server.parsing.max-content-length = 5k
 spray.can.client.parsing.max-response-reason-length = 512
 
 wikichimp {

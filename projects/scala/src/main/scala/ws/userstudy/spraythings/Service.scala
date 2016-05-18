@@ -32,16 +32,31 @@ trait Service extends HttpService with CORSSupport with Json4sSupport with Forma
         }
       }
     } ~
-      path("classifications") {
-        respondWithCORS() {
-          post {
-            entity(as[ClassificationInput]) { ci =>
-              onComplete(executor.saveCl(ci)) {
-                case Success(value) => complete { OkMsg }
-                case Failure(e) => complete { FailMsg }
+    path("classifications") {
+      respondWithCORS() {
+        post {
+          entity(as[ClassificationInput]) { ci =>
+            onComplete(executor.saveCl(ci)) {
+              case Success(value) => complete { OkMsg }
+              case Failure(e) => complete { FailMsg }
+            }
+          }
+        }
+      }
+    } ~
+    path("messages") {
+      respondWithCORS() {
+        post {
+          entity(as[MessageInput]) { message =>
+            onComplete(executor.saveMessage(message)) {
+              case Success(value) => complete { OkMsg }
+              case Failure(e) => complete {
+                e.printStackTrace()
+                FailMsg
               }
             }
           }
         }
       }
+    }
 }

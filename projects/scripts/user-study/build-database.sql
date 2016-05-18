@@ -72,4 +72,19 @@ CREATE TABLE `searches` (
 	PRIMARY KEY(`AutoId`))
     CHARACTER SET 'utf8';
     
+
+CREATE TABLE `messages` (
+	# There will be a lot of inserts. Thus the "clustered-index"
+    # (aka the PK) in InnoDb should be consecutive.
+	`AutoId` INT NOT NULL AUTO_INCREMENT,
+    
+	`Sid` INT,
+    `Category` VARCHAR(36) CHARACTER SET 'utf8',
+    `Content` TEXT CHARACTER SET 'utf8',
+    `Timestamp` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+
+	PRIMARY KEY(`AutoId`))
+    CHARACTER SET 'utf8';
+    
     

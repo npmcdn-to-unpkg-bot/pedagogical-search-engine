@@ -13,5 +13,6 @@ object Types {
   type CacheDetail = (Int, String, String, String, String, Option[Timestamp])
   type Searches = (Int, Int, Option[Int], String, String, Option[Timestamp])
   type Clicks = (Int, String, Int, Option[Int], Int, Option[Timestamp])
+  type Messages = (Int, Option[Int], String, String, Option[Timestamp])
   type Classification = (Int, Int, String, Option[Int], String, Option[Timestamp])
 }
