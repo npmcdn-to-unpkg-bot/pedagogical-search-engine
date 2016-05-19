@@ -1,0 +1,13 @@
+
+.wc-com-helper- {
+
+  &msg {
+    @extend .wc-com-indie-flower;
+    display: block;
+    margin: 20px;
+
+    font-weight: 700;
+
+    font-size: 2.2em;
+  }
+}

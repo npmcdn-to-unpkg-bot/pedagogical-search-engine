@@ -5,6 +5,7 @@ import {SimpleCompletionService} from "./simple-completion.service";
 import {Result} from "./result/result";
 import {Proposition} from "./proposition";
 import {RawSearch} from "./result/rawSearch";
+import {HelperService} from "../../../helper/helper.service";
 
 @Component({
     selector: 'wc-completion',
@@ -156,6 +157,7 @@ export class CompletionCmp {
     private _newCompletions(
         completion: Completion = new Completion(),
         disambiguationCompletion: Completion = new Completion()) {
+
         // Clear the completions
         this._completion.clear();
         this._disambiguationCompletion.clear();

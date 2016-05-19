@@ -42,6 +42,7 @@ import {UserstudyService} from "./userstudy/userstudy";
 import {MessageService} from "./message.service";
 import {FeedbackService} from "./feedback/feedback.service";
 import {LocalStorageService} from "./utils/LocalStorageEmitter";
+import {HelperService} from "./helper/helper.service";
 
 @Component({
     selector: 'wc-app',
@@ -108,7 +109,8 @@ import {LocalStorageService} from "./utils/LocalStorageEmitter";
         provide(UserstudyService, {useClass: UserstudyService}),
         provide(MessageService, {useClass: MessageService}),
         provide(FeedbackService, {useClass: FeedbackService}),
-        LocalStorageService
+        LocalStorageService,
+        HelperService
     ]
 })
 @RouteConfig([
