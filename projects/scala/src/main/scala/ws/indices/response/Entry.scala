@@ -8,4 +8,5 @@ case class Entry(entryId: String,
                  href: String,
                  snippet: String,
                  quality: QualityType.Quality,
-                 rank: Int) {}
+                 rank: Int,
+                 engine: Engine) {}

@@ -5,7 +5,7 @@ import org.json4s.native.Serialization.write
 import slick.jdbc.JdbcBackend._
 import utils.{Logger, Settings}
 import ws.indices.bing.BingFetcher
-import ws.indices.indexentry.{FullBing, FullWFT, FullWikichimp}
+import ws.indices.indexentry.{EngineType, FullBing, FullWFT, FullWikichimp}
 import ws.indices.response.{Entry, NbResults, QualityType, Response}
 import ws.indices.spraythings.FilterParameterType.FilterParameter
 import ws.indices.spraythings.{FilterParameterType, Search, SearchTerm}
@@ -84,7 +84,8 @@ class SearchExecutor(settings: Settings) extends rsc.Formatters {
               url,
               snippet.toJSONString,
               QualityType.unknown,
-              rank
+              rank,
+              EngineType.Bing
             )
 
           case (c@FullWikichimp(entryId, score, _, title, source, url, snippet), rank) =>
@@ -95,7 +96,8 @@ class SearchExecutor(settings: Settings) extends rsc.Formatters {
               url,
               snippet.toJSONString,
               QualityType.qualityFromScore(score, SearchTerm.uris(searchTerms).size),
-              rank
+              rank,
+              EngineType.WikichimpFT
             )
 
           case (c@FullWFT(entryId, score, resourceId, title, source, url, snippet), rank) =>
@@ -106,7 +108,8 @@ class SearchExecutor(settings: Settings) extends rsc.Formatters {
               url,
               snippet.toJSONString,
               QualityType.unknown,
-              rank
+              rank,
+              EngineType.Wikichimp
             )
         }
 
