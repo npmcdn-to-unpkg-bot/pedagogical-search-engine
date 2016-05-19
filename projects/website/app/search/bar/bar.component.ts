@@ -103,10 +103,14 @@ export class SearchBarCmp {
         );
 
          // Reflect in the url
-         this._router.navigate(['Search', {
-             q: searchParameters,
-             filter: this._routeParams.get("filter")
-         }]);
+        let params = {
+            q: searchParameters
+        };
+        if('filter' in this._routeParams.params) {
+            params['filter'] = this._routeParams.get("filter");
+        }
+
+         this._router.navigate(['Search', params]);
     }
     private _itemSelected(entity: Entity) {
         if(this._entities.indexOf(entity) === -1) {

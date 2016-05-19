@@ -220,7 +220,6 @@ export class ResultsCmp {
             q: this._routeParams.get("q")
         };
 
-
         if("filter" in this._routeParams.params || pFilter) {
             newParams["filter"] = pFilter? Filter[pFilter]: this._routeParams.get("filter");
         }
