@@ -34,7 +34,10 @@ object Snippet  {
     json.extract[Snippet]
   }
 
-  def fromRscSnippet(rscSnippet: rsc.snippets.Snippet, uris: Set[String]): Snippet = {
+  def fromRscSnippet(rscSnippet: rsc.snippets.Snippet, _uris: Set[String]): Snippet = {
+    // normalize
+    val uris: Set[String] = _uris.map(_.toLowerCase)
+
     // Get the top line if it is not the title
     val topLine = rscSnippet.topLine
     val topSnippet = topLine.source == Source.title match {
@@ -44,14 +47,14 @@ object Snippet  {
 
     // Produce other lines
     val remaining = 3 - topSnippet.size
-    val pumped = pumpNLines(remaining, rscSnippet.otherLines, uris)
+    val pumped = pumpNTocLines(remaining, rscSnippet.otherLines, uris)
 
     // Produce the snippet
     Snippet(topSnippet:::pumped)
   }
 
 
-  private def pumpNLines(n: Int, lines: List[rsc.snippets.Line], uris: Set[String])
+  private def pumpNTocLines(n: Int, lines: List[rsc.snippets.Line], uris: Set[String])
   : List[Line] = {
     // Extract the indices that match
     val withMatches = lines.map(line => {
@@ -60,15 +63,14 @@ object Snippet  {
     })
 
     // Take the best lines
-    val filtered = withMatches.filter(_._2.nonEmpty)
-    val tocLines = filtered.filter(_._1.priority != 1)
+    val tocLines = withMatches.filter(_._1.source == Source.toc)
     val ordered = tocLines.sortBy {
-      case (line, matches) => (line.priority, -matches.size)
+      case (line, matches) => (-matches.size, line.priority)
     }
-    val topN = ordered.take(n)
+    val topN = ordered.take(n).map(_._1)
 
     // Produce the lines
-    topN.map(_._1).map(lineFromRscLine(_, uris))
+    topN.map(lineFromRscLine(_, uris))
   }
 
   private def lineFromRscLine(line: rsc.snippets.Line, uris: Set[String])
