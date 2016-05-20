@@ -1,0 +1,4 @@
+Description
+======================
+This issue is related to the code modifications that a user study might need.
+e.g. defining a new search strategy "just to test"
