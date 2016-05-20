@@ -43,6 +43,78 @@
 
 <!-- 3. Display the application -->
 <body>
-    <wc-app>Loading..</wc-app>
+<wc-app>
+    <!-- A static version while loading -->
+    <div class="wc-com-app-container">
+        <div class="wc-com-app-header">
+                <span class="router-link-active">
+                    <span class="wc-com-app-header-title">
+                        Wikichimp
+                    </span>
+                </span>
+                <span class="wc-com-app-header-text">
+                    Search engine by &amp; for students
+                </span>
+        </div>
+
+        <div class="wc-com-app-content">
+            <div class="wc-com-search-topthings">
+                <wc-search-bar class="wc-com-search-bar-container">
+                    <div>
+                        Search online Books &amp; Courses
+                    </div>
+                    <div>
+                        <div class="wc-com-search-bar-input-wrapper">
+                            <input class="wc-com-search-bar-input" type="text">
+                            <div class="wc-com-search-bar-input-bottom-container">
+                                <wc-completion class="wc-com-search-bar-suggestions">
+                                </wc-completion>
+                            </div>
+                        </div>
+                    </div>
+                </wc-search-bar>
+            </div>
+
+            <wc-search-results>
+                <div class="wc-com-results-container">
+                </div>
+            </wc-search-results>
+
+            <div class="wc-com-search-video">
+                    <span>
+                        <span class="wc-com-helper-msg">
+                            (1) Type in your query ↗<br>
+                            ex: Biology
+                        </span>
+                    </span>
+            </div>
+        </div>
+
+        <div class="wc-com-app-footer">
+            <div class="wc-com-app-footer-left">
+                    <span class="wc-com-app-footer-logo">
+                        Wikichimp
+                    </span>
+                    <span class="wc-com-app-footer-date">
+                        2016.4
+                    </span>
+            </div>
+
+            <div class="wc-com-app-footer-right">
+                    <span>
+                        Give Feedback
+                    </span>
+                &#187;
+                    <span>
+                        How it works
+                    </span>
+                &#187;
+                    <span>
+                        About
+                    </span>
+            </div>
+        </div>
+    </div>
+</wc-app>
 </body>
 </html>
