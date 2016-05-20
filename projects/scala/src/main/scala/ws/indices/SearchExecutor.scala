@@ -97,7 +97,7 @@ class SearchExecutor(settings: Settings) extends rsc.Formatters {
               snippet.toJSONString,
               QualityType.qualityFromScore(score, SearchTerm.uris(searchTerms).size),
               rank,
-              EngineType.WikichimpFT
+              EngineType.Wikichimp
             )
 
           case (c@FullWFT(entryId, score, resourceId, title, source, url, snippet), rank) =>
@@ -109,7 +109,7 @@ class SearchExecutor(settings: Settings) extends rsc.Formatters {
               snippet.toJSONString,
               QualityType.unknown,
               rank,
-              EngineType.Wikichimp
+              EngineType.WikichimpFT
             )
         }
 
