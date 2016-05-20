@@ -38,7 +38,7 @@ class Simple {
       val uris = extractUris(indices)
 
       // Collect the top-line
-      val topLine = Line(Source.title, r.title.label, collectThere(r.title.oSpots, uris), 1)
+      val topLine = Line(Source.title, r.title.label, collectThere(r.title.oSpots, uris, 0), 1)
 
       // Collect the other-lines
       // From tocs
@@ -59,7 +59,7 @@ class Simple {
             Line(
               Source.description,
               description.text,
-              collectThere(description.oSpots, uris),
+              collectThere(description.oSpots, uris, 0),
               1
             )
         }
@@ -73,7 +73,7 @@ class Simple {
             Line(
               Source.keywords,
               keyword.label,
-              collectThere(keyword.oSpots, uris),
+              collectThere(keyword.oSpots, uris, 0),
               1
             )
         }
@@ -87,7 +87,7 @@ class Simple {
             Line(
               Source.categories,
               category.label,
-              collectThere(category.oSpots, uris),
+              collectThere(category.oSpots, uris, 0),
               1
             )
         }
@@ -101,7 +101,7 @@ class Simple {
             Line(
               Source.domains,
               domain.label,
-              collectThere(domain.oSpots, uris),
+              collectThere(domain.oSpots, uris, 0),
               1
             )
         }
@@ -115,7 +115,7 @@ class Simple {
             Line(
               Source.subdomains,
               subdomain.label,
-              collectThere(subdomain.oSpots, uris),
+              collectThere(subdomain.oSpots, uris, 0),
               1
             )
         }
@@ -150,7 +150,8 @@ class Simple {
         val uris: Set[String] = extractUris(indices)
 
         // Collect the top-line
-        val topLine = Line(Source.toc, node.bestLabel(), collectThere(node.oSpots, uris), 2 + level)
+        val topLine = Line(Source.toc, node.bestLabel(),
+          collectThere(node.oSpots, uris, getShift(node)), 2 + level)
 
         // Collect the other-lines "depth-first"
         val otherLines: List[Line] = node.children.flatMap {
@@ -165,16 +166,16 @@ class Simple {
     }
   }
 
-  def collectThere(oSpots: Option[List[Spot]], uris: Set[String])
+  def collectThere(oSpots: Option[List[Spot]], uris: Set[String], shift: Int)
   : List[Index] = oSpots match {
     case None => Nil
-    case Some(spots) => spots.flatMap(collectIndices(_, uris))
+    case Some(spots) => spots.flatMap(collectIndices(_, uris, shift))
   }
 
   def collectThereAndBelow(node: Node, uris: Set[String], level: Int)
   : List[Line] = {
     // Collect the indices from the candidates of this entry
-    val xs = collectThere(node.oSpots, uris) match {
+    val xs = collectThere(node.oSpots, uris, getShift(node)) match {
       case Nil => Nil
       case indices => List(Line(Source.toc, node.bestLabel(), indices, 2 + level))
     }
@@ -185,7 +186,13 @@ class Simple {
     }
   }
 
-  def collectIndices(spot: Spot, uris: Set[String]): List[Index] = {
+  def getShift(node: Node): Int = node.bestLabel().length - node.label.length
+
+  /*
+   * Warning, due to the prettifier, the spots {start, end} pointers
+   * are shifted. ex: 'bla' becomes 'chapter 1: bla'
+   */
+  def collectIndices(spot: Spot, uris: Set[String], shift: Int): List[Index] = {
     // Filter the candidates the match the uris
     val candidates = spot.candidates.filter {
       case candidate => uris.contains(candidate.uri)
@@ -195,7 +202,7 @@ class Simple {
     candidates match {
       case Nil => Nil
       case cs => cs.map {
-        case candidate => Index(candidate.uri, spot.start, spot.end)
+        case candidate => Index(candidate.uri, spot.start + shift, spot.end + shift)
       }
     }
   }
