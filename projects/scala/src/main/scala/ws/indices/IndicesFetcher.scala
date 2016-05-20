@@ -84,7 +84,7 @@ class IndicesFetcher(db: Database, bf: BingFetcher,
         val wcPaidSize = filterEntries(sortedWc, FilterParameterType.Paid).size
 
         // Create our results before mixing with other engines
-        val ourIndices = ListMixer.mixWithPriority(filteredWc, filteredWft).toList
+        val ourIndices = filteredWc ::: filteredWft
 
         // If there are no bing rows, go fetch them
         partialBingRows match {
