@@ -1,0 +1,6 @@
+Description
+======================
+Actually, only the title of the resource plus a snippet is displayed as a search result.
+It might be interesting for the user to see the top concepts. Not the ones associated
+with the result entry itself, but the ones associated with the resource to which the result
+entry belongs to.
