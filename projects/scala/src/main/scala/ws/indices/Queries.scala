@@ -79,7 +79,7 @@ object Queries {
     SUM(Score),
     MIN(ResourceId),
     MIN(TypeText)
-  FROM indices
+  FROM `indices`
   WHERE
     Uri IN ($uris#${",?" * (uris.size - 1)})
   GROUP BY entryId
@@ -143,7 +143,7 @@ object Queries {
 		Snippet,
     '2016-04-29 14:45:48',
     TopIndicesJson
-	FROM `details-next`
+	FROM `details`
     WHERE EntryId IN ($uris#${",?" * (uris.size - 1)})
 );
     """.as[(String, String, String, String, Timestamp, String)]
