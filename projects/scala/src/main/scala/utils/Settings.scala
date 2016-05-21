@@ -65,6 +65,9 @@ class Settings(config: Config) {
     object Indexation {
       val nbTasks = getInt("indices.indexation.nbTasks")
     }
+    object Import {
+      val topIndicesNumber = getInt("indices.import.topIndicesNumber")
+    }
     object Ws {
       object Spray {
         val ip = getString("indices.ws.spray.ip")

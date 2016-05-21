@@ -2,15 +2,16 @@ package elasticsearch
 
 import org.json4s.JsonAST.JObject
 import org.json4s.JsonDSL._
-import rsc.Resource
+import org.json4s.native.Serialization.write
 import rsc.attributes.Source.Source
 import rsc.indexers.Indices
 import rsc.toc.Node
+import rsc.{Formatters, Resource}
 import utils.StringUtils
 
 import scala.util.{Failure, Success, Try}
 
-object ResourceWriter {
+class ResourceWriter(topIndicesNumber: Int) extends Formatters {
   def jsonResources(r: Resource): List[JObject] = {
     val title = titleResource(r) match {
       case Success(e) => List(e)
@@ -54,7 +55,7 @@ object ResourceWriter {
       val entryId = getEntryId(r.title.oIndices)
       val title = r.title.label
       produceResource(title, r.source, title, bodyText(r), entryId, r.resourceId,
-        getHref(r))
+        getHref(r), write(r.topIndices(topIndicesNumber)))
     }
 
   def nodeResource(r: Resource, node: Node)
@@ -63,7 +64,7 @@ object ResourceWriter {
       val entryId = getEntryId(r.title.oIndices)
 
       produceResource(r.title.label, r.source, node.bestLabel(),
-        bodyText(r), entryId, r.resourceId, getHref(r))
+        bodyText(r), entryId, r.resourceId, getHref(r), write(r.topIndices(topIndicesNumber)))
     }
 
   def descriptionText(r: Resource)
@@ -88,11 +89,12 @@ object ResourceWriter {
                       body: String,
                       entryId: String,
                       resourceId: String,
-                      href: String)
+                      href: String,
+                      topIndicesJson: String)
   : JObject =
     ("title" -> title) ~ ("source" -> source.toString) ~
       ("header" -> header) ~ ("body" -> body) ~
       ("entryId" -> entryId) ~ ("resourceId" -> resourceId) ~
-      ("href" -> href)
+      ("href" -> href) ~ ("topIndicesJson" -> topIndicesJson)
 
 }

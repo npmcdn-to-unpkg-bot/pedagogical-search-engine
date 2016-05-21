@@ -85,10 +85,11 @@ class SearchExecutor(settings: Settings) extends rsc.Formatters {
               snippet.toJSONString,
               QualityType.unknown,
               rank,
-              EngineType.Bing
+              EngineType.Bing,
+              None
             )
 
-          case (c@FullWikichimp(entryId, score, _, title, source, url, snippet), rank) =>
+          case (c@FullWikichimp(entryId, score, _, title, source, url, snippet, topIndices), rank) =>
             Entry(
               entryId,
               title,
@@ -97,10 +98,11 @@ class SearchExecutor(settings: Settings) extends rsc.Formatters {
               snippet.toJSONString,
               QualityType.qualityFromScore(score, SearchTerm.uris(searchTerms).size),
               rank,
-              EngineType.Wikichimp
+              EngineType.Wikichimp,
+              Some(topIndices.map(_.uri))
             )
 
-          case (c@FullWFT(entryId, score, resourceId, title, source, url, snippet), rank) =>
+          case (c@FullWFT(entryId, score, resourceId, title, source, url, snippet, topIndices), rank) =>
             Entry(
               entryId,
               title,
@@ -109,7 +111,8 @@ class SearchExecutor(settings: Settings) extends rsc.Formatters {
               snippet.toJSONString,
               QualityType.unknown,
               rank,
-              EngineType.WikichimpFT
+              EngineType.WikichimpFT,
+              Some(topIndices.map(_.uri))
             )
         }
 

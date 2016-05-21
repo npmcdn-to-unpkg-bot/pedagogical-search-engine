@@ -32,4 +32,5 @@ CREATE TABLE `details` (
   `Title` VARCHAR(255) CHARACTER SET 'utf8' NULL,
   `Href` TEXT CHARACTER SET 'utf8' NULL,
   `Snippet` TEXT CHARACTER SET 'utf8' NULL,
+  `TopIndicesJson` TEXT CHARACTER SET 'utf8' NULL,
 PRIMARY KEY (`EntryId`));

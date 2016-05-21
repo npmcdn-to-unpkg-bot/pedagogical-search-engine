@@ -131,7 +131,8 @@ object Queries {
 		Title,
 		url,
 		Snippet,
-		Timestamp
+		Timestamp,
+		''
 	FROM `cache-details`
 	WHERE EntryId IN ($uris#${",?" * (uris.size - 1)})
 ) UNION (
@@ -140,11 +141,12 @@ object Queries {
 		Title,
 		Href,
 		Snippet,
-    '2016-04-29 14:45:48'
-	FROM details
+    '2016-04-29 14:45:48',
+    TopIndicesJson
+	FROM `details-next`
     WHERE EntryId IN ($uris#${",?" * (uris.size - 1)})
 );
-    """.as[(String, String, String, String, Timestamp)]
+    """.as[(String, String, String, String, Timestamp, String)]
   }
 }
 

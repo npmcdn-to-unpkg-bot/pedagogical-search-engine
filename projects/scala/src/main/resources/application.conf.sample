@@ -64,6 +64,7 @@ wikichimp {
       nbTasks = ???
     }
     import {
+      topIndicesNumber = 5
       slick {
         driver = "com.mysql.jdbc.Driver"
         url = "jdbc:mysql://"?ip?"/wikichimp?useSSL=false"

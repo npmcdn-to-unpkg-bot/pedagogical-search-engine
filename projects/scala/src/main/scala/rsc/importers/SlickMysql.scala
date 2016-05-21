@@ -1,6 +1,7 @@
 package rsc.importers
 
 import mysql.slick.tables.{Details, Indices, Types}
+import org.json4s.native.Serialization.write
 import rsc.importers.Importer.{Importer, SlickMysql}
 import rsc.toc.{Node, Toc}
 import rsc.{Formatters, Resource, Utils}
@@ -8,7 +9,7 @@ import slick.driver.MySQLDriver.api._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class SlickMysql(db: Database) extends Formatters {
+class SlickMysql(db: Database, topIndicesNumber: Int) extends Formatters {
 
   def importResource(r: Resource, ec: ExecutionContext)
   : Future[Resource] = {
@@ -60,8 +61,11 @@ class SlickMysql(db: Database) extends Formatters {
         val title = r.title.label
         val href = hrefDetail(r)
         val snippet = getSnippetText(r.title.oIndices)
-        Seq((indices.entryId, title, href, snippet))
+        Seq((indices.entryId, title, href, snippet, topIndicesJson(r)))
     }
+
+  def topIndicesJson(r: Resource)
+  : String = write(r.topIndices(topIndicesNumber))
 
   def getSnippetText(oIndices: Option[rsc.indexers.Indices])
   : String = oIndices match {
@@ -91,7 +95,7 @@ class SlickMysql(db: Database) extends Formatters {
       val title = r.title.label
       val href = hrefDetail(r)
       val snippet = getSnippetText(node.oIndices)
-      Seq((indices.entryId, title, href, snippet))
+      Seq((indices.entryId, title, href, snippet, topIndicesJson(r)))
   }
 
   def nodesIndices(r: Resource)

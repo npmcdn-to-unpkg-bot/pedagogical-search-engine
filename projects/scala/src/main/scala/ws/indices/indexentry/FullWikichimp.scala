@@ -10,7 +10,8 @@ case class FullWikichimp(entryId: String,
                          title: String,
                          source: Source,
                          url: String,
-                         snippet: Snippet)
+                         snippet: Snippet,
+                         topIndices: List[rsc.indexers.Index])
   extends FullEntry {
   override def engine: Engine = EngineType.Wikichimp
 }

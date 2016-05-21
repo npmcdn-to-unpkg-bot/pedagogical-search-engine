@@ -12,12 +12,17 @@ import ws.indices.snippet.Snippet
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
+import org.json4s.native.Serialization.read
+import rsc.Formatters
+import rsc.indexers.Index
+
 
 class IndicesFetcher(esIndex: String,
                      esType: String,
                      ip: String = "127.0.0.1",
                      port: Int = 9300,
-                     clusterName: String = "elasticsearch") {
+                     clusterName: String = "elasticsearch")
+extends Formatters {
   // Private things
   private val uri = ElasticsearchClientUri(s"elasticsearch://$ip:$port")
   private val settings = Settings.settingsBuilder()
@@ -30,6 +35,7 @@ class IndicesFetcher(esIndex: String,
   private val entryIdField = "entryId"
   private val urlField = "href"
   private val rIdField = "resourceId"
+  private val topIndicesJsonField = "topIndicesJson"
 
   // Public methods
   def getIndices(searchText: String, from: Int, to: Int)
@@ -47,7 +53,7 @@ class IndicesFetcher(esIndex: String,
         }
       } highlighting {
         highlight(bodyField)
-      } fields(titleField, sourceField, entryIdField, urlField, rIdField)
+      } fields(titleField, sourceField, entryIdField, urlField, rIdField, topIndicesJsonField)
 
     val query = queryCore start from limit (to - from + 1)
 
@@ -72,9 +78,10 @@ class IndicesFetcher(esIndex: String,
           case true => toSnippet(hit.highlightFields(bodyField))
           case false => Snippet(Nil)
         }
+        val topIndices = read[List[Index]](hit.field(topIndicesJsonField).getValue[String])
 
         FullWFT(entryId, score, resourceId, title, Source.fromString(source),
-          url, snippet)
+          url, snippet, topIndices)
       })
     })
   }

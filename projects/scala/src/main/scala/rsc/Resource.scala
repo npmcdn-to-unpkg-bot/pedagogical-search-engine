@@ -3,12 +3,14 @@ package rsc
 import java.io.File
 import java.util.Date
 
+import org.json4s.native.Serialization._
 import rsc.Types._
 import rsc.annotators.Annotator.Annotator
 import rsc.attributes.Level.Level
 import rsc.attributes.Source.Source
 import rsc.attributes._
 import rsc.importers.Importer.Importer
+import rsc.indexers.Index
 import rsc.indexers.Indexer.Indexer
 import rsc.prettifier.PrettifierType.Prettifier
 import rsc.snippets.Snippetizer.Snippetizer
@@ -59,5 +61,11 @@ case class Resource(
     val name = s"$prefix-$shortHash"
 
     new File(s"$folder/$name")
+  }
+
+  def topIndices(n: Int)
+  : List[Index] = title.oIndices match {
+    case None => Nil
+    case Some(indices) => indices.values.sortBy(-_.score).take(n)
   }
 }

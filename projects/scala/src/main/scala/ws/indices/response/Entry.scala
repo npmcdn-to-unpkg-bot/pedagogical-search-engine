@@ -9,4 +9,5 @@ case class Entry(entryId: String,
                  snippet: String,
                  quality: QualityType.Quality,
                  rank: Int,
-                 engine: Engine) {}
+                 engine: Engine,
+                 topUris: Option[List[String]]) {}
