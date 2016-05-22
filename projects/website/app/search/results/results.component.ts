@@ -23,20 +23,6 @@ import {HelperService} from "../../helper/helper.service";
     
 <div class="wc-com-results-container">
     
-    <span *ngIf="_helper.hasBeenDisplayed('1') && !_helper.hasBeenDisplayed('2')">
-        <span class="wc-com-helper-msg">
-            (2) Add another term to your query &#8599;<br>
-            ex: Computer Science
-        </span>
-    </span>
-    
-    
-    <span *ngIf="_helper.hasBeenDisplayed('1') && _helper.hasBeenDisplayed('2')  && !_helper.hasBeenDisplayed('3')">
-        <span class="wc-com-helper-msg">
-            (3) Browse the results &#8600;
-        </span>
-    </span>
-    
     <div class="wc-com-results-tab-container"
          *ngIf="_searchTerms?.length > 0">
         <div class="wc-com-results-tab-link">
