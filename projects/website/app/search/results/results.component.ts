@@ -24,7 +24,7 @@ import {HelperService} from "../../helper/helper.service";
 <div class="wc-com-results-container">
     
     <div class="wc-com-results-tab-container"
-         *ngIf="_searchTerms?.length > 0">
+         *ngIf="_searchTerms?.length > 0 && (_nbResults(_freeValue) > 0 || _nbResults(_paidValue) > 0)">
         <div class="wc-com-results-tab-link"
              (mousedown)="_navigateToFilter(_freeValue)">
             <span [class.wc-com-results-tab-link-selected]="_filter == _freeValue"
@@ -55,6 +55,10 @@ import {HelperService} from "../../helper/helper.service";
             </span>
         </div>
     </div>
+    
+    <h4 *ngIf="_searchTerms?.length > 0 && _isLoading">
+        Loading…
+    </h4>
 
     <div class="wc-com-results-entry"
         *ngFor="#entry of _response?.entries">
@@ -168,6 +172,7 @@ export class ResultsCmp {
     private _step: number = 10;
     private _irrelevant: Classification = Classification.irrelevant;
     private _irlvunselect: Classification = Classification.irlvunselect;
+    private _isLoading: boolean = true;
 
     constructor(
         @Inject(EntriesService) private _entriesService: EntriesService,
@@ -270,6 +275,7 @@ export class ResultsCmp {
             console.log(`fetch ${this._step} entries of {${sts}} from ${this._from} (page ${pageNo})`);
 
             // Perform the fetch
+            this._isLoading = true;
             let entriesObs = this._entriesService.list(
                 this._searchTerms,
                 this._from,
@@ -277,6 +283,8 @@ export class ResultsCmp {
                 this._filter
             );
             entriesObs.subscribe(res => {
+                this._isLoading = false;
+
                 // Debug case: there are no results
                 if(res.entries.length > 0) {
                     this._response = res;
