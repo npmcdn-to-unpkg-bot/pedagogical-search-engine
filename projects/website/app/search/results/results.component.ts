@@ -25,9 +25,9 @@ import {HelperService} from "../../helper/helper.service";
     
     <div class="wc-com-results-tab-container"
          *ngIf="_searchTerms?.length > 0">
-        <div class="wc-com-results-tab-link">
-            <span (click)="_navigateToFilter(_freeValue)"
-                  [class.wc-com-results-tab-link-selected]="_filter == _freeValue"
+        <div class="wc-com-results-tab-link"
+             (mousedown)="_navigateToFilter(_freeValue)">
+            <span [class.wc-com-results-tab-link-selected]="_filter == _freeValue"
                   *ngIf="_nbResults(_freeValue) > 0">
                 <span *ngIf="_filter == _freeValue">&#187;</span>
                 Online courses 
@@ -40,9 +40,9 @@ import {HelperService} from "../../helper/helper.service";
             </span>
         </div>
         
-        <div class="wc-com-results-tab-link">
-            <span (click)="_navigateToFilter(_paidValue)"
-                  [class.wc-com-results-tab-link-selected]="_filter == _paidValue"
+        <div class="wc-com-results-tab-link"
+             (mousedown)="_navigateToFilter(_paidValue)">
+            <span [class.wc-com-results-tab-link-selected]="_filter == _paidValue"
                   *ngIf="_nbResults(_paidValue) > 0">
                 <span *ngIf="_filter == _paidValue">&#187;</span>
                 Books
