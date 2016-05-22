@@ -335,10 +335,15 @@ export class ResultsCmp {
     private _topUrisToStr(uris: Array<string>)
     : string {
         let acc = "";
+        let join = ", ";
         let m = 85;
         for(let uri of uris) {
             if(acc.length + uri.length <= m) {
-                acc += ", " + uri;
+                if(acc.length > 0) {
+                    acc += ", " + uri;
+                } else {
+                    acc += uri;
+                }
             }
         }
         return acc;
