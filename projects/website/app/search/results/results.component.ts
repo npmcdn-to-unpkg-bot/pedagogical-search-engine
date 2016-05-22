@@ -16,6 +16,8 @@ import {WordsService} from "../../utils/words.service";
 import {LineHighlightService} from "./line-highlight.service";
 import {Filter} from "./Filter";
 import {HelperService} from "../../helper/helper.service";
+import {Q4Cmp} from "../../feedback/questions/q4.component";
+import {UserstudyService} from "../../userstudy/userstudy";
 
 @Component({
     selector: 'wc-search-results',
@@ -99,27 +101,11 @@ import {HelperService} from "../../helper/helper.service";
                   [textContent]="_topUrisToStr(entry.topUris)"></span>
         </div>
         <div class="wc-com-results-rating-container">
-            <span class="wc-com-results-rating-text">
-                Rate this result &#187;
-            </span>
-            
-            <span *ngIf="_clsService.isClassifiedAs(entry, _irrelevant)">
-                This result is bad
-            </span>
-            <span class="wc-com-results-rating-link">
-                <span *ngIf="!_clsService.isClassifiedAs(entry, _irrelevant)"
-                      (click)="_classify(entry, _irrelevant)">
-                      This result is bad
-                </span>
-                <span *ngIf="_clsService.isClassifiedAs(entry, _irrelevant)"
-                (click)="_classify(entry, _irlvunselect)">
-                    (click to undo)
-                </span>
-            </span>
-            <span *ngIf="_clsService.isClassified(entry)"
-                  class="msg-info"
-                  [textContent]="_clsService.thxMsg(entry)">
-            </span>
+            <wc-feedback-q4 text="How useful is this result?"
+                            id="Q4-entry"
+                            [inline]="true"
+                            [supplement]="_supplementOf(entry)"
+                            [supplementHash]="_supplementHashOf(entry)"></wc-feedback-q4>
         </div>
     </div>
     
@@ -151,7 +137,7 @@ import {HelperService} from "../../helper/helper.service";
 
     
     `,
-    directives: [],
+    directives: [Q4Cmp],
     providers: [
         provide(EntriesService, {useClass: SimpleEntriesService}),
         provide(ClickService, {useClass: SimpleClickService}),
@@ -179,6 +165,7 @@ export class ResultsCmp {
         @Inject(ClickService) private _clickService: ClickService,
         @Inject(ClassificationService) private _clsService: ClassificationService,
         @Inject(LineHighlightService) private _lineHService: LineHighlightService,
+        @Inject(UserstudyService) private _usService: UserstudyService,
         private _router: Router,
         private _routeParams: RouteParams,
         private _helper: HelperService
@@ -341,5 +328,19 @@ export class ResultsCmp {
             }
         }
         return acc;
+    }
+    private _supplementOf(entry: Entry)
+    : any {
+        return {
+            'searchLog': JSON.stringify(this._searchTerms),
+            'sid': this._usService.sid,
+            'entryId': entry.entryId
+        };
+    }
+    private _supplementHashOf(entry: Entry)
+    : string {
+        // Javascript absence of hash function..
+        // We use stringify in replacement
+        return JSON.stringify(this._supplementOf(entry));
     }
 }

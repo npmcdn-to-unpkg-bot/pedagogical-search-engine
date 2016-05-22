@@ -12,6 +12,15 @@
     font-weight: bold;
   }
 
+  &question-inlinestatement {
+    display: inline-block;
+    font-weight: bold;
+  }
+
+  &inlineform {
+    display: inline-block;
+  }
+
   &textarea {
     display: block;
 
