@@ -332,7 +332,7 @@ export class ResultsCmp {
     private _supplementOf(entry: Entry)
     : any {
         return {
-            'searchLog': JSON.stringify(this._searchTerms),
+            'searchLog': JSON.stringify(SearchTerm.wsRepresentation(this._searchTerms)),
             'sid': this._usService.sid,
             'entryId': entry.entryId
         };
@@ -341,6 +341,9 @@ export class ResultsCmp {
     : string {
         // Javascript absence of hash function..
         // We use stringify in replacement
+        // There is one drawback: Permutations of search terms
+        // will produce different search hashes.
+        // todo: sort by (uri, label) ?
         return JSON.stringify(this._supplementOf(entry));
     }
 }
