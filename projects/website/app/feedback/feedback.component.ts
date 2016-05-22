@@ -6,6 +6,7 @@ import {Q1Cmp} from "./questions/q1.component";
 import {Q2Cmp} from "./questions/q2.component";
 import {Q3Cmp} from "./questions/q3.component";
 import {FeedbackService} from "./feedback.service";
+import {Q4Cmp} from "./questions/q4.component";
 
 @Component({
     selector: 'wc-app',
@@ -15,11 +16,15 @@ import {FeedbackService} from "./feedback.service";
 
         <h2>A few questions</h2>
         
-        <wc-feedback-q1></wc-feedback-q1>
+        <wc-feedback-q4 text="How useful are the results in general?"
+                        id="Q4-ingeneral"></wc-feedback-q4>
+                        
+        <wc-feedback-q3></wc-feedback-q3>
         
         <wc-feedback-q2></wc-feedback-q2>
         
-        <wc-feedback-q3></wc-feedback-q3>
+        <wc-feedback-q1></wc-feedback-q1>
+        
         
         
         <p class="wc-com-feedback-question-statement">
@@ -42,7 +47,7 @@ import {FeedbackService} from "./feedback.service";
     </div>
  
          `,
-    directives: [ROUTER_DIRECTIVES, Q1Cmp, Q2Cmp, Q3Cmp],
+    directives: [ROUTER_DIRECTIVES, Q1Cmp, Q2Cmp, Q3Cmp, Q4Cmp],
     providers: [
     ]
 })

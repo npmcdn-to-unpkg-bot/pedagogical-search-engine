@@ -30,6 +30,12 @@
     cursor: pointer;
   }
 
+  &inlineradiochoice {
+    display: inline-block;
+    cursor: pointer;
+    margin-right: 15px;
+  }
+
   &saved-text {
     @extend .wc-com-colors-codes-good;
     font-style: italic;
