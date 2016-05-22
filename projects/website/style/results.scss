@@ -99,10 +99,47 @@
     }
   }
 
+  &topics- {
+    &container {
+      font-size: 0.9em;
+      margin-top: 10px;
+      margin-bottom: 5px;
+    }
+
+    &text {
+      font-weight: bold;
+    }
+
+    &entry {
+      @extend .wc-com-colors-codes-good;
+
+      display: inline-block;
+      margin-left: 5px;
+      margin-right: 5px;
+
+      font-style: italic;
+    }
+  }
+
   &rating- {
     &container {
-      margin-top: 8px;
-      padding: 2px;
+      font-size: 0.9em;
+      margin-top: 5px;
+      margin-bottom: 10px;
+    }
+
+    &text {
+      font-weight: bold;
+    }
+
+    &link {
+      cursor: pointer;
+      font-style: italic;
+      color: #3F5986;
+    }
+
+    &link:hover {
+      text-decoration: underline;
     }
   }
 }

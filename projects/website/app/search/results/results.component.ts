@@ -100,19 +100,32 @@ import {HelperService} from "../../helper/helper.service";
             <div class="wc-com-results-snippet-line"
                  [innerHTML]="_lineHService.highlight(line)"></div>
         </div>
+        <div class="wc-com-results-topics-container"
+             *ngIf="entry.topUris.length">
+            <span class="wc-com-results-topics-text">
+                Topics &#187;
+            </span>
+            <span class="wc-com-results-topics-entry"
+                  [textContent]="_topUrisToStr(entry.topUris)"></span>
+        </div>
         <div class="wc-com-results-rating-container">
-            Rate this result &#187;
-            <button
-                *ngIf="!_clsService.isClassifiedAs(entry, _irrelevant)"
-                (click)="_classify(entry, _irrelevant)">
-                Bad match
-            </button>
-            <button
-                *ngIf="_clsService.isClassifiedAs(entry, _irrelevant)"
-                class="button-selected-bad"
+            <span class="wc-com-results-rating-text">
+                Rate this result &#187;
+            </span>
+            
+            <span *ngIf="_clsService.isClassifiedAs(entry, _irrelevant)">
+                This result is bad
+            </span>
+            <span class="wc-com-results-rating-link">
+                <span *ngIf="!_clsService.isClassifiedAs(entry, _irrelevant)"
+                      (click)="_classify(entry, _irrelevant)">
+                      This result is bad
+                </span>
+                <span *ngIf="_clsService.isClassifiedAs(entry, _irrelevant)"
                 (click)="_classify(entry, _irlvunselect)">
-                Bad match
-            </button>
+                    (click to undo)
+                </span>
+            </span>
             <span *ngIf="_clsService.isClassified(entry)"
                   class="msg-info"
                   [textContent]="_clsService.thxMsg(entry)">
@@ -318,5 +331,16 @@ export class ResultsCmp {
         event.stopPropagation();
 
         this._navigateToPage(pageNo);
+    }
+    private _topUrisToStr(uris: Array<string>)
+    : string {
+        let acc = "";
+        let m = 85;
+        for(let uri of uris) {
+            if(acc.length + uri.length <= m) {
+                acc += ", " + uri;
+            }
+        }
+        return acc;
     }
 }

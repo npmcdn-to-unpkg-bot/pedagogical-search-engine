@@ -74,10 +74,18 @@ export class SimpleEntriesService extends EntriesService {
                     let href = e["href"];
                     let rank: number = +e["rank"];
                     let quality = Quality[e["quality"]];
-                    let snippetStr = e["snippet"];
+
+                    let topUris: Array<string> = [];
+                    if('topUris' in e) {
+                        for(let uri of e['topUris']) {
+                            topUris.push(this._beautifyUri(uri));
+                        }
+                    }
+
 
                     // Is there any snippet
                     let snippet;
+                    let snippetStr = e["snippet"];
                     if(snippetStr.length == 0) {
                         snippet = new Snippet();
                     } else {
@@ -101,7 +109,8 @@ export class SimpleEntriesService extends EntriesService {
                         snippet = new Snippet(lines);
                     }
 
-                    let entry = new Entry(entryId, title, typeText, href, snippet, quality, rank);
+                    let entry = new Entry(entryId, title, typeText, href, snippet,
+                        quality, rank, topUris);
                     entries.push(entry);
                 }
                 let ordered = entries.sort((a: Entry, b: Entry) => {
@@ -114,5 +123,25 @@ export class SimpleEntriesService extends EntriesService {
                 console.log("Error with entries-service:");
                 console.log(res);
             });
+    }
+
+    // Private methods
+    private _beautifyUri(uri: string)
+    : string {
+        let v1 = uri.replace(/_/g, " ");
+        return this._capitalize(v1);
+    }
+
+    private _normalizeLineText(text: string)
+    : string {
+        let v1 = this._capitalize(text);
+        let m = 65;
+        let v2 = v1.length > m? v1.substr(0, m) + "..": v1;
+        return v2;
+    }
+
+    private _capitalize(t: string)
+    : string {
+        return t.length > 0? t[0].toUpperCase() + t.substr(1).toLowerCase(): "";
     }
 }
