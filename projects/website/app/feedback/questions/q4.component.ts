@@ -100,11 +100,11 @@ export class Q4Cmp {
             value = this._supplement;
             value.score = v;
             this._feedbackService.saveAnswer2(this._id, this._supplementHash, value).subscribe(res =>
-                console.log(res.text())
+                console.log(res.statusText)
             );
         } else {
             this._feedbackService.saveAnswer(this._id, v).subscribe(res =>
-                console.log(res.text())
+                console.log(res.statusText)
             );
         }
     }

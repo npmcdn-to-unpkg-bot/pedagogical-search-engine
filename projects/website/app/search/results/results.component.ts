@@ -100,7 +100,8 @@ import {UserstudyService} from "../../userstudy/userstudy";
             <span class="wc-com-results-topics-entry"
                   [textContent]="_topUrisToStr(entry.topUris)"></span>
         </div>
-        <div class="wc-com-results-rating-container">
+        <div class="wc-com-results-rating-container"
+             *ngIf="!_usService.isDisabled()">
             <wc-feedback-q4 text="How useful is this result?"
                             id="Q4-entry"
                             [inline]="true"
@@ -219,29 +220,21 @@ export class ResultsCmp {
         }
         this._router.navigate(['Search', newParams]);
     }
-    private _classify(entry: Entry, classification: Classification): void {
-        // Log the classification
-        let stream: Observable<any> = this._clsService.saveClassification(
-            this._searchTerms,
-            entry.entryId,
-            classification
-        );
-
-        stream.subscribe(res => {
-            console.log(res.text());
-        });
-    }
     private _logClick(entry: Entry): void {
-        // Log the click
-        let clickStream = this._clickService.saveClick(
-            this._searchTerms,
-            entry.entryId,
-            this._from + entry.rank,
-            entry.quality);
+        if(this._usService.isDisabled()) {
+            console.log('Click not logged since logging is disabled.');
+        } else {
+            // Log the click
+            let clickStream = this._clickService.saveClick(
+                this._searchTerms,
+                entry.entryId,
+                this._from + entry.rank,
+                entry.quality);
 
-        clickStream.subscribe((res: HttpResponse) => {
-            console.log(`Click logged: ${res.text()}`);
-        });
+            clickStream.subscribe((res: HttpResponse) => {
+                console.log(`Click logged: ${res.text()}`);
+            });
+        }
     }
     private _isCurrentPage(pageNo: number): boolean {
         let currentPage = (this._from / this._step) + 1;

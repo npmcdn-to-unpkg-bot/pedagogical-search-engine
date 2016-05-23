@@ -63,7 +63,7 @@ export class Q3Cmp {
     private _id = 'Q3';
     
     private _click(value: string): void {
-        this._feedbackService.saveAnswer(this._id, value).subscribe(res => console.log(res.text()));
+        this._feedbackService.saveAnswer(this._id, value).subscribe(res => console.log(res.statusText));
     }
 
     private _getMsg(value: string): string {
