@@ -17,11 +17,11 @@ import {HelperService} from "../helper/helper.service";
     <wc-search-results [searchTerms]="_searchTerms"></wc-search-results>
     
     <div *ngIf="_displayVideo" class="wc-com-search-video">
-        <h3>The experiment [5 mintues]</h3>
+        <h3>The experiment [2 minutes]</h3>
         
         <ol>
             <li>Chose a topic you want to learn more about</li>
-            <li>Type in your topic using the search bar</li>
+            <li>Type your topic in the search bar above</li>
             <li>Go through the results and give a rating to each one</li>
             <li>
                 Answer 4 simple questions
