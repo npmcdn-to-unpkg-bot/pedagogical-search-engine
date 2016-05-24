@@ -12,6 +12,15 @@
     font-weight: bold;
   }
 
+  &question-inlinestatement {
+    display: inline-block;
+    font-weight: bold;
+  }
+
+  &inlineform {
+    display: inline-block;
+  }
+
   &textarea {
     display: block;
 
@@ -28,6 +37,12 @@
   &radiochoice {
     display: block;
     cursor: pointer;
+  }
+
+  &inlineradiochoice {
+    display: inline-block;
+    cursor: pointer;
+    margin-right: 15px;
   }
 
   &saved-text {

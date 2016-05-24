@@ -21,8 +21,10 @@ object CopyToES extends App with Formatters {
   // Create the file explorer
   val explorer = new FileExplorer("snippetizer", forceProcess = true)
 
-  // Create the http actor
+  // Import the settings
   val settings = new Settings()
+
+  // Create the http actor
   implicit private val system = ActorSystem("es-import")
   import system.dispatcher
   val timeoutMs = 10*60*1000
@@ -46,13 +48,14 @@ object CopyToES extends App with Formatters {
         ("_type" -> esType)
       )
   val esComplementStr: String = write(esComplement)
+  val resourceWriter = new ResourceWriter(settings.Indices.Import.topIndicesNumber)
   def process(file: File, ec: ExecutionContext): Future[Any] = {
     // Parse it
     val json = parse(file)
     val r = json.extract[Resource]
 
     // Create the es objects
-    val objects = ResourceWriter.jsonResources(r)
+    val objects = resourceWriter.jsonResources(r)
     val body = objects.map(o => esComplementStr + "\n" + write(o)).mkString("\n")
 
     // Execute the bulk import and detect failures

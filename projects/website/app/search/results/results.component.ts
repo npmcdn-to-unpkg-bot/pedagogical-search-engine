@@ -16,6 +16,8 @@ import {WordsService} from "../../utils/words.service";
 import {LineHighlightService} from "./line-highlight.service";
 import {Filter} from "./Filter";
 import {HelperService} from "../../helper/helper.service";
+import {Q4Cmp} from "../../feedback/questions/q4.component";
+import {UserstudyService} from "../../userstudy/userstudy";
 
 @Component({
     selector: 'wc-search-results',
@@ -23,25 +25,11 @@ import {HelperService} from "../../helper/helper.service";
     
 <div class="wc-com-results-container">
     
-    <span *ngIf="_helper.hasBeenDisplayed('1') && !_helper.hasBeenDisplayed('2')">
-        <span class="wc-com-helper-msg">
-            (2) Add another term to your query &#8599;<br>
-            ex: Computer Science
-        </span>
-    </span>
-    
-    
-    <span *ngIf="_helper.hasBeenDisplayed('1') && _helper.hasBeenDisplayed('2')  && !_helper.hasBeenDisplayed('3')">
-        <span class="wc-com-helper-msg">
-            (3) Browse the results &#8600;
-        </span>
-    </span>
-    
     <div class="wc-com-results-tab-container"
-         *ngIf="_searchTerms?.length > 0">
-        <div class="wc-com-results-tab-link">
-            <span (click)="_navigateToFilter(_freeValue)"
-                  [class.wc-com-results-tab-link-selected]="_filter == _freeValue"
+         *ngIf="_searchTerms?.length > 0 && (_nbResults(_freeValue) > 0 || _nbResults(_paidValue) > 0)">
+        <div class="wc-com-results-tab-link"
+             (mousedown)="_navigateToFilter(_freeValue)">
+            <span [class.wc-com-results-tab-link-selected]="_filter == _freeValue"
                   *ngIf="_nbResults(_freeValue) > 0">
                 <span *ngIf="_filter == _freeValue">&#187;</span>
                 Online courses 
@@ -54,9 +42,9 @@ import {HelperService} from "../../helper/helper.service";
             </span>
         </div>
         
-        <div class="wc-com-results-tab-link">
-            <span (click)="_navigateToFilter(_paidValue)"
-                  [class.wc-com-results-tab-link-selected]="_filter == _paidValue"
+        <div class="wc-com-results-tab-link"
+             (mousedown)="_navigateToFilter(_paidValue)">
+            <span [class.wc-com-results-tab-link-selected]="_filter == _paidValue"
                   *ngIf="_nbResults(_paidValue) > 0">
                 <span *ngIf="_filter == _paidValue">&#187;</span>
                 Books
@@ -69,6 +57,10 @@ import {HelperService} from "../../helper/helper.service";
             </span>
         </div>
     </div>
+    
+    <h4 *ngIf="_searchTerms?.length > 0 && _isLoading">
+        Loading…
+    </h4>
 
     <div class="wc-com-results-entry"
         *ngFor="#entry of _response?.entries">
@@ -100,23 +92,21 @@ import {HelperService} from "../../helper/helper.service";
             <div class="wc-com-results-snippet-line"
                  [innerHTML]="_lineHService.highlight(line)"></div>
         </div>
-        <div class="wc-com-results-rating-container">
-            Rate this result &#187;
-            <button
-                *ngIf="!_clsService.isClassifiedAs(entry, _irrelevant)"
-                (click)="_classify(entry, _irrelevant)">
-                Bad match
-            </button>
-            <button
-                *ngIf="_clsService.isClassifiedAs(entry, _irrelevant)"
-                class="button-selected-bad"
-                (click)="_classify(entry, _irlvunselect)">
-                Bad match
-            </button>
-            <span *ngIf="_clsService.isClassified(entry)"
-                  class="msg-info"
-                  [textContent]="_clsService.thxMsg(entry)">
+        <div class="wc-com-results-topics-container"
+             *ngIf="entry.topUris.length">
+            <span class="wc-com-results-topics-text">
+                Topics &#187;
             </span>
+            <span class="wc-com-results-topics-entry"
+                  [textContent]="_topUrisToStr(entry.topUris)"></span>
+        </div>
+        <div class="wc-com-results-rating-container"
+             *ngIf="!_usService.isDisabled()">
+            <wc-feedback-q4 text="How useful is this result?"
+                            id="Q4-entry"
+                            [inline]="true"
+                            [supplement]="_supplementOf(entry)"
+                            [supplementHash]="_supplementHashOf(entry)"></wc-feedback-q4>
         </div>
     </div>
     
@@ -148,7 +138,7 @@ import {HelperService} from "../../helper/helper.service";
 
     
     `,
-    directives: [],
+    directives: [Q4Cmp],
     providers: [
         provide(EntriesService, {useClass: SimpleEntriesService}),
         provide(ClickService, {useClass: SimpleClickService}),
@@ -169,12 +159,14 @@ export class ResultsCmp {
     private _step: number = 10;
     private _irrelevant: Classification = Classification.irrelevant;
     private _irlvunselect: Classification = Classification.irlvunselect;
+    private _isLoading: boolean = true;
 
     constructor(
         @Inject(EntriesService) private _entriesService: EntriesService,
         @Inject(ClickService) private _clickService: ClickService,
         @Inject(ClassificationService) private _clsService: ClassificationService,
         @Inject(LineHighlightService) private _lineHService: LineHighlightService,
+        @Inject(UserstudyService) private _usService: UserstudyService,
         private _router: Router,
         private _routeParams: RouteParams,
         private _helper: HelperService
@@ -228,29 +220,21 @@ export class ResultsCmp {
         }
         this._router.navigate(['Search', newParams]);
     }
-    private _classify(entry: Entry, classification: Classification): void {
-        // Log the classification
-        let stream: Observable<any> = this._clsService.saveClassification(
-            this._searchTerms,
-            entry.entryId,
-            classification
-        );
-
-        stream.subscribe(res => {
-            console.log(res.text());
-        });
-    }
     private _logClick(entry: Entry): void {
-        // Log the click
-        let clickStream = this._clickService.saveClick(
-            this._searchTerms,
-            entry.entryId,
-            this._from + entry.rank,
-            entry.quality);
+        if(this._usService.isDisabled()) {
+            console.log('Click not logged since logging is disabled.');
+        } else {
+            // Log the click
+            let clickStream = this._clickService.saveClick(
+                this._searchTerms,
+                entry.entryId,
+                this._from + entry.rank,
+                entry.quality);
 
-        clickStream.subscribe((res: HttpResponse) => {
-            console.log(`Click logged: ${res.text()}`);
-        });
+            clickStream.subscribe((res: HttpResponse) => {
+                console.log(`Click logged: ${res.text()}`);
+            });
+        }
     }
     private _isCurrentPage(pageNo: number): boolean {
         let currentPage = (this._from / this._step) + 1;
@@ -271,6 +255,7 @@ export class ResultsCmp {
             console.log(`fetch ${this._step} entries of {${sts}} from ${this._from} (page ${pageNo})`);
 
             // Perform the fetch
+            this._isLoading = true;
             let entriesObs = this._entriesService.list(
                 this._searchTerms,
                 this._from,
@@ -278,6 +263,8 @@ export class ResultsCmp {
                 this._filter
             );
             entriesObs.subscribe(res => {
+                this._isLoading = false;
+
                 // Debug case: there are no results
                 if(res.entries.length > 0) {
                     this._response = res;
@@ -318,5 +305,38 @@ export class ResultsCmp {
         event.stopPropagation();
 
         this._navigateToPage(pageNo);
+    }
+    private _topUrisToStr(uris: Array<string>)
+    : string {
+        let acc = "";
+        let join = ", ";
+        let m = 85;
+        for(let uri of uris) {
+            if(acc.length + uri.length <= m) {
+                if(acc.length > 0) {
+                    acc += ", " + uri;
+                } else {
+                    acc += uri;
+                }
+            }
+        }
+        return acc;
+    }
+    private _supplementOf(entry: Entry)
+    : any {
+        return {
+            'searchLog': JSON.stringify(SearchTerm.wsRepresentation(this._searchTerms)),
+            'sid': this._usService.sid,
+            'entryId': entry.entryId
+        };
+    }
+    private _supplementHashOf(entry: Entry)
+    : string {
+        // Javascript absence of hash function..
+        // We use stringify in replacement
+        // There is one drawback: Permutations of search terms
+        // will produce different search hashes.
+        // todo: sort by (uri, label) ?
+        return JSON.stringify(this._supplementOf(entry));
     }
 }

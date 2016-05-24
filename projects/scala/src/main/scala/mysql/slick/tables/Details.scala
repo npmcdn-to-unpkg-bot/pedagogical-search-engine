@@ -8,6 +8,7 @@ extends Table[Types.Details](tag, "details"){
   def title = column[String]("Title")
   def href = column[Option[String]]("Href")
   def snippet = column[String]("Snippet")
+  def TopIndicesJson = column[String]("TopIndicesJson")
 
-  override def * = (entryId, title, href, snippet)
+  override def * = (entryId, title, href, snippet, TopIndicesJson)
 }

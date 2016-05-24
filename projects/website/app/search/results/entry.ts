@@ -10,7 +10,8 @@ export class Entry {
         public href: String = '',
         public snippet: Snippet = new Snippet(),
         public quality: Quality,
-        public rank: number
+        public rank: number,
+        public topUris: Array<string>
     ){}
 
     private _titleQuery = encodeURI(this.title);

@@ -56,7 +56,7 @@ import {HelperService} from "./helper/helper.service";
             </span>
         </a>
         <span class="wc-com-app-header-text">
-            Search engine by & for students
+            Experimental search engine for students
         </span>
     </div>
     

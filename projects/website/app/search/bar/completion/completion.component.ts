@@ -147,7 +147,7 @@ export class CompletionCmp {
             // Update the normal-navigator
             let rawProposition = [];
             if(this._text && this._text.length > 0) {
-                rawProposition.push(new Proposition(new RawSearch(this._text, this._text), false))
+                rawProposition.push(new Proposition(new RawSearch(this._text, ""), false))
             }
             let props = t.newRef.getPropositions().concat(rawProposition);
             t.currentRef.update(props);

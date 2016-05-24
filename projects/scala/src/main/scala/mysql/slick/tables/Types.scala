@@ -3,7 +3,7 @@ package mysql.slick.tables
 import java.sql.Timestamp
 
 object Types {
-  type Details = (String, String, Option[String], String)
+  type Details = (String, String, Option[String], String, String)
   type Indices = (String, String, Double, String, String)
   type Titles = (String, String, Int)
   type DictionaryDisambiguations = (String, String, String, String, Int, Int)
