@@ -66,7 +66,7 @@ class SearchExecutor(settings: Settings) extends rsc.Formatters {
                         sid: Option[Int])
   : Future[Response] = {
     // Fetch all the best indices (without their details yet)
-    indicesFetcher.wcAndBing(searchTerms, N_MAX, filter).flatMap {
+    val searchFuture = indicesFetcher.wcAndBing(searchTerms, N_MAX, filter).flatMap {
       case (indexEntries, nbResults) =>
         // fetch the details in the [from, to] interval
         val interval = indexEntries.slice(from, to + 1)
@@ -136,22 +136,29 @@ class SearchExecutor(settings: Settings) extends rsc.Formatters {
 
         // Create the public response
         Response(inherited, totalNb)
-    }.flatMap {
-      case response =>
-        // Log the search
-        val searchLog = write(SearchLog(from, to, filter, searchTerms))
-        val resultLog = write(response)
-        val logAction = Queries.saveSearch(searchTerms, sid,
-          searchLog, resultLog)
+    }
 
-        // Return anyway the response
-        db.run(logAction).map {
-          case _ => response
-        }.recover {
-          case e =>
-            // We do not really care about failures
-            Logger.stackTrace("there was a log failure", e)
-            response
+    // No sid, no logging and hence purely anonymous search
+    sid match {
+      case None => searchFuture
+      case Some(_) =>
+        searchFuture.flatMap {
+          case response =>
+            // Log the search
+            val searchLog = write(SearchLog(from, to, filter, searchTerms))
+            val resultLog = write(response)
+            val logAction = Queries.saveSearch(searchTerms, sid,
+              searchLog, resultLog)
+
+            // Return anyway the response
+            db.run(logAction).map {
+              case _ => response
+            }.recover {
+              case e =>
+                // We do not really care about failures
+                Logger.stackTrace("there was a log failure", e)
+                response
+            }
         }
     }
   }
