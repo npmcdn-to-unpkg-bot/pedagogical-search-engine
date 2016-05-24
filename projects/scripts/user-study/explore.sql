@@ -11,19 +11,23 @@ WHERE Timestamp > STR_TO_DATE('18/05/2016 20:00:00', '%d/%m/%Y %H:%i:%s');
 
 SELECT * FROM `messages`
 WHERE Timestamp > STR_TO_DATE('18/05/2016 20:00:00', '%d/%m/%Y %H:%i:%s')
-ORDER BY Timestamp DESC;
+ORDER BY Timestamp DESC
+LIMIT 100;
 
 SELECT * FROM `searches`
 WHERE Timestamp > STR_TO_DATE('18/05/2016 20:00:00', '%d/%m/%Y %H:%i:%s')
-ORDER BY Timestamp DESC;
+ORDER BY Timestamp DESC
+LIMIT 100;
 
 SELECT *  FROM `clicks`
 WHERE Timestamp > STR_TO_DATE('18/05/2016 20:00:00', '%d/%m/%Y %H:%i:%s')
-ORDER BY Timestamp DESC;
+ORDER BY Timestamp DESC
+LIMIT 100;
 
 SELECT *  FROM `classifications`
 WHERE Timestamp > STR_TO_DATE('18/05/2016 20:00:00', '%d/%m/%Y %H:%i:%s')
-ORDER BY Timestamp DESC;
+ORDER BY Timestamp DESC
+LIMIT 100;
 
 
 
