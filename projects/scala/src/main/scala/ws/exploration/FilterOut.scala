@@ -1,5 +1,7 @@
 package ws.exploration
 
+import java.sql.Timestamp
+
 import ws.exploration.events.Messages
 
 object FilterOut {
@@ -40,6 +42,17 @@ object FilterOut {
 
           case _ => Nil
         }
+    }
+  }
+
+  def timeBetween(runs: List[UserRun], from: Timestamp, to: Timestamp)
+  : List[UserRun] = {
+    runs.filter {
+      case run@UserRun(events) =>
+        val times = events.map(_.timestamp().getTime)
+        val begin = times.min
+        val end = times.max
+        begin > from.getTime && end < to.getTime
     }
   }
 }

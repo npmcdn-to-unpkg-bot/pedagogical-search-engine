@@ -10,5 +10,5 @@ case class Entry(entryId: String,
                  snippet: String,
                  quality: QualityType.Quality,
                  rank: Int,
-                 oEngine: Option[Engine],
+                 engine: Option[Engine],
                  topUris: Option[List[String]]) {}
