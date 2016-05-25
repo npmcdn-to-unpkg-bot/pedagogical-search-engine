@@ -3,6 +3,17 @@ spray.can.server.parsing.max-content-length = 5k
 spray.can.client.parsing.max-response-reason-length = 512
 
 wikichimp {
+  local {
+    ip = "127.0.0.1"
+    mysql = {
+      driver = "com.mysql.jdbc.Driver"
+      port = 3306
+      url = "jdbc:mysql://"${wikichimp.local.ip}"/wikichimp"
+      mainDbName = "wikichimp"
+      user = "???"
+      password = "???"
+    }
+  }
   workingDir = "???"
   spotlight {
     server {
@@ -36,12 +47,12 @@ wikichimp {
   userStudy {
     exploration {
       slick {
-        driver = ${wikichimp.kim3.mysql.driver}
-        url = ${wikichimp.kim3.mysql.url}
+        driver = ${wikichimp.local.mysql.driver}
+        url = ${wikichimp.local.mysql.url}
 
-        databaseName = ${wikichimp.kim3.mysql.mainDbName}
-        user = ${wikichimp.kim3.mysql.user}
-        password = ${wikichimp.kim3.mysql.password}
+        databaseName = ${wikichimp.local.mysql.mainDbName}
+        user = ${wikichimp.local.mysql.user}
+        password = ${wikichimp.local.mysql.password}
 
         connectionPool = "slick.jdbc.hikaricp.HikariCPJdbcDataSource$"
         numThreads = 20

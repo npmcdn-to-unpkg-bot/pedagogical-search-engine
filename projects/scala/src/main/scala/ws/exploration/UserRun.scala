@@ -1,5 +1,7 @@
 package ws.exploration
 
+import java.sql.Timestamp
+
 import ws.exploration.events.{Clicks, Event, Messages, Searches}
 
 case class UserRun(ordered: List[Event]) {
@@ -49,5 +51,22 @@ object UserRun {
         }
         UserRun(ordered.map(_._2))
     }.toList
+  }
+
+  def findSearch(run: UserRun, searchHash: Int, timestamp: Timestamp)
+  : Option[Searches] = {
+    val xs = run.ordered.flatMap {
+      case search @ Searches(_, `searchHash`, _, _, _, _) =>
+        search.timestamp().before(timestamp) match {
+          case true => List(search)
+          case false => Nil
+        }
+      case _ => Nil
+    }
+
+    xs match {
+      case Nil => None
+      case _ => Some(xs.last)
+    }
   }
 }

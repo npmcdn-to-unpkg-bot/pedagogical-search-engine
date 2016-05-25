@@ -6,7 +6,7 @@ import slick.driver.MySQLDriver.api._
 import slick.jdbc.{GetResult, PositionedResult}
 import ws.exploration.events.{Clicks, Messages, Searches}
 import org.json4s.native.Serialization.read
-import ws.exploration.attributes.Response
+import ws.exploration.attributes.{CategoryType, Response}
 import ws.indices.SearchLog
 
 object Queries extends Formatters {
@@ -39,7 +39,7 @@ object Queries extends Formatters {
       val content = rs.nextString()
       val oTimestamp = rs.nextTimestampOption()
 
-      Messages(autoId, sid, category, content, oTimestamp)
+      Messages(autoId, sid, CategoryType.withName(category), content, oTimestamp)
     }
   }
   private object SearchesRConv

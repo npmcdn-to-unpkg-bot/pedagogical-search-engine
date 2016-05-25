@@ -8,6 +8,7 @@ import rsc.attributes.{Level, PointerNameType}
 import rsc.importers.Importer
 import rsc.indexers.Indexer
 import rsc.prettifier.PrettifierType
+import ws.exploration.attributes.{CategoryType, QuestionIdType}
 import ws.indices.indexentry.EngineType
 import ws.indices.response.QualityType
 import ws.indices.spraythings.FilterParameterType
@@ -25,6 +26,8 @@ trait Formatters {
     new EnumNameSerializer(PointerNameType),
     new EnumNameSerializer(PrettifierType),
     new EnumNameSerializer(FilterParameterType),
-    new EnumNameSerializer(QualityType)
+    new EnumNameSerializer(QualityType),
+    new EnumNameSerializer(CategoryType),
+    new EnumNameSerializer(QuestionIdType)
   ) + ShortTypeHints(List(classOf[Spotlight]))
 }

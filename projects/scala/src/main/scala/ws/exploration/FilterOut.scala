@@ -2,6 +2,7 @@ package ws.exploration
 
 import java.sql.Timestamp
 
+import ws.exploration.attributes.CategoryType
 import ws.exploration.events.Messages
 
 object FilterOut {
@@ -19,17 +20,14 @@ object FilterOut {
     */
   def requested(runs: List[UserRun])
   : List[UserRun] = {
-    val forgetLabel = "forget-user"
-    val unforgetLabel = "unforget-user"
-
     runs.flatMap {
       case run@UserRun(events) =>
         val lastForget = events.lastIndexWhere {
-          case Messages(_, _, `forgetLabel`, _, _) => true
+          case Messages(_, _, CategoryType.ForgetUser, _, _) => true
           case _ => false
         }
         val lastUnforget = events.lastIndexWhere {
-          case Messages(_, _, `unforgetLabel`, _, _) => true
+          case Messages(_, _, CategoryType.UnforgetUser, _, _) => true
           case _ => false
         }
         (lastForget, lastUnforget) match {
