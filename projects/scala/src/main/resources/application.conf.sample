@@ -34,6 +34,23 @@ wikichimp {
     }
   }
   userStudy {
+    exploration {
+      slick {
+        driver = ${wikichimp.kim3.mysql.driver}
+        url = ${wikichimp.kim3.mysql.url}
+
+        databaseName = ${wikichimp.kim3.mysql.mainDbName}
+        user = ${wikichimp.kim3.mysql.user}
+        password = ${wikichimp.kim3.mysql.password}
+
+        connectionPool = "slick.jdbc.hikaricp.HikariCPJdbcDataSource$"
+        numThreads = 20
+        queueSize = 10
+        connectionTimeout = 10000
+
+        keepAliveConnection = true
+      }
+    }
       slick {
         driver = "com.mysql.jdbc.Driver"
         url = "jdbc:mysql://"?ip?"/wikichimp?useSSL=false"

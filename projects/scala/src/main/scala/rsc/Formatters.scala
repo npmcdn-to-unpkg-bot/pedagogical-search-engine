@@ -9,6 +9,7 @@ import rsc.importers.Importer
 import rsc.indexers.Indexer
 import rsc.prettifier.PrettifierType
 import ws.indices.indexentry.EngineType
+import ws.indices.response.QualityType
 import ws.indices.spraythings.FilterParameterType
 
 trait Formatters {
@@ -23,6 +24,7 @@ trait Formatters {
     new EnumNameSerializer(EngineType),
     new EnumNameSerializer(PointerNameType),
     new EnumNameSerializer(PrettifierType),
-    new EnumNameSerializer(FilterParameterType)
+    new EnumNameSerializer(FilterParameterType),
+    new EnumNameSerializer(QualityType)
   ) + ShortTypeHints(List(classOf[Spotlight]))
 }
