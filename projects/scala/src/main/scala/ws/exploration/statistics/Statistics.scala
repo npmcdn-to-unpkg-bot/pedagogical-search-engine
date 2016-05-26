@@ -116,6 +116,37 @@ class Statistics(runs: List[UserRun],
   }
 
   /**
+    * The proportion of people using the suggestion functionality.
+    */
+  def suggestionProportion()
+  : Double = {
+    val partial = runs.map(run => {
+      val searchTermsBySearch = run.ordered.filter(_.isInstanceOf[Searches])
+        .map(_.asInstanceOf[Searches].searchlog.searchTerms)
+        .distinct
+
+
+      val withSuggestions = searchTermsBySearch.filter(searchTerms => {
+        val existFtTerm = searchTerms.exists {
+          case SearchTerm(_, None) => true
+          case _ => false
+        }
+        !existFtTerm
+      })
+
+      val n = searchTermsBySearch.size
+      val s = withSuggestions.size
+
+      (n, s)
+    })
+
+    val tot = partial.map(_._1).sum
+    val withSugg = partial.map(_._2).sum
+
+    withSugg.toDouble / tot.toDouble
+  }
+
+  /**
     * best usefulness score given on each search for Wikichimp
     * and Bing when the user scored at least one of each.
     * Soft means that a search correponds to a results page.

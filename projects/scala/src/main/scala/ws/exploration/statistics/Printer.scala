@@ -61,4 +61,9 @@ class Printer(stat: Statistics) {
     val content = usefulness(stat.usefulnessBestHardComparison())
     s"Best(hard) usefulness when the user voted on at least one wc & and one bing result:\n$content"
   }
+
+  def suggestionProportion(): String = {
+    val proportion = stat.suggestionProportion()
+    s"The proportion of searches with suggestions is $proportion"
+  }
 }
