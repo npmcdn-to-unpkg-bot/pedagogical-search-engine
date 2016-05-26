@@ -116,6 +116,39 @@ class Statistics(runs: List[UserRun],
   }
 
   /**
+    * Usefulness score when the user score at least one
+    * Wikichimp and one Bing result.
+    */
+  def usefulnessComparison()
+  : Map[Engine, List[Int]] = {
+    val all = q4Map.toList.flatMap {
+      case (run, votes) =>
+        // Group by search
+        votes.groupBy(_.search.searchlog).toList.flatMap {
+          case (_, rq4s) =>
+            // Does there exist at least one vote on each sort of result?
+            val wcs = rq4s.filter(_.resultEntry.engine.contains(EngineType.Wikichimp))
+            val bings = rq4s.filter(_.resultEntry.engine.contains(EngineType.Bing))
+            wcs.nonEmpty && bings.nonEmpty match {
+              case false => Nil
+              case true => (wcs ::: bings).flatMap {
+                case rq4 => rq4.resultEntry.engine match {
+                  case None => Nil
+                  case Some(e) => List((e, rq4.q4.score.toInt))
+                }
+              }
+            }
+        }
+    }
+
+    // Group the votes by engine
+    all.groupBy(_._1).map {
+      case (e, xs) =>
+        (e, xs.map(_._2))
+    }
+  }
+
+  /**
     * Usefulness score when there are both wikichimp
     * and bing results
     */

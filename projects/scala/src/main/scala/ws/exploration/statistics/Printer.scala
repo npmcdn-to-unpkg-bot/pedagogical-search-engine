@@ -46,4 +46,9 @@ class Printer(stat: Statistics) {
     val content = usefulness(stat.usefulnessConcurrency())
     s"Usefulness when there is both wc & bing results:\n$content"
   }
+
+  def usefulnessComparison(): String = {
+    val content = usefulness(stat.usefulnessComparison())
+    s"Usefulness when there user voted on at least one wc & and one bing result:\n$content"
+  }
 }
