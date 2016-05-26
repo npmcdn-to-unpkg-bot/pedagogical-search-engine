@@ -10,8 +10,7 @@ class Printer(stat: Statistics) {
     s"Count(clicks): Bing($bing), wc($wc), wcft($wcft)"
   }
 
-  def usefulness(): String = {
-    val map = stat.usefulness()
+  def usefulness(map: Map[EngineType.Engine, List[Int]]): String = {
     val engines = map.toList.map {
       case (engine, scores) =>
         // Individual stats
@@ -28,8 +27,23 @@ class Printer(stat: Statistics) {
         val variance = scores.map(s => s.toDouble - avg).map(x => x * x).sum / (n - 1).toDouble
 
         //
-        s"$engine(avg: $avg, var: $variance): $scoresAgg"
+        s"$engine(tot: $n, avg: $avg, var: $variance): $scoresAgg"
     }
     engines.mkString("\n")
+  }
+
+  def usefulnessAll(): String = {
+    val content = usefulness(stat.usefulness())
+    s"Usefulness for all votes\n$content"
+  }
+
+  def usefulnessSomeUri(): String = {
+    val content = usefulness(stat.usefulnessSomeUri())
+    s"Usefulness when there are at least 1 uri in the search terms:\n$content"
+  }
+
+  def usefulnessConcurence(): String = {
+    val content = usefulness(stat.usefulnessConcurrency())
+    s"Usefulness when there is both wc & bing results:\n$content"
   }
 }
