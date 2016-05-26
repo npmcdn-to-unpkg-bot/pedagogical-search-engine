@@ -66,4 +66,18 @@ class Printer(stat: Statistics) {
     val proportion = stat.suggestionProportion()
     s"The proportion of searches with suggestions is $proportion"
   }
+
+  def satisfactionQ3(): String = {
+    val body = stat.satisfactionQ3().map {
+      case (q3Value, map) =>
+        val header = s"$q3Value"
+        val lines = map.map {
+          case (engine, count) =>
+            s"\t$engine($count)"
+        }.mkString("\n")
+        s"$header\n$lines"
+    }.mkString("\n")
+
+    s"The satisfactions proportions are:\n$body"
+  }
 }

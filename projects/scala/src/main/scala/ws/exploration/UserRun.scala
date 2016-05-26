@@ -4,7 +4,8 @@ import java.sql.Timestamp
 
 import org.json4s.native.Serialization._
 import rsc.Formatters
-import ws.exploration.attributes.{CategoryType, Q4Entry, Q4EntryFeedback, ResolvedQ4}
+import ws.exploration.attributes.Q3Type.Q3Type
+import ws.exploration.attributes.{Q3Type, _}
 import ws.exploration.events.{Clicks, Event, Messages, Searches}
 import ws.indices.spraythings.SearchTerm
 
@@ -54,6 +55,53 @@ extends Formatters {
           s"$lines"
 
     }.mkString("\n\n")
+  }
+
+  lazy val q3Vote
+  : Option[Q3Type] = {
+    // Collect the q3 answers
+    val q3Answers = ordered.flatMap {
+      case msg @ Messages(_, _, CategoryType.Feedback, content, _) =>
+        try {
+          read[Feedback](content) match {
+            case Feedback(QuestionIdType.Q3, valueStr) =>
+              val value = Q3Type.withName(valueStr)
+              List((msg.timestamp(), value))
+            case _ => Nil
+          }
+        } catch {
+          case e: Throwable => Nil
+        }
+
+      case _ => Nil
+    }
+
+    // Extract the vote of the latest one
+    q3Answers.sortBy(-_._1.getTime) match {
+      case Nil => None
+      case head::tail => Some(head._2)
+    }
+  }
+
+  lazy val entries: List[Entry] = {
+    responses.flatMap {
+      case response => response.entries
+    }
+  }
+
+  lazy val responses: List[Response] = {
+    searches.map {
+      case search => search.resultLog
+    }
+  }
+
+  lazy val searches:
+    List[Searches] = {
+    ordered.flatMap {
+      case search if search.isInstanceOf[Searches] =>
+        List(search.asInstanceOf[Searches])
+      case _ => Nil
+    }
   }
 
   lazy val resolvedQ4: List[ResolvedQ4] = {

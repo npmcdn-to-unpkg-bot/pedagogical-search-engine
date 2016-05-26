@@ -115,6 +115,38 @@ class Statistics(runs: List[UserRun],
     }
   }
 
+  def satisfactionQ3()
+  : Map[Q3Type.Q3Type, Map[EngineType.Engine, Int]] = {
+    // Get the votes
+    val maps = runs.flatMap(run => {
+      run.q3Vote match {
+        case None => Nil
+        case Some(vote) =>
+          // Count the results(which lead to this vote) by type
+          val engines = run.entries.flatMap {
+            case entry => entry.engine
+          }
+
+          val counts = engines.groupBy(e => e).map {
+            case (e, xs) => (e, xs.size)
+          }
+
+          // Produce the count
+          List((vote, counts))
+      }
+    })
+
+    // Merge the votes by value
+    maps.groupBy(_._1).map {
+      case (voteValue, stats) =>
+        val engineCounts = stats.flatMap(_._2.toList).groupBy(_._1).map {
+          case (engine, group2) =>
+            (engine, group2.map(_._2).sum)
+        }
+        (voteValue, engineCounts)
+    }
+  }
+
   /**
     * The proportion of people using the suggestion functionality.
     */
