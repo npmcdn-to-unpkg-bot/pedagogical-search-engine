@@ -49,6 +49,11 @@ class Printer(stat: Statistics) {
 
   def usefulnessComparison(): String = {
     val content = usefulness(stat.usefulnessComparison())
-    s"Usefulness when there user voted on at least one wc & and one bing result:\n$content"
+    s"Usefulness when the user voted on at least one wc & and one bing result:\n$content"
+  }
+
+  def usefulnessBestComparison(): String = {
+    val content = usefulness(stat.usefulnessBestComparison())
+    s"Best usefulness when the user voted on at least one wc & and one bing result:\n$content"
   }
 }
