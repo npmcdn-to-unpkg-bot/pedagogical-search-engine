@@ -118,13 +118,54 @@ class Statistics(runs: List[UserRun],
   /**
     * best usefulness score given on each search for Wikichimp
     * and Bing when the user scored at least one of each.
+    * Soft means that a search correponds to a results page.
     */
-  def usefulnessBestComparison()
+  def usefulnessSoftBestComparison()
   : Map[Engine, List[Int]] = {
     val all = q4Map.toList.flatMap {
       case (run, votes) =>
         // Group by search
         votes.groupBy(_.search.searchlog).toList.flatMap {
+          case (_, rq4s) =>
+            // Does there exist at least one vote on each sort of result?
+            val wcs = rq4s.filter(_.resultEntry.engine.contains(EngineType.Wikichimp))
+            val bings = rq4s.filter(_.resultEntry.engine.contains(EngineType.Bing))
+            wcs.nonEmpty && bings.nonEmpty match {
+              case false => Nil
+              case true =>
+                // Take the best ones
+                val topWc = wcs.sortBy(-_.q4.score.toInt).head
+                val topBing = bings.sortBy(-_.q4.score.toInt).head
+                (topWc.resultEntry.engine, topBing.resultEntry.engine) match {
+                  case (Some(EngineType.Wikichimp), Some(EngineType.Bing)) =>
+                    val wcTuple = (EngineType.Wikichimp, topWc.q4.score.toInt)
+                    val bingTuple = (EngineType.Bing, topBing.q4.score.toInt)
+                    List(wcTuple, bingTuple)
+                  case _ => Nil
+                }
+            }
+        }
+    }
+
+    // Group the votes by engine
+    all.groupBy(_._1).map {
+      case (e, xs) =>
+        (e, xs.map(_._2))
+    }
+  }
+
+  /**
+    * best usefulness score given on each search for Wikichimp
+    * and Bing when the user scored at least one of each.
+    * Hard means that a research may correspond to multiple results
+    * pages, the important is that it is about the same search terms.
+    */
+  def usefulnessBestHardComparison()
+  : Map[Engine, List[Int]] = {
+    val all = q4Map.toList.flatMap {
+      case (run, votes) =>
+        // Group by search
+        votes.groupBy(_.search.searchlog.searchTerms).toList.flatMap {
           case (_, rq4s) =>
             // Does there exist at least one vote on each sort of result?
             val wcs = rq4s.filter(_.resultEntry.engine.contains(EngineType.Wikichimp))
