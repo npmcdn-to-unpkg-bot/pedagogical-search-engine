@@ -1,6 +1,5 @@
 package ws.exploration.statistics
 
-import org.json4s.native.Serialization.read
 import rsc.Formatters
 import ws.exploration.UserRun
 import ws.exploration.attributes._
@@ -134,6 +133,41 @@ class Statistics(runs: List[UserRun],
   : Map[Q3Type.Q3Type, Map[EngineType.Engine, Int]] = {
     def entriesFn(run: UserRun): List[Entry] = run.entriesWithoutWCFTInRun
     satisfactionQ3(entriesFn)
+  }
+
+  def satisfactionQ3Click()
+  : Map[Q3Type.Q3Type, Map[EngineType.Engine, Int]] = {
+    // Get the votes
+    val maps = runs.flatMap(run => {
+      run.q3Vote match {
+        case None => Nil
+        case Some(vote) =>
+          // Count the results(which lead to this vote) by type
+          val engines = run.resolvedClicks.flatMap(rclick => {
+            rclick.entry.engine match {
+              case None => Nil
+              case Some(e) => List(e)
+            }
+          })
+
+          val counts = engines.groupBy(e => e).map {
+            case (e, xs) => (e, xs.size)
+          }
+
+          // Produce the count
+          List((vote, counts))
+      }
+    })
+
+    // Merge the votes by value
+    maps.groupBy(_._1).map {
+      case (voteValue, stats) =>
+        val engineCounts = stats.flatMap(_._2.toList).groupBy(_._1).map {
+          case (engine, group2) =>
+            (engine, group2.map(_._2).sum)
+        }
+        (voteValue, engineCounts)
+    }
   }
 
   /**

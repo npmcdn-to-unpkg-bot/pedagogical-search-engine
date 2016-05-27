@@ -22,6 +22,20 @@ extends Formatters {
     s"$title\n$events"
   }
 
+  lazy val clicks
+  : List[Clicks] =
+    ordered.flatMap {
+      case click if click.isInstanceOf[Clicks] => List(click.asInstanceOf[Clicks])
+      case _ => Nil
+    }
+
+  lazy val resolvedClicks
+  : List[ResolvedClick] = {
+    clicks.map(click => {
+      ResolvedClick.fromRun(this, click)
+    })
+  }
+
   def q4View: String = {
     // Print one view for each search associated with any votes
     resolvedQ4.groupBy(_.search.searchlog).map {
@@ -258,6 +272,17 @@ object UserRun {
         }
         UserRun(ordered.map(_._2))
     }.toList
+  }
+
+  def eventsBefore[U <: Event](events: List[U], t: Timestamp)
+  : List[U] = {
+    val acc: List[U] = Nil
+    events.foldLeft(acc) {
+      case (a, event) => event.timestamp().before(t) match {
+        case true => a ::: List(event)
+        case false => a
+      }
+    }
   }
 
   def findSearch(run: UserRun, searchHash: Int, timestamp: Timestamp)

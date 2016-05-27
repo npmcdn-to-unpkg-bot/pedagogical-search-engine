@@ -113,4 +113,10 @@ class Printer(stat: Statistics) {
     satisfactionQ3(grandMap)
   }
 
+  def satisfactionQ3Clicks(): String = {
+    val grandMap = stat.satisfactionQ3Click()
+    val content = satisfactionQ3(grandMap)
+    s"Clicks by satisfactions & engines:\n$content"
+  }
+
 }
