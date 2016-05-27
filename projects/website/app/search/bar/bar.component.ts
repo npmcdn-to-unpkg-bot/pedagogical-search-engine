@@ -80,12 +80,8 @@ export class SearchBarCmp {
 
     // Life-cycle hooks
     ngAfterViewInit(): void {
-        let input = this._input;
-        this._window.addEventListener("keydown", function(event){
-            if(!event.ctrlKey) {
-                input.nativeElement.focus();
-            }
-        });
+        // Focus on the search input at startup
+        this._input.nativeElement.focus();
     }
     ngAfterContentInit() {
         this._stcEmitter.emit(this._entities);
