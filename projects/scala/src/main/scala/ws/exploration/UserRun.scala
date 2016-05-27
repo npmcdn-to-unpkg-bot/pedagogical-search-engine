@@ -161,6 +161,21 @@ extends Formatters {
     }
   }
 
+  lazy val resolvedQ4WcHit
+  : List[ResolvedQ4] = {
+    resolvedQ4.flatMap(rq4 => {
+      val response = rq4.search.resultLog
+      val existWc = response.entries.exists {
+        case entry if entry.engine.contains(EngineType.Wikichimp) => true
+        case _ => false
+      }
+      existWc match {
+        case true => List(rq4)
+        case false => Nil
+      }
+    })
+  }
+
   lazy val resolvedQ4: List[ResolvedQ4] = {
     // Collect usefulness votes with times
     val tEntries = ordered.flatMap {

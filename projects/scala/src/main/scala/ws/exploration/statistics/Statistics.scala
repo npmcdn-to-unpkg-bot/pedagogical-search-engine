@@ -20,55 +20,8 @@ class Statistics(runs: List[UserRun],
   }.toMap
 
   private lazy val q4Map
-  : Map[UserRun, List[ResolvedQ4]] = {
-    runs.map {
-      case run =>
-        // Collect usefulness votes with times
-        val tEntries = run.ordered.flatMap {
-          case m @ Messages(_, _, CategoryType.Feedback, content, _) =>
-            // There are two types of feedback, the simple string-valued
-            // and the q4-valued
-            try {
-              val f = read[Q4EntryFeedback](content)
-              List((m.timestamp(), f.value))
-            } catch {
-              case e: Throwable =>
-                Nil
-            }
-          case _ => Nil
-        }
-
-        // Associate with the result entries
-        val tuples = tEntries.flatMap {
-          case (timestamp, q4 @ Q4Entry(_, searchLog, oSid, entryId)) =>
-            val searchTerms = read[List[SearchTerm]](searchLog)
-            val searchHash = SearchTerm.searchHash(searchTerms)
-            UserRun.findSearch(run, searchHash, timestamp) match {
-              case None => Nil
-              case Some(search) =>
-                search.resultLog.entries.filter(e => e.entryId.equals(entryId)) match {
-                  case Nil => Nil
-                  case xs => List(ResolvedQ4(q4, xs.head, search, timestamp))
-                }
-            }
-          case _ => Nil
-        }
-
-        // Remove duplicates
-        // e.g. a user rates several time the same entry
-        val grouped = tuples.groupBy {
-          case ResolvedQ4(q4, _, search, _) =>
-            (q4.sid.getOrElse(-1), search.searchHash, q4.entryId)
-        }
-        val deduplicated = grouped.map {
-          case ((_, xs)) => xs.sortBy(rq4 => -rq4.timestamp.getTime).head
-        }
-
-        // Produce the map entry
-        (run, deduplicated.toList)
-    }
-  }.toMap
-
+  : Map[UserRun, List[ResolvedQ4]] =
+    runs.map(run => (run, run.resolvedQ4)).toMap
 
   private lazy val clicksEntries
   : List[Entry] = runs.flatMap {
@@ -112,6 +65,24 @@ class Statistics(runs: List[UserRun],
     all.groupBy(_._1).map {
       case (e, xs) =>
         (e, xs.map(_._2))
+    }
+  }
+
+  def usefulnessWcHit()
+  : Map[Engine, List[Int]] = {
+    val allVotes = runs.flatMap(run => {
+      // For each run, get the votes
+      run.resolvedQ4WcHit.flatMap(rq4 => {
+        rq4.resultEntry.engine match {
+          case Some(engine) =>
+            Some((engine, rq4.q4.score.toInt))
+          case _ => None
+        }
+      })
+    })
+
+    allVotes.groupBy(_._1).map{
+      case (engine, xs) => (engine, xs.map(_._2))
     }
   }
 
