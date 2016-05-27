@@ -115,7 +115,7 @@ class Statistics(runs: List[UserRun],
     }
   }
 
-  def satisfactionQ3()
+  def satisfactionQ3(entriesFn: UserRun => List[Entry])
   : Map[Q3Type.Q3Type, Map[EngineType.Engine, Int]] = {
     // Get the votes
     val maps = runs.flatMap(run => {
@@ -123,7 +123,7 @@ class Statistics(runs: List[UserRun],
         case None => Nil
         case Some(vote) =>
           // Count the results(which lead to this vote) by type
-          val engines = run.entries.flatMap {
+          val engines = entriesFn(run).flatMap {
             case entry => entry.engine
           }
 
@@ -147,8 +147,27 @@ class Statistics(runs: List[UserRun],
     }
   }
 
+  def satisfactionQ3All()
+  : Map[Q3Type.Q3Type, Map[EngineType.Engine, Int]] = {
+    def allEntries(run: UserRun): List[Entry] = run.entries
+    satisfactionQ3(allEntries)
+  }
+
+  def satisfactionQ3WithoutWCFT()
+  : Map[Q3Type.Q3Type, Map[EngineType.Engine, Int]] = {
+    def entriesFn(run: UserRun): List[Entry] = run.entriesWithoutWCFT
+    satisfactionQ3(entriesFn)
+  }
+
+  def satisfactionQ3WithoutWCFTInRun()
+  : Map[Q3Type.Q3Type, Map[EngineType.Engine, Int]] = {
+    def entriesFn(run: UserRun): List[Entry] = run.entriesWithoutWCFTInRun
+    satisfactionQ3(entriesFn)
+  }
+
   /**
     * The proportion of people using the suggestion functionality.
+    * [researches that contains at least one suggestion term]
     */
   def suggestionProportion()
   : Double = {
@@ -176,6 +195,24 @@ class Statistics(runs: List[UserRun],
     val withSugg = partial.map(_._2).sum
 
     withSugg.toDouble / tot.toDouble
+  }
+
+  /**
+    * The proportion of searches that give at least one result from the Wikichimp engine.
+    */
+  def wcHitProportion()
+  : Double = {
+    // For each run, count the number of response with and without any wc result
+    val counts = runs.map(run => {
+      val withWc = run.responseWithAnyWikichimp.size
+      val all = run.responses.size
+      (all, withWc)
+    })
+
+    val tot = counts.map(_._1).sum
+    val withWc = counts.map(_._2).sum
+
+    withWc.toDouble / tot.toDouble
   }
 
   /**

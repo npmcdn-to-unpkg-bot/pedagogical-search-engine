@@ -7,6 +7,7 @@ import rsc.Formatters
 import ws.exploration.attributes.Q3Type.Q3Type
 import ws.exploration.attributes.{Q3Type, _}
 import ws.exploration.events.{Clicks, Event, Messages, Searches}
+import ws.indices.indexentry.EngineType
 import ws.indices.spraythings.SearchTerm
 
 case class UserRun(ordered: List[Event])
@@ -89,10 +90,66 @@ extends Formatters {
     }
   }
 
+  lazy val entriesWithoutWCFT: List[Entry] = {
+    responsesWithoutWCFT.flatMap {
+      case response => response.entries
+    }
+  }
+
+  lazy val entriesWithoutWCFTInRun: List[Entry] = {
+    responsesWithoutWCFTInRun.flatMap {
+      case response => response.entries
+    }
+  }
+
   lazy val responses: List[Response] = {
     searches.map {
       case search => search.resultLog
     }
+  }
+
+  lazy val responsesWithoutWCFT: List[Response] = {
+    searches.flatMap(search => {
+      val exists = search.resultLog.entries.exists {
+        case wcft if wcft.engine.contains(EngineType.WikichimpFT) => true
+        case _ => false
+      }
+      exists match {
+        case true => Nil
+        case false => List(search.resultLog)
+      }
+    })
+  }
+
+  lazy val responsesWithoutWCFTInRun: List[Response] = {
+    searches.flatMap(search => {
+      val exists = search.resultLog.entries.exists {
+        case wcft if wcft.engine.contains(EngineType.WikichimpFT) => true
+        case _ => false
+      }
+      exists match {
+        case true => List(true)
+        case false => Nil
+      }
+    })
+    searches.isEmpty match {
+      case true => responses
+      case false => Nil
+    }
+  }
+
+  lazy val responseWithAnyWikichimp
+  : List[Response] = {
+    responses.flatMap(response => {
+      val existsWc = response.entries.flatMap {
+        case wc if wc.engine.contains(EngineType.Wikichimp) => Some(true)
+        case _ => None
+      }
+      existsWc match {
+        case Nil => Nil
+        case _ => List(response)
+      }
+    })
   }
 
   lazy val searches:

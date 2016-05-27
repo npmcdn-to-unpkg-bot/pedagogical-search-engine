@@ -1,5 +1,6 @@
 package ws.exploration.statistics
 
+import ws.exploration.attributes.Q3Type
 import ws.indices.indexentry.EngineType
 
 class Printer(stat: Statistics) {
@@ -67,8 +68,13 @@ class Printer(stat: Statistics) {
     s"The proportion of searches with suggestions is $proportion"
   }
 
-  def satisfactionQ3(): String = {
-    val grandMap = stat.satisfactionQ3()
+  def wcHitProportion(): String = {
+    val proportion = stat.wcHitProportion()
+    s"The proportion of researches with at least one wc results is $proportion"
+  }
+
+  def satisfactionQ3(grandMap: Map[Q3Type.Q3Type, Map[EngineType.Engine, Int]])
+  : String = {
     val grandTot = grandMap.flatMap(_._2.values).sum
 
     val body = grandMap.map {
@@ -86,4 +92,20 @@ class Printer(stat: Statistics) {
 
     s"The satisfactions proportions are (tot: $grandTot):\n$body"
   }
+
+  def satisfactionQ3All(): String = {
+    val grandMap = stat.satisfactionQ3All()
+    satisfactionQ3(grandMap)
+  }
+
+  def satisfactionQ3WithoutWCFT(): String = {
+    val grandMap = stat.satisfactionQ3WithoutWCFT()
+    satisfactionQ3(grandMap)
+  }
+
+  def satisfactionQ3WithoutWCFTInRun(): String = {
+    val grandMap = stat.satisfactionQ3WithoutWCFTInRun()
+    satisfactionQ3(grandMap)
+  }
+
 }
