@@ -16,4 +16,10 @@ object Math {
       case sum => l.map(_/sum)
     }
   }
+
+  def round(d: Double, decimals: Int)
+  : Double = {
+    val factor: Double = math.pow(10, decimals)
+    math.round(d * factor) / factor
+  }
 }

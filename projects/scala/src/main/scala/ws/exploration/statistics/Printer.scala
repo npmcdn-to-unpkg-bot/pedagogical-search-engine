@@ -68,16 +68,22 @@ class Printer(stat: Statistics) {
   }
 
   def satisfactionQ3(): String = {
-    val body = stat.satisfactionQ3().map {
+    val grandMap = stat.satisfactionQ3()
+    val grandTot = grandMap.flatMap(_._2.values).sum
+
+    val body = grandMap.map {
       case (q3Value, map) =>
-        val header = s"$q3Value"
+        val tot = map.values.sum
+        val totRatio = utils.Math.round(tot.toDouble * 100.toDouble / grandTot.toDouble, 1)
+        val header = s"$q3Value ($totRatio%, tot: $tot)"
         val lines = map.map {
           case (engine, count) =>
-            s"\t$engine($count)"
+            val ratio = utils.Math.round(count.toDouble * 100.toDouble / tot.toDouble, 1)
+            s"\t$engine($ratio%, tot: $count)"
         }.mkString("\n")
         s"$header\n$lines"
     }.mkString("\n")
 
-    s"The satisfactions proportions are:\n$body"
+    s"The satisfactions proportions are (tot: $grandTot):\n$body"
   }
 }
