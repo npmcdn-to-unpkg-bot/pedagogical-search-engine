@@ -87,7 +87,15 @@ class Printer(stat: Statistics) {
   : String = {
     val grandTot = grandMap.flatMap(_._2.values).sum
 
-    val body = grandMap.map {
+    // Order the map from "worse" to "better" for a nicer display
+    val ordered = grandMap.toList.sortBy {
+      case (Q3Type.Worse, _) => 1
+      case (Q3Type.Equivalent, _) => 2
+      case (Q3Type.Potential, _) => 3
+      case _ => 4
+    }
+
+    val body = ordered.map {
       case (q3Value, map) =>
         val tot = map.values.sum
         val totRatio = utils.Math.round(tot.toDouble * 100.toDouble / grandTot.toDouble, 1)
@@ -98,7 +106,7 @@ class Printer(stat: Statistics) {
             s"\t$engine($ratio%, tot: $count)"
         }.mkString("\n")
         s"$header\n$lines"
-    }.mkString("\n")
+    }.mkString("\n\n")
 
     s"The satisfactions proportions are (tot: $grandTot):\n$body"
   }
