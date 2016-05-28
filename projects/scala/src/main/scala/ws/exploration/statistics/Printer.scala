@@ -132,4 +132,17 @@ class Printer(stat: Statistics) {
     s"Clicks by satisfactions & engines:\n$content"
   }
 
+  def satisfiedPeopleEntries(): String = {
+    val pairs = stat.satisfiedPeopleEntries().toList
+    val tot = pairs.map(_._2).sum
+
+    val lines = pairs.map {
+      case (engine, nb) =>
+        val percentage = utils.Math.round(nb.toDouble * 100.toDouble / tot.toDouble, 1)
+        s"$engine($nb): $percentage%"
+    }.mkString("\n")
+
+    s"Are satisfied people satisfied by which type of results?\n$lines"
+  }
+
 }

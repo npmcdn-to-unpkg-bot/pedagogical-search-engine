@@ -200,6 +200,37 @@ class Statistics(runs: List[UserRun],
     }
   }
 
+  def satisfiedPeopleEntries()
+  : Map[EngineType.Engine, Int] = {
+    // Collect the Q4 votes
+    val votes = runs.flatMap(run => {
+      // .. but only from satisfied people
+      run.q3Vote match {
+        case Some(Q3Type.Potential) | Some(Q3Type.Better) =>
+          q4Map(run).flatMap(rq4 => {
+            rq4.resultEntry.engine match {
+              case None => Nil
+              case Some(engine) =>
+                // Is the result useful?
+                val score = rq4.q4.score.toInt
+                if(score > 2) {
+                  List((engine, 1))
+                } else {
+                  Nil
+                }
+            }
+          })
+
+        case _ => Nil
+      }
+    })
+
+    // Group the votes by engine
+    votes.groupBy(_._1).map {
+      case (engine, xs) => (engine, xs.map(_._2).sum)
+    }
+  }
+
   /**
     * The proportion of people using the suggestion functionality.
     * [researches that contains at least one suggestion term]
