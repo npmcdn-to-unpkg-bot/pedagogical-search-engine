@@ -85,6 +85,36 @@ class Statistics(runs: List[UserRun],
     }
   }
 
+  def usefulnessClicked()
+  : Map[Engine, List[Int]] = {
+    val votes = runs.flatMap(run => {
+      val rClicks = run.resolvedClicks
+      val clickedId = rClicks.map(_.entry.entryId)
+
+      // Filter the ratings on entries which have been clicked
+      val clickedQ4 = run.resolvedQ4.flatMap(rq4 => {
+        val entry = rq4.resultEntry
+        clickedId.contains(entry.entryId) match {
+          case true => List(rq4)
+          case false => Nil
+        }
+      })
+
+      // Collect the votes
+      clickedQ4.flatMap(q4 => {
+        // Ensure that the vote is
+        q4.resultEntry.engine.map(engine => {
+          (engine, q4.q4.score.toInt)
+        })
+      })
+    })
+
+    // Group the votes by engine
+    votes.groupBy(_._1).map{
+      case (engine, xs) => (engine, xs.map(_._2))
+    }
+  }
+
   def satisfactionQ3(entriesFn: UserRun => List[Entry])
   : Map[Q3Type.Q3Type, Map[EngineType.Engine, Int]] = {
     // Get the votes

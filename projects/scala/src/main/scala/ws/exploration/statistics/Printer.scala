@@ -68,6 +68,11 @@ class Printer(stat: Statistics) {
     s"Usefulness of results when there is at least on wc hit on the same page:\n$content"
   }
 
+  def usefulnessClicked(): String = {
+    val content = usefulness(stat.usefulnessClicked())
+    s"Usefulness of results that were also clicked:\n$content"
+  }
+
   def suggestionProportion(): String = {
     val proportion = stat.suggestionProportion()
     s"The proportion of searches with suggestions is $proportion"
