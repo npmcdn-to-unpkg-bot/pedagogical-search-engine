@@ -2,9 +2,12 @@ package rsc.indexers
 
 import rsc.Resource
 import rsc.Types.{Nodes, Spots}
-import rsc.attributes.Candidate.Spotlight
+import rsc.attributes.Candidate.{Spotlight => CSpotlight}
 
-class Spotlight(threshold: Double) {
+/**
+  * @param cutoff No more than this number of indices per entry
+  */
+class Spotlight(cutoff: Int = 100) {
   def index(r: Resource): Option[Resource] = {
 
     // Collect each "spots group"
@@ -54,8 +57,12 @@ class Spotlight(threshold: Double) {
       })
     }
 
+    // Tocs
+    val tocsRootNodes = r.oTocs.map(_.flatMap(toc => toc.nodes)).getOrElse(Nil)
+    val tocsIndices = nodesDistinctIndices(tocsRootNodes)
+
     // Produce Title indices
-    val oTitleIndices = produceIndices(List(
+    val oTitleIndices = spotsToUniqueIndices(List(
       titleSpots,
       keySpots,
       catSpots,
@@ -64,7 +71,8 @@ class Spotlight(threshold: Double) {
       descsSpots
     ).flatten) match {
       case Nil => None
-      case indices => Some(indices)
+      case indices =>
+        Some(skim(distinctIndices(indices ::: tocsIndices)))
     }
 
     // Produce Tocs indices
@@ -90,50 +98,64 @@ class Spotlight(threshold: Double) {
     }).copy(oTocs = newOTocs))
   }
 
-  def produceIndices(spots: Spots): List[Index] = spots.flatMap(spot => {
-    spot.candidates.flatMap(candidate => candidate match {
-      case Spotlight(label, uri, scores, _) => {
-        // Take only the candidates above the threshold
-        if(scores.finalScore >= threshold) {
+  def spotsToUniqueIndices(spots: Spots): List[Index] = spots.flatMap(spot => {
+    val indices = spot.candidates.flatMap(candidate => candidate match {
+      case CSpotlight(label, uri, scores, _) =>
           List(Index(candidate.uri, scores.finalScore))
-        } else {
-          Nil
-        }
-      }
+
       case _ => Nil
     })
+
+    distinctIndices(indices)
   })
+
+  def distinctIndices(indices: List[Index])
+  : List[Index] = {
+    indices.groupBy(_.uri).map{
+      case (uri, group) =>
+        val sorted = group.sortBy(-_.score)
+        sorted.head
+    }.toList
+  }
+
+  def indicesFromOSpots(oSpots: Option[Spots])
+  : List[Index] = {
+    oSpots match {
+      case None => Nil
+      case Some(spots) => spots.flatMap(spot => {
+        spot.candidates.flatMap(candidate => candidate match {
+          case CSpotlight(label, uri, scores, _) =>
+            List(Index(uri, scores.finalScore))
+        })
+      })
+    }
+  }
+
+  def nodesDistinctIndices(nodes: Nodes)
+  : List[Index] = {
+    val indices = nodes.flatMap(node => {
+      val current = indicesFromOSpots(node.oSpots)
+      val children = nodesDistinctIndices(node.children)
+
+      current ::: children
+    })
+
+    distinctIndices(indices)
+  }
 
   def indexNodes(nodes: Nodes): Nodes = nodes match {
     case Nil => Nil
     case _ => nodes.map(node => {
-      // Index children
+      // Children indices
       val children = indexNodes(node.children)
 
-      // Analyse each spot of the current node
-      val indices = node.oSpots match {
-        case None => Nil
-        case Some(spots) => spots.flatMap(spot => {
-          // take only good candidates
-          spot.candidates.flatMap(candidate => candidate match {
-            case Spotlight(label, uri, scores, _) => {
-              val score = scores.finalScore
-              if(score >= threshold) {
-                // Create an index
-                List(Index(uri, score))
-              } else {
-                Nil
-              }
-            }
-          })
-        })
-      }
+      // Current indices
+      val current = skim(nodesDistinctIndices(List(node)))
 
-      // Create the new node
-      indices match {
-        case Nil => node
-        case _ => node.copy(oIndices = Some(new Indices(indices)), children = children)
-      }
+      node.copy(oIndices = Some(new Indices(current)), children = children)
     })
   }
+
+  def skim(indices: List[Index])
+  : List[Index] = indices.sortBy(-_.score).take(cutoff)
 }

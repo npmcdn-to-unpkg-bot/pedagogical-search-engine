@@ -5,7 +5,7 @@ import graph.{DirectedGraph, Pagerank, Utils}
 import mysql.GraphFactory
 import rsc.Resource
 import rsc.Types.Nodes
-import rsc.attributes.Candidate.{Candidate, Spotlight}
+import rsc.attributes.Candidate.{Candidate, Spotlight => CSpotlight}
 import utils.Constants
 import utils.Math._
 import utils.Utils.mergeOptions2List
@@ -298,6 +298,6 @@ class Graph(_ec: ExecutionContext,
   }
 
   def willBeSkimed(c: Candidate, threshold: Double): Boolean = c match {
-    case Spotlight(_, _, scores, _) => scores.finalScore < threshold
+    case CSpotlight(_, _, scores, _) => scores.finalScore < threshold
   }
 }
