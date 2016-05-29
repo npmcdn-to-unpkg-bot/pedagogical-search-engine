@@ -13,16 +13,18 @@ import utils.Utils.mergeOptions2List
 import scala.collection.JavaConverters._
 import scala.concurrent.{ExecutionContext, Future}
 
-class Graph(_ec: ExecutionContext) {
+class Graph(_ec: ExecutionContext,
+            coreMaxSize: Int = 25,
+            fizzFactor: Double = 5) {
   implicit val ec = _ec
   val seedValue = "seed-value"
 
   def index(r: Resource): Future[Option[Resource]] = {
     // Create the seed graph
     seedGraph(r) flatMap {
-      case miniGraph => {
+      case miniGraph =>
         // Extract the seeds
-        val seeds = miniGraph.getNodes().asScala.map(node => {
+        val seeds = miniGraph.getNodes.asScala.map(node => {
           node.getNodeAttr(seedValue).asInstanceOf[Seed]
         }).toSet
 
@@ -31,11 +33,11 @@ class Graph(_ec: ExecutionContext) {
         val futureExpanded = GraphFactory.follow2(uris, 10.5)
 
         futureExpanded map {
-          case expanded => {
+          case expanded =>
             // Index the title
             index(expanded, seeds) match {
               case Nil => None
-              case indices => {
+              case indices =>
                 // Index the table of contents
                 val newOTocs = r.oTocs.map(tocs => {
                   tocs.map(toc => {
@@ -52,11 +54,8 @@ class Graph(_ec: ExecutionContext) {
                     oIndexer = Some(Indexer.Graph)
                   )
                 )
-              }
             }
-          }
         }
-      }
     }
   }
 
@@ -91,7 +90,7 @@ class Graph(_ec: ExecutionContext) {
   private def index(digraph: DirectedGraph, seeds: Set[Seed])
   : List[Index] = seeds.size match {
     case zero if zero == 0 => Nil
-    case _ => {
+    case _ =>
       // Create a mapping: uri -> seed
       val mapping = mergeSeeds(seeds)
       val nbSeeds = mapping.keySet.size
@@ -106,25 +105,25 @@ class Graph(_ec: ExecutionContext) {
       Pagerank.weighted(digraph, nWeight, eWeight, 0.8)
 
       // Produce the indices scores
+      val nbIndices = math.floor(nbSeeds.toDouble * this.fizzFactor)
       val topNodes = digraph.getNodes.asScala.toList
-        .sortBy(-_.getScore).take(nbSeeds)
+        .sortBy(-_.getScore).take(nbIndices.toInt)
 
-      val r1 = rescaleD(topNodes.map(_.getScore().toDouble))
+      val r1 = rescaleD(topNodes.map(_.getScore.toDouble))
       val r2 = rescaleD(r1.map(s => math.exp(s)))
       val r3 = r2.map(s => s * (math.log(1 + math.log(1 + nbSeeds.toDouble)) + 0.2))
       val scores = topNodes.zip(r3).map {
-        case (node, score) => {
-          val nodeId = node.getId()
+        case (node, score) =>
+          val nodeId = node.getId
           mapping.contains(nodeId) match {
             // Candidates score is proportional to depth
-            case true => {
+            case true =>
               val depth = mapping(nodeId).depth
-              (score / (depth.toDouble + 1))
-            }
+              score / (depth.toDouble + 1)
+
             // Candidates not in the seeds are a bit penalized
-            case false => (score / 2)
+            case false => score / 2
           }
-        }
       }
 
       // Produce the indices
@@ -132,9 +131,8 @@ class Graph(_ec: ExecutionContext) {
         val node = p._1
         val score = p._2
 
-        Index(node.getId(), score)
+        Index(node.getId, score)
       })
-    }
   }
 
   def seedGraph(r: Resource)
@@ -145,9 +143,9 @@ class Graph(_ec: ExecutionContext) {
     val future = GraphFactory.follow1(mapping.keySet, 9.0)
 
     future map {
-      case digraph => {
+      case digraph =>
         // Attach the seed to each node
-        digraph.getNodes.asScala.map(node => {
+        digraph.getNodes.asScala.foreach(node => {
           val uri = node.getId
           node.addNodeAttr(seedValue, mapping(uri))
         })
@@ -162,10 +160,9 @@ class Graph(_ec: ExecutionContext) {
         : Set[graph.nodes.Node] = {
           Utils.connectedComponents(digraph.getNodes.asScala) match {
             case Nil => Set()
-            case ccs => {
+            case ccs =>
               val sorted = ccs.toList.sortBy(g => -g.toList.map(n => nodeValue(n)).sum)
               sorted.head
-            }
           }
         }
 
@@ -183,31 +180,30 @@ class Graph(_ec: ExecutionContext) {
         }
 
         def removeStep(directedGraph: DirectedGraph) = {
-          val nodes = digraph.getNodes().asScala.toList
+          val nodes = digraph.getNodes.asScala.toList
           val sorted = nodes.sortBy(node => {
             val seed = node.getNodeAttr(seedValue).asInstanceOf[Seed]
             // node with fewest priority (, degree) that leaves
             (-seed.priority, nodeValue(node))
           })
-          val target = sorted.head.getId()
+          val target = sorted.head.getId
           digraph.removeNode(target)
         }
 
         skimStep(digraph)
-        while (digraph.nbNodes() > 25) {
+        while (digraph.nbNodes() > this.coreMaxSize) {
           removeStep(digraph)
           skimStep(digraph)
         }
 
         digraph
-      }
     }
   }
 
-  def saveGraph(digraph: DirectedGraph): Unit = {
+  def saveGraph(digraph: DirectedGraph, name: String): Unit = {
     digraph.toJSONFile(
-      digraph.getIDs().asScala.toList.asJava,
-      "graph.json",
+      digraph.getIDs.asScala.toList.asJava,
+      s"$name.json",
       Constants.Graph.Edges.Attribute.normalizedCwlm)
   }
 
@@ -230,11 +226,10 @@ class Graph(_ec: ExecutionContext) {
 
     // Extract the candidates
     val oSpots = pairs.map {
-      case (node, depth) => {
+      case (node, depth) =>
         node.oSpots.map(spots => {
           spots.map(spot => (spot, depth))
         })
-      }
     }
     val spots = mergeOptions2List(oSpots: _*).flatten
     val candidates = spots.flatMap {
@@ -299,10 +294,10 @@ class Graph(_ec: ExecutionContext) {
       candidates.map(c => Seed(c, 4, 2)).toSet
     }(thre)
 
-    (titleSeeds ++ tocsSeeds ++ metaSeeds ++ descrSeeds)
+    titleSeeds ++ tocsSeeds ++ metaSeeds ++ descrSeeds
   }
 
   def willBeSkimed(c: Candidate, threshold: Double): Boolean = c match {
-    case Spotlight(_, _, scores, _) => (scores.finalScore < threshold)
+    case Spotlight(_, _, scores, _) => scores.finalScore < threshold
   }
 }

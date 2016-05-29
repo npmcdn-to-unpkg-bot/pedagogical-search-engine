@@ -1,6 +1,6 @@
 package mysql
 
-import java.util.Arrays
+import java.util
 
 import graph.DirectedGraph
 import graph.nodes.Node
@@ -16,11 +16,11 @@ object GraphFactory {
   : Future[DirectedGraph] = {
     // Create the digraph
     val digraph: DirectedGraph = new DirectedGraph
-    uris.map(uri => digraph.addNode(new Node(uri)))
+    uris.foreach(uri => digraph.addNode(new Node(uri)))
 
     val query = QueriesUtils.read(
       Constants.Mysql.QueriesPath.queryOutLinks,
-      Arrays.asList(QueriesUtils.escapeAndJoin(uris.asJava))
+      util.Arrays.asList(QueriesUtils.escapeAndJoin(uris.asJava))
     )
 
     Future {
@@ -29,7 +29,7 @@ object GraphFactory {
       val rs = co.createStatement().executeQuery(query)
       (co, rs)
     } map {
-      case (co, rs) => {
+      case (co, rs) =>
         while (rs.next) {
           val a = rs.getString("A").toLowerCase
           val b = rs.getString("B").toLowerCase
@@ -45,7 +45,6 @@ object GraphFactory {
         rs.close()
         co.close()
         digraph
-      }
     }
   }
 
@@ -53,36 +52,35 @@ object GraphFactory {
   : Future[DirectedGraph] = {
     // Create the digraph
     val digraph: DirectedGraph = new DirectedGraph
-    uris.map(uri => digraph.addNode(new Node(uri)))
+    uris.foreach(uri => digraph.addNode(new Node(uri)))
 
     val query = QueriesUtils.read(
       Constants.Mysql.QueriesPath.queryOutLinks,
-      Arrays.asList(QueriesUtils.escapeAndJoin(uris.asJava))
+      util.Arrays.asList(QueriesUtils.escapeAndJoin(uris.asJava))
     )
 
     Future {
       // .. follow links once
       val co: java.sql.Connection = Constants.database.getConnection()
-      val rs = co.createStatement().executeQuery(query);
+      val rs = co.createStatement().executeQuery(query)
       (co, rs)
     } map {
-      case (co, rs) => {
+      case (co, rs) =>
         val newNodes = rs.next match {
           case false => Set()
-          case true => {
+          case true =>
             Iterator.continually {
               val a = rs.getString("A").toLowerCase
               val b = rs.getString("B").toLowerCase
               val score = normalizeWlm(rs.getDouble("Complete"))
 
-              (uris.contains(b) || score > minWlm) match {
-                case true => {
+              uris.contains(b) || score > minWlm match {
+                case true =>
                   // Create the "b" node if it does not exist
-                  val newNode = (!digraph.contains(b)) match {
-                    case true => {
+                  val newNode = !digraph.contains(b) match {
+                    case true =>
                       digraph.getOrCreate(b)
                       List(b)
-                    }
                     case false => Nil
                   }
 
@@ -93,13 +91,10 @@ object GraphFactory {
 
                   // Return newly created nodes
                   newNode
-                }
-                case false => {
-                  Nil
-                }
+
+                case false => Nil
               }
             }.takeWhile(_ => rs.next).flatten.toSet
-          }
         }
         rs.close()
         co.close()
@@ -110,17 +105,15 @@ object GraphFactory {
 
         QueriesUtils.read(
           Constants.Mysql.QueriesPath.queryOutLinksRestricted,
-          Arrays.asList(fromIds, toIds)
+          util.Arrays.asList(fromIds, toIds)
         )
-      }
     } map {
-      case query => {
+      case q =>
         val co: java.sql.Connection = Constants.database.getConnection()
-        val rs = co.createStatement().executeQuery(query);
+        val rs = co.createStatement().executeQuery(q)
         (co, rs)
-      }
     } map {
-      case (co, rs) => {
+      case (co, rs) =>
         while (rs.next) {
           val a = rs.getString("A").toLowerCase
           val b = rs.getString("B").toLowerCase
@@ -132,7 +125,6 @@ object GraphFactory {
         rs.close()
         co.close()
         digraph
-      }
     }
   }
 }
