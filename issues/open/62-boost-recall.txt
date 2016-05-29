@@ -1,0 +1,3 @@
+Description
+======================
+Boost the recall of the Wikichimp by indexing terms related to the existing ones.
