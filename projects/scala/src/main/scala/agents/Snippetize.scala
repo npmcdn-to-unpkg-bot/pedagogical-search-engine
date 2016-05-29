@@ -4,7 +4,6 @@ import java.io.File
 
 import agents.helpers.FileExplorer
 import org.json4s.native.JsonMethods._
-import rsc.indexers.Indexer
 import rsc.snippets.Simple
 import rsc.writers.Json
 import rsc.{Formatters, Resource}
@@ -25,29 +24,13 @@ object Snippetize extends App with Formatters {
     val r = json.extract[Resource]
     val absolute = file.getAbsolutePath
 
-    // Was it already indexed?
-    val indexed = r.oIndexer match {
-      case None => false
-      case Some(i) => i match {
-        case Indexer.Graph => true
-        case _ => false
-      }
-    }
+    //  Snippetize
+    val newR = snippetizer.snippetize(r)
 
-    indexed match {
-      case false =>
-        Future.failed(new Exception(s"Resource not indexed: $absolute"))
+    // Write the result
+    Json.write(newR, Some(absolute))
 
-      case true =>
-        //  Snippetize
-        val newR = snippetizer.snippetize(r)
-
-        // Write the result
-        Json.write(newR, Some(absolute))
-
-        Future.successful()
-    }
-
+    Future.successful()
   }
 
   explorer.launch(process)
