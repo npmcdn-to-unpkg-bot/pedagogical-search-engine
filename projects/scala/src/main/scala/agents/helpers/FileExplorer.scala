@@ -130,9 +130,11 @@ class FileExplorer(jobName: String = Calendar.getInstance.getTime.toString,
                 Logger.info(s"File Explorer: File OK: $absolutePath")
               } catch {
                 case e: Throwable =>
+                  val stackTrace = e.getStackTrace.map(_.toString).mkString("\n")
                   exceptionCounter.incrementAndGet()
                   Logger.info(s"File Explorer: Processing file '$absolutePath' " +
-                    s"throwed an exeption(${e.getClass.getName}) with this message: ${e.getMessage}")
+                    s"throwed an exeption(${e.getClass.getName}) with this message: ${e.getMessage}\n" +
+                    s"Stack Trace is:\n$stackTrace")
               }
             }(tasksQueue)
         }
