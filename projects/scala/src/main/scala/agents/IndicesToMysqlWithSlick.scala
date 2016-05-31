@@ -25,13 +25,14 @@ object IndicesToMysqlWithSlick extends App with Formatters {
   // Create the file explorer
   val explorer = new FileExplorer("indices-to-mysql-with-slick", forceProcess = true)
 
-  def process(file: File, ec: ExecutionContext): Future[Any] = {
+  def process(file: File, ec: ExecutionContext): Future[Option[String]] = {
     // Parse the resource
     val json = parse(file)
     val r = json.extract[Resource]
-    val absolute = file.getAbsolutePath
 
-    importer.importResource(r, ec)
+    importer.importResource(r, ec).flatMap {
+      case _ => Future.successful(None)
+    }(ec)
   }
 
   explorer.launch(process)

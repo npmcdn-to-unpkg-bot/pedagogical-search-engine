@@ -16,7 +16,7 @@ class FileExplorer(jobName: String = Calendar.getInstance.getTime.toString,
                    forceProcess: Boolean = false
                   ) {
   
-  def launch(process: (File, ExecutionContext) => Future[Any])
+  def launch(process: (File, ExecutionContext) => Future[Option[String]])
   : Unit = {
 
     val start = System.nanoTime()
@@ -122,12 +122,12 @@ class FileExplorer(jobName: String = Calendar.getInstance.getTime.toString,
                */
               try {
                 val future = process(file, workingQueue)
-                Await.result(future, Duration.Inf)
+                val oMsg = Await.result(future, Duration.Inf)
 
                 // Indicate that we are done
                 Files.write("", donePath)
                 okCounter.incrementAndGet()
-                Logger.info(s"File Explorer: File OK: $absolutePath")
+                Logger.info(s"File Explorer: File OK with message($oMsg): $absolutePath")
               } catch {
                 case e: Throwable =>
                   val stackTrace = e.getStackTrace.map(_.toString).mkString("\n")

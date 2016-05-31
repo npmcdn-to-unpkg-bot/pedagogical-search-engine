@@ -13,7 +13,7 @@ object IndexWithSpotlight extends App with Formatters {
   // Create the file explorer
   val explorer = new FileExplorer("indices-spotlight", forceProcess = true)
 
-  def process(file: File, ec: ExecutionContext): Future[Any] = {
+  def process(file: File, ec: ExecutionContext): Future[Option[String]] = {
     // Parse it
     val json = parse(file)
     val r = json.extract[Resource]
@@ -26,7 +26,7 @@ object IndexWithSpotlight extends App with Formatters {
 
       case Some(newR) =>
         Json.write(newR, Some(file.getAbsolutePath))
-        Future.successful()
+        Future.successful(None)
     }
   }
 

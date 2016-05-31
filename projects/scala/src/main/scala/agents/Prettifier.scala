@@ -16,7 +16,7 @@ object Prettifier extends App with Formatters {
   val explorer = new FileExplorer("prettifier", forceProcess = true)
   val prettifier = new V1()
 
-  def process(file: File, ec: ExecutionContext) = {
+  def process(file: File, ec: ExecutionContext): Future[Option[String]] = {
     // Parse it
     val json = parse(file)
     val r = json.extract[Resource]
@@ -42,7 +42,7 @@ object Prettifier extends App with Formatters {
     val newR = r.copy(oTocs = newOTocs, oPrettifier = Some(PrettifierType.V1))
     Json.write(newR, Some(file.getAbsolutePath))
 
-    Future.successful()
+    Future.successful(None)
   }
 
   explorer.launch(process)

@@ -18,7 +18,7 @@ object Snippetize extends App with Formatters {
   val snippetizer = new Simple()
 
   // Define how each file is processed
-  def process(file: File, ec: ExecutionContext): Future[Unit] = {
+  def process(file: File, ec: ExecutionContext): Future[Option[String]] = {
     // Open the resource
     val json = parse(file)
     val r = json.extract[Resource]
@@ -30,7 +30,7 @@ object Snippetize extends App with Formatters {
     // Write the result
     Json.write(newR, Some(absolute))
 
-    Future.successful()
+    Future.successful(None)
   }
 
   explorer.launch(process)

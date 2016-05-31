@@ -22,17 +22,21 @@ object IndexWithGraphs extends App with Formatters {
     forceProcess = true)
 
   // Define how the resources are processed
-  def process(file: File, ec: ExecutionContext): Future[Any] = {
+  def process(file: File, ec: ExecutionContext): Future[Option[String]] = {
     // Parse
     val json = parse(file)
     val r = json.extract[Resource]
 
     // Index
     val indexer = new Graph(ec)
-    indexer.index(r).map {
+    indexer.index(r).flatMap {
       case Some(newR) =>
         Json.write(newR, Some(file.getAbsolutePath))
-      case None => // The resource was rejected, we do nothing
+        Future.successful(Some("Ok"))
+
+      case None =>
+        // The resource was rejected, we do nothing
+        Future.successful(Some("The resource seems hard to index. The algorithm rejected it."))
     }(ec)
   }
 

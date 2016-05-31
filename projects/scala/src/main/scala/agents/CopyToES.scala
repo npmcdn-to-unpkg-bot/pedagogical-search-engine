@@ -49,7 +49,7 @@ object CopyToES extends App with Formatters {
       )
   val esComplementStr: String = write(esComplement)
   val resourceWriter = new ResourceWriter(settings.Indices.Import.topIndicesNumber)
-  def process(file: File, ec: ExecutionContext): Future[Any] = {
+  def process(file: File, ec: ExecutionContext): Future[Option[String]] = {
     // Parse it
     val json = parse(file)
     val r = json.extract[Resource]
@@ -59,11 +59,13 @@ object CopyToES extends App with Formatters {
     val body = objects.map(o => esComplementStr + "\n" + write(o)).mkString("\n")
 
     // Execute the bulk import and detect failures
-    pipeline(Post(url, body + "\n")).map {
+    pipeline(Post(url, body + "\n")).flatMap {
       case response =>
         if(response.status != StatusCodes.OK) {
-          throw new Exception(s"Failed to import ${file.getAbsolutePath}, " +
-            s"es api responded with http code: ${response.status}}")
+          Future.failed(new Exception(s"Failed to import ${file.getAbsolutePath}, " +
+            s"es api responded with http code: ${response.status}}"))
+        } else {
+          Future.successful(None)
         }
     }
   }
