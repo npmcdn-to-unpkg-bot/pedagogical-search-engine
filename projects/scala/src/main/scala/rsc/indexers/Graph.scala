@@ -6,6 +6,7 @@ import mysql.GraphFactory
 import rsc.Resource
 import rsc.Types.{Nodes, Spots}
 import rsc.attributes.Candidate.{Spotlight => CSpotlight}
+import rsc.toc.Node
 import utils.Constants
 import utils.Math._
 
@@ -14,7 +15,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class Graph(_ec: ExecutionContext,
             coreMaxSize: Int = 25,
-            fizzFactor: Double = 1,
+            fizzFactor: Double = 5,
             spotlightCoreThreshold: Double = 0.5) {
   // Types for logic
   /*
@@ -46,6 +47,8 @@ class Graph(_ec: ExecutionContext,
   val miniGraphMinWLM = 9.0
   val expandedGraphMinWLM = 10.5
   val prDumpingFactor = 0.8
+  val coreBias: Double = 1
+  val choiceBias: Double = 0.5
 
   // Private methods
   private def choicesFrom(nodes: Nodes, offset: Int, blackList: Set[String], threshold: Double)
@@ -128,10 +131,6 @@ class Graph(_ec: ExecutionContext,
    */
   private def decideBiases(expanded: DirectedGraph, coreCUris: List[CUri], choices: Choices)
   : Map[CUri, Bias] = {
-    // Define bias values
-    val coreBias: Double = 1
-    val choiceBias: Double = 0.1
-
     // Core biases
     val coreBiases: List[(CUri, Bias)] = coreCUris.map(curi => (curi, coreBias))
 
@@ -262,6 +261,14 @@ class Graph(_ec: ExecutionContext,
   }
 
 
+  private def coreUrisIn(node: Node, coreUris: Set[String])
+  : List[CUri] = {
+    val choices = choicesFrom(node :: Nil, offset = 0, blackList = Set(), threshold = 0)
+    val cUris = choices.flatMap(choice => choice)
+    val inCoreUris = cUris.filter(cUri => coreUris.contains(cUri.uri))
+    inCoreUris
+  }
+
   // Public methods
   def index(r: Resource): Future[Option[Resource]] = {
     // Create the core graph
@@ -299,14 +306,14 @@ class Graph(_ec: ExecutionContext,
               r.copy(
                 title = r.title.copy(oIndices = Some(new Indices(indices))),
                 oTocs = newOTocs,
-                oIndexer = Some(Indexer.Graph)
+                oIndexer = Some(Indexer.GraphChoiceBased)
               )
             )
         }
     }
   }
 
-  private def indexNodes(nodes: Nodes)(implicit graph: DirectedGraph, coreCUris: List[CUri])
+  def indexNodes(nodes: Nodes)(implicit graph: DirectedGraph, coreCUris: List[CUri])
   : Nodes = nodes match {
     case Nil => Nil
     case _ => nodes.map(node => {
@@ -314,8 +321,12 @@ class Graph(_ec: ExecutionContext,
       val newChildren = indexNodes(node.children)
 
       // Index the current entry
-      val choices = choicesFrom(List(node), offset = 0, blackList = Set(), threshold = 0)
-      val biases = decideBiases(graph, coreCUris, choices)
+      val coreUris: Set[String] = coreCUris.map(_.uri).toSet
+      val nodeCoreCUris: List[CUri] = coreUrisIn(node, coreUris)
+      val nodeCoreUris: Set[String] = nodeCoreCUris.map(_.uri).toSet
+
+      val choices = choicesFrom(List(node), offset = 0, blackList = nodeCoreUris, threshold = 0)
+      val biases = decideBiases(graph, nodeCoreCUris, choices)
       val merged = mergeBiases(biases)
 
       // Using pagerank
@@ -370,7 +381,9 @@ class Graph(_ec: ExecutionContext,
               val depth = mapping(nodeId).depth
               score / (depth.toDouble + 1)
 
-            case false => score
+            case false =>
+              // Penalize a bit the implied related topics
+              score / 2.toDouble
           }
       }
 
