@@ -17,18 +17,12 @@ import {HelperService} from "../helper/helper.service";
     <wc-search-results [searchTerms]="_searchTerms"></wc-search-results>
     
     <div *ngIf="_displayVideo" class="wc-com-search-video">
-        <h3>The experiment [2 minutes]</h3>
+        <h3>How does it work?</h3>
         
         <ol>
-            <li>Chose a topic you want to learn more about</li>
-            <li>Type your topic in the search bar above</li>
-            <li>Go through the results and give a rating to each one</li>
-            <li>
-                Answer 4 simple questions
-                <a [routerLink]="['Feedback']">
-                    on the feedback page
-                </a>
-            </li>
+            <li>Think of a topic you want to learn more about</li>
+            <li>Type your topic in the search bar above <b>in english</b></li>
+            <li>You can refine your search by adding other topics</li>
         </ol>
     </div>
     
