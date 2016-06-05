@@ -10,6 +10,10 @@ import ws.exploration.events.{Clicks, Event, Messages, Searches}
 import ws.indices.indexentry.EngineType
 import ws.indices.spraythings.SearchTerm
 
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future}
+import scala.concurrent.ExecutionContext.Implicits.global
+
 case class UserRun(ordered: List[Event])
 extends Formatters {
   override def toString: String = {
@@ -186,6 +190,43 @@ extends Formatters {
       existWc match {
         case true => List(rq4)
         case false => Nil
+      }
+    })
+  }
+
+  lazy val q4RatingsWithScores: List[(Int, Double)] = {
+    val futures = resolvedQ4.map(rq4 => {
+      rq4.resultEntry.engine match {
+        case Some(EngineType.Wikichimp) =>
+          val rating = rq4.q4.score.toInt
+          val resultEntry = rq4.resultEntry
+          val entryId = resultEntry.entryId
+          val uris = rq4.search.searchlog.searchTerms.flatMap(st => st.uri)
+
+          MoreData.entryScore(uris.toSet, entryId).map {
+            case None => Nil
+            case Some(score) => List((rating, score))
+          }
+
+
+        case _ =>
+          Future.successful(Nil)
+      }
+    })
+
+    val merged = Future.sequence(futures)
+    Await.result(merged, Duration.Inf).flatten
+  }
+
+  lazy val q4RatingsWithRanks: List[(Int, Int)] = {
+    resolvedQ4.flatMap(rq4 => {
+      rq4.resultEntry.engine match {
+        case Some(EngineType.Wikichimp) =>
+          val rank = rq4.resultEntry.rank
+          val rating = rq4.q4.score.toInt
+          List((rating, rank))
+
+        case _ => Nil
       }
     })
   }
