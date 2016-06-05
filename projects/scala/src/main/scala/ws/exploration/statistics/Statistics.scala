@@ -38,6 +38,32 @@ class Statistics(runs: List[UserRun],
   }
 
   // Public stats
+  def searchesCount()
+  : Map[Int, Int] = {
+    val counts = runs.flatMap(run => {
+      run.searches.map(search => {
+        search.searchlog.searchTerms.size
+      })
+    })
+
+    counts.groupBy(x => x).map {
+      case (x, group) => (x, group.size)
+    }
+  }
+
+  def allSearchedUrisDistinctByRun()
+  : List[String] = {
+    runs.flatMap(run => {
+      // For each run, take the distinct list of uris
+      run.searches.flatMap(search => {
+        search.searchlog.searchTerms.flatMap(_.uri)
+      }).distinct
+    })
+  }
+
+  def totalQ3Votes()
+  : Int = runs.count(run => run.q3Vote.isDefined)
+
   def clickCount(engine: Engine)
   : Int = {
     clicksEntries.count {
@@ -457,6 +483,20 @@ class Statistics(runs: List[UserRun],
     all.groupBy(_._1).map {
       case (e, xs) =>
         (e, xs.map(_._2))
+    }
+  }
+
+  def simplySatisfactionQ3():
+  Map[Q3Type.Q3Type, Int] = {
+    val votes = runs.flatMap(run => {
+      run.q3Vote match {
+        case None => Nil
+        case Some(vote) =>
+          List(vote)
+      }
+    })
+    votes.groupBy(x => x).map {
+      case (vote, xs) => (vote, xs.size)
     }
   }
 

@@ -145,4 +145,42 @@ class Printer(stat: Statistics) {
     s"Are satisfied people satisfied by which type of results?\n$lines"
   }
 
+  def totalQ3Votes(): String = {
+    s"There where ${stat.totalQ3Votes()} Q3 votes in total."
+  }
+
+  def simplySatisfactionQ3()
+  : String = {
+    val pairs = stat.simplySatisfactionQ3().toList.sortBy {
+      case (Q3Type.Worse, _) => 1
+      case (Q3Type.Equivalent, _) => 2
+      case (Q3Type.Potential, _) => 3
+      case _ => 4
+    }
+    val total = pairs.map(_._2).sum
+
+    val body = pairs.map {
+      case (vote, count) =>
+        val percentage = utils.Math.round(count.toDouble * 100.toDouble / total.toDouble, 1)
+        s"$vote: $percentage% ($count)"
+    }.mkString("\n")
+
+    s"Q3 votes:\n$body"
+  }
+
+  def searchCount()
+  : String = {
+    val pairs = stat.searchesCount().toList.sortBy(_._1)
+    val body = pairs.map {
+      case (n, nb) => s"$n: $nb"
+    }.mkString("\n")
+    s"Search distribution:\n$body"
+  }
+
+  def allSearchedUrisDistinctByRun()
+  : String = {
+    val uris = stat.allSearchedUrisDistinctByRun().mkString(", ")
+    s"All Search uris (distinct by run):\n$uris"
+  }
+
 }
