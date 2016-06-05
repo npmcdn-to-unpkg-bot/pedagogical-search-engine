@@ -35,13 +35,8 @@ class IndicesFetcher(db: Database, bf: BingFetcher,
         Vector[IndexEntry]()
     }
 
-    // Get the indices from WC full-text
-    val esAction = esFetcher.getIndices(searchText, 0, 50)
-    val esFuture = esAction.recover {
-      case e =>
-        Logger.error(s"Indices fetcher got an error with es-indices: ${e.getMessage}")
-        Nil
-    }
+    // Get the indices from WC full-text [disabled]
+    val esFuture = Future.successful(List[FullWFT]())
     val future = for {
       f1 <- dbFuture
       f2 <- esFuture
