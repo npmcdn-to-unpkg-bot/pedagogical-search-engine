@@ -50,7 +50,12 @@ object FilterOut {
         val times = events.map(_.timestamp().getTime)
         val begin = times.min
         val end = times.max
-        begin > from.getTime && end < to.getTime
+        begin > from.getTime && begin < to.getTime
     }
+  }
+
+  def q3Vote(runs: List[UserRun])
+  : List[UserRun] = {
+    runs.filter(run => run.q3Vote.nonEmpty)
   }
 }
