@@ -5,6 +5,7 @@ import java.io.File
 import agents.helpers.FileExplorer
 import org.json4s.native.JsonMethods._
 import rsc.importers.SlickMysql
+import rsc.indexers.Indexer
 import rsc.{Formatters, Resource}
 import slick.jdbc.JdbcBackend._
 import utils.Settings
@@ -23,16 +24,22 @@ object IndicesToMysqlWithSlick extends App with Formatters {
   lazy val importer = new SlickMysql(db, settings.Indices.Import.topIndicesNumber)
 
   // Create the file explorer
-  val explorer = new FileExplorer("indices-to-mysql-with-slick", forceProcess = true)
+  val explorer = new FileExplorer("indices-to-mysql-with-slick", forceProcess = false)
 
   def process(file: File, ec: ExecutionContext): Future[Option[String]] = {
     // Parse the resource
     val json = parse(file)
     val r = json.extract[Resource]
 
-    importer.importResource(r, ec).flatMap {
-      case _ => Future.successful(None)
-    }(ec)
+    r.oIndexer match {
+      case Some(Indexer.GraphChoiceBased) =>
+        importer.importResource(r, ec).flatMap {
+          case _ => Future.successful(None)
+        }(ec)
+
+      case _ =>
+        Future.successful(Some("The resource is not indexed yet."))
+    }
   }
 
   explorer.launch(process)

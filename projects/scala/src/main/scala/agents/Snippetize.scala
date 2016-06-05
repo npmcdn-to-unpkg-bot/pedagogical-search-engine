@@ -4,6 +4,7 @@ import java.io.File
 
 import agents.helpers.FileExplorer
 import org.json4s.native.JsonMethods._
+import rsc.indexers.Indexer
 import rsc.snippets.Simple
 import rsc.writers.Json
 import rsc.{Formatters, Resource}
@@ -12,7 +13,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 object Snippetize extends App with Formatters {
   // Create the file explorer
-  val explorer = new FileExplorer("snippetizer", forceProcess = true)
+  val explorer = new FileExplorer("snippetizer", forceProcess = false)
 
   // Create the snippetizer
   val snippetizer = new Simple()
@@ -24,13 +25,18 @@ object Snippetize extends App with Formatters {
     val r = json.extract[Resource]
     val absolute = file.getAbsolutePath
 
-    //  Snippetize
-    val newR = snippetizer.snippetize(r)
+    r.oIndexer match {
+      case Some(Indexer.GraphChoiceBased) =>
+        //  Snippetize
+        val newR = snippetizer.snippetize(r)
 
-    // Write the result
-    Json.write(newR, Some(absolute))
+        // Write the result
+        Json.write(newR, Some(absolute))
+        Future.successful(None)
 
-    Future.successful(None)
+      case _ =>
+        Future.failed(new Exception("The resource is not indexed yet."))
+    }
   }
 
   explorer.launch(process)
