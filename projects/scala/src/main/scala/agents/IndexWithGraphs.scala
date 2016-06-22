@@ -28,7 +28,7 @@ object IndexWithGraphs extends App with Formatters {
     val r = json.extract[Resource]
 
     // Index
-    val indexer = new Graph(ec)
+    val indexer = new Graph(ec, fizzFactor = 1)
     indexer.index(r).flatMap {
       case Some(newR) =>
         Json.write(newR, Some(file.getAbsolutePath))
