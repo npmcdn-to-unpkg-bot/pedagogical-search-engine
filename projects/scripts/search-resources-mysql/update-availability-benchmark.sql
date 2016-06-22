@@ -4,8 +4,6 @@ If launched, this script will crash because of this line :p
 ;
 
 TRUNCATE TABLE `active-uris-tmp`;
-TRUNCATE TABLE `indices`;
-TRUNCATE TABLE `details`;
 
 # Slick-based availability-update of uris from indices of 127 resources
 # time:
