@@ -1,0 +1,389 @@
+1 Representations and Methods
+1.1 The Intelligent Computer
+1.1.1 The Field and the Book
+1.1.1.1 This Book Has Three Parts
+1.1.1.2 The Long-Term Applications Stagger the Imagination
+1.1.1.3 The Near-Term Applications Involve New Opportunities
+1.1.1.4 Artificial Intelligence Sheds New Light on Traditional Questions
+1.1.1.5 Artificial Intelligence Helps Us to Become More Intelligent
+1.1.2 What Artificial Intelligence Can Do
+1.1.2.1 Intelligent Systems Can Help Experts to Solve Difficult Analysis Problems
+1.1.2.2 Intelligent Systems Can Help Experts to Design New Devices
+1.1.2.3 Intelligent Systems Can Learn from Examples
+1.1.2.4 Intelligent Systems Can Provide Answers to English Questions Using both Structured Data and Free Text
+1.1.2.5 Artificial Intelligence Is Becoming Less Conspicuous, yet More Essential
+1.1.3 Criteria for Success
+1.2 Semantic Nets and Description Matching
+1.2.1 Semantic Nets
+1.2.1.1 Good Representations Are the Key to Good Problem Solving
+1.2.1.2 Good Representations Support Explicit, Constraint-Exposing Description
+1.2.1.3 A Representation Has Four Fundamental Parts
+1.2.1.4 Semantic Nets Convey Meaning
+1.2.1.5 There Are Many Schools of Thought About the Meaning of Semantics
+1.2.1.6 Theoretical Equivalence Is Different from Practical Equivalence
+1.2.2 The Describe-and-Match Method
+1.2.2.1 Feature-Based Object Identification Illustrates Describe and Match
+1.2.3 The Describe-and-Match Method and Analogy Problems
+1.2.3.1 Geometric Analogy Rules Describe Object Relations and Object Transformations
+1.2.3.2 Scoring Mechanisms Rank Answers
+1.2.3.3 Ambiguity Complicates Matching
+1.2.3.4 Good Representation Supports Good Performance
+1.2.4 The Describe-and-Match Method and Recognition of Abstractions
+1.2.4.1 Story Plots Can Be Viewed as Combinations of Mental States and Events
+1.2.4.2 Abstraction-Unit Nets Enable Summary
+1.2.4.3 Abstraction Units Enable Question Answering
+1.2.4.4 Abstraction Units Make Patterns Explicit
+1.2.5 Problem Solving and Understanding Knowledge
+1.3 Generate and Test, Means-Ends Analysis, and Problem Reduction
+1.3.1 The Generate-and-Test Method
+1.3.1.1 Generate-and-Test Systems Often Do Identification
+1.3.1.2 Good Generators Are Complete, Nonredundant, and Informed
+1.3.2 The Means-Ends Analysis Method
+1.3.2.1 The Key Idea in Means-Ends Analysis Is to Reduce Differences
+1.3.2.2 Dendral Analyzes Mass Spectrograms
+1.3.2.3 Difference-Procedure Tables Often Determine the Means
+1.3.3 The Problem-Reduction Method
+1.3.3.1 Moving Blocks Illustrates Problem Reduction
+1.3.3.2 The Key Idea in Problem Reduction Is to Explore a Goal Tree
+1.3.3.3 Goal Trees Can Make Procedure Interaction Transparent
+1.3.3.4 Goal Trees Enable Introspective Question Answering
+1.3.3.5 Problem Reduction Is Ubiquitous in Programming
+1.3.3.6 Problem-Solving Methods Often Work Together
+1.3.3.7 Mathematics Toolkits Use Problem Reduction to Solve Calculus Problems
+1.4 Nets and Basic Search
+1.4.1 Blind Methods
+1.4.1.1 Net Search Is Really Tree Search
+1.4.1.2 Search Trees Explode Exponentially
+1.4.1.3 Depth-First Search Dives into the Search Tree
+1.4.1.4 Breadth-First Search Pushes Uniformly into the Search Tree
+1.4.1.5 The Right Search Depends on the Tree
+1.4.1.6 Nondeterministic Search Moves Randomly into the Search Tree
+1.4.2 Heuristically Informed Methods
+1.4.2.1 Quality Measurements Turn Depth-First Search into Hill Climbing
+1.4.2.2 Foothills, Plateaus, and Ridges Make Hills Hard to Climb
+1.4.2.3 Beam Search Expands Several Partial Paths and Purges the Rest
+1.4.2.4 Best-First Search Expands the Best Partial Path
+1.4.2.5 Search May Lead to Discovery
+1.4.2.6 Search Alternatives Form a Procedure Family
+1.5 Nets and Optimal Search
+1.5.1 The Best Path
+1.5.1.1 The British Museum Procedure Looks Everywhere
+1.5.1.2 Branch-and-Bound Search Expands the Least-Cost Partial Path
+1.5.1.3 Adding Underestimates Improves Efficiency
+1.5.2 Redundant Paths
+1.5.2.1 Redundant Partial Paths Should Be Discarded
+1.5.2.2 Underestimates and Dynamic Programming Improve Branch-and-Bound Search
+1.5.2.3 Several Search Procedures Find the Optimal Path
+1.5.2.4 Robot Path Planning Illustrates Search
+1.6 Trees and Adversarial Search
+1.6.1 Algorithmic Methods
+1.6.1.1 Nodes Represent Board Positions
+1.6.1.2 Exhaustive Search Is Impossible
+1.6.1.3 The Minimax Procedure Is a Lookahead Procedure
+1.6.1.4 The Alpha-Beta Procedure Prunes Game Trees
+1.6.1.5 Alpha-Beta May Not Prune Many Branches from the Tree
+1.6.2 Heuristic Methods
+1.6.2.1 Progressive Deepening Keeps Computing Within Time Bounds
+1.6.2.2 Heuristic Continuation Fights the Horizon Effect
+1.6.2.3 Heuristic Pruning Also Limits Search
+1.6.2.4 DEEP THOUGHT Plays Grandmaster Chess
+1.7 Rules and Rule Chaining
+1.7.1 Rule-Based Deduction Systems
+1.7.1.1 Many Rule-Based Systems Are Deduction Systems
+1.7.1.2 A Toy Deduction System Identifies Animals
+1.7.1.3 Rule-Based Systems Use a Working Memory and a Rule Base
+1.7.1.4 Deduction Systems May Run Either Forward or Backward
+1.7.1.5 The Problem Determines Whether Chaining Should Be Forward or Backward
+1.7.2 Rule-Based Reaction Systems
+1.7.2.1 Mycin Diagnoses Bacterial Infections of the Blood
+1.7.2.2 A Toy Reaction System Bags Groceries
+1.7.2.3 Reaction Systems Require Conflict Resolution Strategies
+1.7.3 Procedures for Forward and Backward Chaining
+1.7.3.1 Depth-First Search Can Supply Compatible Bindings for Forward Chaining
+1.7.3.2 XCON Configures Computer Systems
+1.7.3.3 Depth-First Search Can Supply Compatible Bindings for Backward Chaining
+1.7.3.4 Relational Operations Support Forward Chaining
+1.7.3.5 The Rete Approach Deploys Relational Operations Incrementally
+1.8 Rules, Substrates, and Cognitive Modeling
+1.8.1 Rule-based Systems Viewed as Substrate
+1.8.1.1 Explanation Modules Explain Reasoning
+1.8.1.2 Reasoning Systems Can Exhibit Variable Reasoning Styles
+1.8.1.3 Probability Modules Help You to Determine Answer Reliability
+1.8.1.4 Two Key Heuristics Enable Knowledge Engineers to Acquire Knowledge
+1.8.1.5 Acquisition Modules Assist Knowledge Transfer
+1.8.1.6 Rule Interactions Can Be Troublesome
+1.8.1.7 Rule-Based Systems Can Behave Like Idiot Savants
+1.8.2 Rule-Based Systems Viewed as Models for Human Problem Solving
+1.8.2.1 Rule-Based Systems Can Model Some Human Problem Solving
+1.8.2.2 Protocol Analysis Produces Production-System Conjectures
+1.8.2.3 SOAR Models Human Problem Solving, Maybe
+1.8.2.4 SOAR Searches Problem Spaces
+1.8.2.5 SOAR Uses an Automatic Preference Analyzer
+1.9 Frames and Inheritance
+1.9.1 Frames, Individuals, and Inheritance
+1.9.1.1 Frames Contain Slots and Slot Values
+1.9.1.2 Frames may Describe Instances or Classes
+1.9.1.3 Frames Have Access Procedures
+1.9.1.4 Inheritance Enables When-Constructed Procedures to Move Default Slot Values from Classes to Instances
+1.9.1.5 A Class Should Appear Before All Its Superclasses
+1.9.1.6 A Class's Direct Superclasses Should Appear in Order
+1.9.1.7 The Topological-Sorting Procedure Keeps Classes in Proper Order
+1.9.2 Demon Procedures
+1.9.2.1 When-Requested Procedures Override Slot Values
+1.9.2.2 When-Read and When-Written Procedures Can Maintain Constraints
+1.9.2.3 With-Respect-to Procedures Deal with Perspectives and Contexts
+1.9.2.4 Inheritance and Demons Introduce Procedural Semantics
+1.9.2.5 Object-Oriented Programming Focuses on Shared Knowledge
+1.9.3 Frames, Events, and Inheritance
+1.9.3.1 Digesting News Seems to Involve Frame Retrieving and Slot Filling
+1.9.3.2 Event-Describing Frames Make Stereotyped Information Explicit
+1.10 Frames and Commonsense
+1.10.1 Thematic-role Frames
+1.10.1.1 An Object's Thematic Role Specifies the Object's Relation to an Action
+1.10.1.2 Filled Thematic Roles Help You to Answer Questions
+1.10.1.3 Various Constraints Establish Thematic Roles
+1.10.1.4 A Variety of Constraints Help Establish Verb Meanings
+1.10.1.5 Constraints Enable Sentence Analysis
+1.10.1.6 Examples Using Take Illustrate How Constraints Interact
+1.10.2 Expansion into Primitive Actions
+1.10.2.1 Primitive Actions Describe Many Higher-Level Actions
+1.10.2.2 Actions Often Imply Implicit State Changes and Cause-Effect Relations
+1.10.2.3 Actions Often Imply Subactions
+1.10.2.4 Primitive-Action Frames and State-Change Frames Facilitate Question Answering and Paraphrase Recognition
+1.10.2.5 Thematic-Role Frames and Primitive-Action Frames Have Complementary Foci
+1.10.2.6 CYC Captures Commonsense Knowledge
+1.11 Numeric Constraints and Propagation
+1.11.1 Propagation of Numbers Through Numeric Constraint Nets
+1.11.1.1 Numeric Constraint Boxes Propagate Numbers through Equations
+1.11.2 Propagation of Probability Bounds Through Opinion Nets
+1.11.2.1 Probability Bounds Express Uncertainty
+1.11.2.2 Spreadsheets Propagate Numeric Constraints Through Numeric-Constraint Nets
+1.11.2.3 Venn Diagrams Explain Bound Constraints
+1.11.2.4 Propagation Moves Probability Bounds Closer Together
+1.11.3 Propagation of Surface Altitudes Through Arrays
+1.11.3.1 Local Constraints Arbitrate between Smoothness Expectations and Actual Data
+1.11.3.2 Constraint Propagation Achieves Global Consistency through Local Computation
+1.11.3.3 GENINFER Helps Counselors to Provide Precise Genetic Advice
+1.12 Symbolic Constraints and Propagation
+1.12.1 Propagation of Line Labels through Drawing Junctions
+1.12.1.1 There Are Only Four Ways to Label a Line in the Three-Faced-Vertex World
+1.12.1.2 There Are Only 18 Ways to Label a Three-Faced Junction
+1.12.1.3 Finding Correct Labels Is Part of Line-Drawing Analysis
+1.12.1.4 Waltz's Procedure Propagates Label Constraints through Junctions
+1.12.1.5 Many Line and Junction Labels Are Needed to Handle Shadows and Cracks
+1.12.1.6 Illumination Increases Label Count and Tightens Constraint
+1.12.1.7 The Flow of Labels Can Be Dramatic
+1.12.1.8 The Computation Required Is Proportional to Drawing Size
+1.12.2 Propagation of Time-Interval Relations
+1.12.2.1 There Are 13 Ways to Label a Link between Interval Nodes Yielding 169 Constraints
+1.12.2.2 Time Constraints Can Propagate across Long Distances
+1.12.2.3 A Complete Time Analysis Is Computationally Expensive
+1.12.2.4 Reference Nodes Can Save Time
+1.12.3 Five Points of Methodology
+1.13 Logic and Resolution Proof
+1.13.1 Rules of Inference
+1.13.1.1 Logic Has a Traditional Notation
+1.13.1.2 Quantifiers Determine When Expressions Are True
+1.13.1.3 Logic Has a Rich Vocabulary
+1.13.1.4 Interpretations Tie Logic Symbols to Worlds
+1.13.1.5 Proofs Tie Axioms to Consequences
+1.13.1.6 Resolution Is a Sound Rule of Inference
+1.13.2 Resolution Proofs
+1.13.2.1 Resolution Proves Theorems by Refutation
+1.13.2.2 Using Resolution Requires Axioms to Be in Clause Form
+1.13.2.3 Proof Is Exponential
+1.13.2.4 Resolution Requires Unification
+1.13.2.5 Traditional Logic Is Monotonic
+1.13.2.6 Theorem Proving Is Suitable for Certain Problems, but Not for All Problems
+1.14 Backtracking and Truth Maintenance
+1.14.1 Chronological and Dependency-Directed Backtracking
+1.14.1.1 Limit Boxes Identify Inconsistencies
+1.14.1.2 Chronological Backtracking Wastes Time
+1.14.1.3 Nonchronological Backtracking Exploits Dependencies
+1.14.2 Proof by Constraint Propagation
+1.14.2.1 Truth Can Be Propagated
+1.14.2.2 Truth Propagation Can Establish Justifications
+1.14.2.3 Justification Links Enable Programs to Change Their Minds
+1.14.2.4 Proof by Truth Propagation Has Limits
+1.15 Planning
+1.15.1 Planning Using If-Add-Delete Operators
+1.15.1.1 Operators Specify Add Lists and Delete Lists
+1.15.1.2 You Can Plan by Searching for a Satisfactory Sequence of Operators
+1.15.1.3 Backward Chaining Can Reduce Effort
+1.15.1.4 Impossible Plans Can Be Detected
+1.15.1.5 Partial Instantiation Can Help Reduce Effort Too
+1.15.2 Planning Using Situation Variables
+1.15.2.1 Finding Operator Sequences Requires Situation Variables
+1.15.2.2 Frame Axioms Address the Frame Problem
+2 Learning and Regularity Recognition
+2.1 Learning by Analyzing Differences
+2.1.1 Induction Heuristics
+2.1.1.1 Responding to Near Misses Improves Models
+2.1.1.2 Responding to Examples Improves Models
+2.1.1.3 Near-Miss Heuristics Specialize; Example Heuristics Generalize
+2.1.1.4 Learning Procedures Should Avoid Guesses
+2.1.1.5 Learning Usually Must Be Done in Small Steps
+2.1.2 Identification
+2.1.2.1 Must Links and Must-Not Links Dominate Matching
+2.1.2.2 Models May Be Arranged in Lists or in Nets
+2.1.2.3 ARIEL Learns about Proteins
+2.2 Learning by Explaining Experience
+2.2.1 Learning about Why People Act the Way they Do
+2.2.1.1 Reification and the Vocabulary of Thematic-Role Frames Capture Sentence-Level Meaning
+2.2.1.2 Explanation Transfer Solves Problems Using Analogy
+2.2.1.3 Commonsense Problem Solving Can Generate Rulelike Principles
+2.2.1.4 The Macbeth Procedure Illustrates the Explanation Principle
+2.2.1.5 The Macbeth Procedure Can Use Causal Chains to Establish Common Context
+2.2.2 Learning about Form and Function
+2.2.2.1 Examples and Precedents Help Each Other
+2.2.2.2 Explanation-Based Learning Offers More than Speedup
+2.2.3 Matching
+2.2.3.1 Stupid Matchers Are Slow and Easy to Fool
+2.2.3.2 Matching Inexact Situations Reduces to Backward Chaining
+2.2.3.3 Matching Sheds Light on Analogical Problem Solving
+2.3 Learning by Correcting Mistakes
+2.3.1 Isolating Suspicious Relations
+2.3.1.1 Cups and Pails Illustrate the Problem
+2.3.1.2 Near-Miss Groups Isolate Suspicious Relations
+2.3.1.3 Suspicious Relation Types Determine Overall Repair Strategy
+2.3.2 Intelligent Knowledge Repair
+2.3.2.1 The Solution May Be to Explain the True-Success Suspicious Relations
+2.3.2.2 Incorporating True-Success Suspicious Relations May Require Search
+2.3.2.3 The Solution May Be to Explain the False-Success Suspicious Relations, Creating a Censor
+2.3.2.4 Failure Can Stimulate a Search for More Detailed Descriptions
+2.4 Learning by Recording Cases
+2.4.1 Recording and Retrieving Raw Experience
+2.4.1.1 The Consistency Heuristic Enables Remembered Cases to Supply Properties
+2.4.1.2 The Consistency Heuristic Solves a Difficult Dynamics Problem
+2.4.2 Finding Nearest Neighbors
+2.4.3 A Fast Serial Procedure Finds the Nearest Neighbor in Logarithmic Time
+2.4.4 Parallel Hardware Finds Nearest Neighbors Even Faster
+2.5 Learning by Managing Multiple Models
+2.5.1 The Version-Space Method
+2.5.1.1 Version Space Consists of Overly General and Overly Specific Models
+2.5.1.2 Generalization and Specialization Leads to Version-Space Convergence
+2.5.2 Version-Space Characteristics
+2.5.2.1 The Version-Space Procedure Handles Positive and Negative Examples Symmetrically
+2.5.2.2 The Version-Space Procedure Enables Early Recognition
+2.6 Learning by Building Identification Trees
+2.6.1 From Data to Identification Trees
+2.6.1.1 The World Is Supposed to Be Simple
+2.6.1.2 Tests Should Minimize Disorder
+2.6.1.3 Information Theory Supplies a Disorder Formula
+2.6.2 From Trees to Rules
+2.6.2.1 Unnecessary Rule Antecedents Should Be Eliminated
+2.6.2.2 Optimizing a Nuclear Fuel Plant
+2.6.2.3 Unnecessary Rules Should Be Eliminated
+2.6.2.4 Fisher's Exact Test Brings Rule Correction in Line with Statistical Theory
+2.7 Learning by Training Neural Nets
+2.7.1 Simulated Neural Nets
+2.7.1.1 Real Neurons Consist of Synapses, Dendrites, Axons, and Cell Bodies
+2.7.1.2 Simulated Neurons Consist of Multipliers, Adders, and Thresholds
+2.7.1.3 Feed-Forward Nets Can Be Viewed as Arithmetic Constraint Nets
+2.7.1.4 Feed-Forward Nets Can Recognize Regularity in Data
+2.7.2 Hill Climbing and Back Propagation
+2.7.2.1 The Back-Propagation Procedure Does Hill Climbing by Gradient Ascent
+2.7.2.2 Nonzero Thresholds Can Be Eliminated
+2.7.2.3 Gradient Ascent Requires a Smooth Threshold Function
+2.7.2.4 Back Propagation Can Be Understood Heuristically
+2.7.2.5 Back-Propagation Follows from Gradient Descent and the Chain Rule
+2.7.2.6 The Back-Propagation Procedure Is Straightforward
+2.7.3 Back-Propagation Characteristics
+2.7.3.1 Training May Require Thousands of Back Propagations
+2.7.3.2 ALVINN Learns to Drive
+2.7.3.3 Back Propagation Can Get Stuck or Become Unstable
+2.7.3.4 Back Propagation Can Be Done in Stages
+2.7.3.5 Back Propagation Can Train a Net to Learn to Recognize Multiple Concepts Simultaneously
+2.7.3.6 Trained Neural Nets Can Make Predictions
+2.7.3.7 Excess Weights Lead to Overfitting
+2.7.3.8 Neural-Net Training Is an Art
+2.8 Learning by Training Perceptrons
+2.8.1 Perceptrons and Perceptron Learning
+2.8.1.1 Perceptrons Have Logic Boxes and Stair-Step Thresholds
+2.8.1.2 The Perceptron Convergence Procedure Guarantees Success Whenever Success Is Possible
+2.8.1.3 Ordinary Algebra Is Adequate to Demonstrate Convergence When There Are Two Weights
+2.8.1.4 Vector Algebra Helps You to Demonstrate Convergence When There Are Many Weights
+2.8.2 What Perceptrons Can and Cannot Do
+2.8.2.1 A Straight-Through Perceptron Can Learn to Identify Digits
+2.8.2.2 The Perceptron Convergence Procedure Is Amazing
+2.8.2.3 There Are Simple Tasks That Perceptrons Cannot Do
+2.9 Learning by Training Approximation Nets
+2.9.1 Interpolation and Approximation Nets
+2.9.1.1 Gaussian Functions Centered on Samples Enable Good Interpolations
+2.9.1.2 Given Sufficient Nodes, Nets Can Interpolate Perfectly
+2.9.1.3 Given Relatively Few Nodes, Approximation Nets Can Yield Approximate Results for All Sample Inputs
+2.9.1.4 Too Many Samples Leads to Weight Training
+2.9.1.5 Overlooked Dimensions May Explain Strange Data Better than Elaborate Approximation
+2.9.1.6 The Interpolation-Approximation Point of View Helps You to Answer Difficult Design Questions
+2.9.2 Biological Implementation
+2.9.2.1 Numbers Can Be Represented by Position
+2.9.2.2 Neurons Can Compute Gaussian Functions
+2.9.2.3 Gaussian Functions Can Be Computed as Products of Gaussian Functions
+2.10 Learning by Simulating Evolution
+2.10.1 Survival of the Fittest
+2.10.1.1 Chromosomes Determine Hereditary Traits
+2.10.1.2 The Fittest Survive
+2.10.2 Genetic Algorithms
+2.10.2.1 Genetic Algorithms Involve Myriad Analogs
+2.10.2.2 The Standard Method Equates Fitness with Relative Quality
+2.10.2.3 Genetic Algorithms Generally Involve Many Choices
+2.10.2.4 It Is Easy to Climb Bump Mountain Without Crossover
+2.10.2.5 Crossover Enables Genetic Algorithms to Search High-Dimensional Spaces Efficiently
+2.10.2.6 Crossover Enables Genetic Algorithms to Traverse Obstructing Moats
+2.10.2.7 The Rank Method Links Fitness to Quality Rank
+2.10.3 Survival of the Most Diverse
+2.10.3.1 The Rank-Space Method Links Fitness to Both Quality Rank and Diversity Rank
+2.10.3.2 The Rank-Space Method Does Well on Moat Mountain
+2.10.3.3 Local Maxima Are Easier to Handle when Diversity Is Maintained
+3 Vision and Language
+3.1 Recognizing Objects
+3.1.1 Linear Image Combinations
+3.1.1.1 Conventional Wisdom Has Focused on Multilevel Description
+3.1.1.2 Images Contain Implicit Shape Information
+3.1.1.3 One Approach Is Matching Against Templates
+3.1.1.4 For One Special Case, Two Images Are Sufficient to Generate a Third
+3.1.1.5 Identification Is a Matter of Finding Consistent Coefficients
+3.1.1.6 The Template Approach Handles Arbitrary Rotation and Translation
+3.1.1.7 The Template Approach Handles Objects with Parts
+3.1.1.8 The Template Approach Handles Complicated Curved Objects
+3.1.2 Establishing Point Correspondence
+3.1.2.1 Tracking Enables Model Points to Be Kept in Correspondence
+3.1.2.2 Only Sets of Points Need to Be Matched
+3.1.2.3 Heuristics Help You to Match Unknown Points to Model Points
+3.2 Describing Images
+3.2.1 Computing Edge Distance
+3.2.1.1 Averaged and Differenced Images Highlight Edges
+3.2.1.2 Multiple-Scale Stereo Enables Distance Determination
+3.2.2 Computing Surface Direction
+3.2.2.1 Stereo Analysis Determines Elevations from Satellite Images
+3.2.2.2 Reflectance Maps Embody Illumination Constraints
+3.2.2.3 Making Synthetic Images Requires a Reflectance Map
+3.2.2.4 Surface Shading Determines Surface Direction
+3.3 Expressing Language Constraints
+3.3.1 The Search for an Economical Theory
+3.3.1.1 You Cannot Say That
+3.3.1.2 Phrases Crystallize on Words
+3.3.1.3 Replacement Examples Support Binary Representation
+3.3.1.4 Many Phrase Types Have the Same Structure
+3.3.1.5 The X-Bar Hypothesis Says that All Phrases Have the Same Structure
+3.3.2 The Search for a Universal Theory
+3.3.2.1 A Theory of Language Ought to Be a Theory of All Languages
+3.3.2.2 A Theory of Language Ought to Account for Rapid Language Acquisition
+3.3.2.3 A Noun Phrase's Case Is Determined by Its Governor
+3.3.2.4 Subjacency Limits Wh- Movement
+3.3.3 Competence versus Performance
+3.3.3.1 Most Linguists Focus on Competence, Not on Performance
+3.3.3.2 Analysis by Reversing Generation Can Be Silly
+3.3.3.3 Construction of a Language Understanding Program Remains a Tough Row to Hoe
+3.3.3.4 Engineers Must Take Shortcuts
+3.4 Responding to Questions and Commands
+3.4.1 Syntactic Transition Nets
+3.4.1.1 Syntactic Transition Nets Are Like Roadmaps
+3.4.1.2 A Powerful Computer Counted the Long Screwdrivers on the Big Table
+3.4.2 Semantic Transition Trees
+3.4.2.1 A Relational Database Makes a Good Target
+3.4.2.2 Pattern Instantiation Is the Key to Relational-Database Retrieval in English
+3.4.2.3 Moving from Syntactic Nets to Semantic Trees Simplifies Grammar Construction
+3.4.2.4 Count the Long Screwdrivers
+3.4.2.5 Recursion Replaces Loops
+3.4.2.6 Q&A Translates Questions into Database-Retrieval Commands

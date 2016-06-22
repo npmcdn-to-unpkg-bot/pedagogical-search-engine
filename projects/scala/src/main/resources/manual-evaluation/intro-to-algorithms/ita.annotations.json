@@ -1,0 +1,1170 @@
+{
+	"type": "tocV1.0",
+	"annotations": [
+		{
+			"text": "Introduction to Algorithms",
+			"uris": ["Algorithm"],
+			"index": "1"
+		},
+		{
+			"text": "Analysis of Algorithms, Insertion Sort, Mergesort",
+			"uris": ["Algorithm", "Analysis_of_algorithms", "Insertion_sort", "Merge_sort"],
+			"index": "2"
+		},
+		{
+			"text": "Asymptotic Notation",
+			"uris": ["Big_O_notation"],
+			"index": "3"
+		},
+		{
+			"text": "Recurrences, Substitution, Master Method",
+			"uris": ["Recurrence_relation", "Recursion", "Master_theorem"],
+			"index": "4"
+		},
+		{
+			"text": "Strassen",
+			"uris": ["Strassen_algorithm", "Algorithm", "Matrix_multiplication"],
+			"index": "28.2"
+		},
+		{
+			"text": "Polynomial Multiplication",
+			"uris": ["Fast_Fourier_transform", "Polynomial", "Multiplication", "Polynomial_ring"],
+			"index": "30"
+		},
+		{
+			"text": "Randomized Algorithms",
+			"uris": ["Randomized_algorithm"],
+			"index": "5.3"
+		},
+		{
+			"text": "Quicksort",
+			"uris": ["Quicksort"],
+			"index": "7"
+		},
+		{
+			"text": "Heapsort, Dynamic Sets, Priority Queues",
+			"uris": ["Heapsort", "Set_(abstract_data_type)", "Priority_queue"],
+			"index": "6"
+		},
+		{
+			"text": "Linear-time Sorting: Lower Bounds, Counting Sort, Radix Sort, Bucketsort",
+			"uris": ["Sorting_algorithm", "Time_complexity", "Linearity", "Upper_and_lower_bounds", "Counting_sort", "Radix_sort", "Bucket_sort"],
+			"index": "8"
+		},
+		{
+			"text": "Order Statistics, Median",
+			"uris": ["Order_statistic", "Median"],
+			"index": "9"
+		},
+		{
+			"text": "Hashing, Hash Functions, Universal Hashing, Perfect Hashing",
+			"uris": ["Hash_function", "Hash_table", "Perfect_hash_function", "Universal_hashing"],
+			"index": "11"
+		},
+		{
+			"text": "Binary Search Trees, Tree Walks, Analysis of Random BST",
+			"uris": ["Binary_search_tree", "Binary_search_algorithm", "Tree_traversal", "Treap"],
+			"index": "12"
+		},
+		{
+			"text": "Red-black Trees, Rotations, Insertions, Deletions",
+			"uris": ["Red–black_tree", "Tree_rotation"],
+			"index": "13"
+		},
+		{
+			"text": "Augmenting Data Structures, Dynamic Order Statistics, Interval Trees",
+			"uris": ["Data_structure", "Order_statistic", "Interval_tree", "Tree_(data_structure)"],
+			"index": "14"
+		},
+		{
+			"text": "Amortized Algorithms, Table Doubling, Potential Method",
+			"uris": ["Amortized_analysis", "Algorithm", "Dynamic_array", "Potential_method"],
+			"index": "17"
+		},
+		{
+			"text": "Dynamic Programming, Longest Common Subsequence",
+			"uris": ["Dynamic_programming", "Longest_common_subsequence_problem"],
+			"index": "15"
+		},
+		{
+			"text": "Minimum Spanning Trees",
+			"uris": ["Minimum_spanning_tree"],
+			"index": "23"
+		},
+		{
+			"text": "Greedy Algorithms",
+			"uris": ["Greedy_algorithm"],
+			"index": "16"
+		},
+		{
+			"text": "Shortest Paths I: Properties, Dijkstra's Algorithm",
+			"uris": ["Shortest_path_problem", "Dijkstra's_algorithm"],
+			"index": "24"
+		},
+		{
+			"text": "Graph Searching: Depth-first Search, Topological Sort, DAG Shortest Paths",
+			"uris": ["Graph_traversal", "Depth-first_search", "Topological_sorting", "Directed_acyclic_graph", "Shortest_path_problem"],
+			"index": "22"
+		},
+		{
+			"text": "Shortest Paths III: All-pairs Shortest Paths, Matrix Multiplication, Floyd-Warshall, Johnson",
+			"uris": ["Shortest_path_problem", "Floyd–Warshall_algorithm", "Min-plus_matrix_multiplication", "Matrix_multiplication"],
+			"index": "25"
+		}
+	],
+	"toc": {
+	    "content": "Introduction to algorithms",
+	    "index": "0",
+	    "children": [
+	    {
+	        "content": "Foundations",
+	        "index": "I",
+	        "children": [
+	            {
+	                "content": "The Role of Algorithms in Computing",
+	                "index": "1",
+	                "children": [
+	                    {
+	                        "content": "Algorithms ",
+	                        "index": "1.1",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Algorithms as a technology",
+	                        "index": "1.2",
+	                        "children": []
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Getting Started ",
+	                "index": "2",
+	                "children": [
+	                    {
+	                        "content": "Insertion sort ",
+	                        "index": "2.1",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Analyzing algorithms ",
+	                        "index": "2.2",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Designing Algorithms ",
+	                        "index": "2.3",
+	                        "children": []
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Growth of Functions",
+	                "index": "3",
+	                "children": [
+	                    {
+	                        "content": "Asymptotic notation",
+	                        "index": "3.1",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Standard notations and common functions",
+	                        "index": "3.2",
+	                        "children": []
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Recurrences",
+	                "index": "4",
+	                "children": [
+	                    {
+	                        "content": "The substitution method ",
+	                        "index": "4.1",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "The recursion-tree method ",
+	                        "index": "4.2",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "The master method ",
+	                        "index": "4.3",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Proof of the master theorem",
+	                        "index": "4.4",
+	                        "children": []
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Probabilistic Analysis and Randomized Algorithms",
+	                "index": "5",
+	                "children": [
+	                    {
+	                        "content": "The hiring problem ",
+	                        "index": "5.1",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Indicator random variables ",
+	                        "index": "5.2",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Randomized algorithms ",
+	                        "index": "5.3",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Probabilistic analysis and further uses of indicator random variables",
+	                        "index": "5.4",
+	                        "children": []
+	                    }
+	                ]
+	            }
+	        ]
+	    },
+	    {
+	        "content": "Sorting and Order Statistics",
+	        "index": "II",
+	        "children": [
+	            {
+	                "content": "Heapsort",
+	                "index": "6",
+	                "children": [
+	                    {
+	                        "content": "Heaps",
+	                        "index": "6.1",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Maintaining the heap property ",
+	                        "index": "6.2",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Building a heap ",
+	                        "index": "6.3",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "The heapsort algorithm",
+	                        "index": "6.4",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Priority queues",
+	                        "index": "6.5",
+	                        "children": []
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Quicksort",
+	                "index": "7",
+	                "children": [
+	                    {
+	                        "content": "Description of quicksort",
+	                        "index": "7.1",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Performance of quicksort ",
+	                        "index": "7.2",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Randomized versions of quicksort",
+	                        "index": "7.3",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Analysis of quicksort",
+	                        "index": "7.4",
+	                        "children": []
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Sorting in Linear Time",
+	                "index": "8",
+	                "children": [
+	                    {
+	                        "content": "Lower bounds for sorting ",
+	                        "index": "8.1",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Counting sort ",
+	                        "index": "8.2",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Radix sort ",
+	                        "index": "8.3",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Bucket sort",
+	                        "index": "8.4",
+	                        "children": []
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Medians and Order Statistics",
+	                "index": "9",
+	                "children": [
+	                    {
+	                        "content": "Minimum and maximum",
+	                        "index": "9.1",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Selection in expected linear time ",
+	                        "index": "9.2",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Selection in worst-case linear time",
+	                        "index": "9.3",
+	                        "children": []
+	                    }
+	                ]
+	            }
+	        ]
+	    },
+	    {
+	        "content": "Data Structures",
+	        "index": "III",
+	        "children": [
+	            {
+	                "content": "Elementary Data Structures",
+	                "index": "10",
+	                "children": [
+	                    {
+	                        "content": "Stacks and queues ",
+	                        "index": "10.1",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Linked lists",
+	                        "index": "10.2",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Implementing pointers and objects ",
+	                        "index": "10.3",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Representing rooted trees",
+	                        "index": "10.4",
+	                        "children": []
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Hash Tables",
+	                "index": "11",
+	                "children": [
+	                    {
+	                        "content": "Direct-address tables ",
+	                        "index": "11.1",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Hash tables ",
+	                        "index": "11.2",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Hash functions ",
+	                        "index": "11.3",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Open addressing ",
+	                        "index": "11.4",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Perfect hashing",
+	                        "index": "11.5",
+	                        "children": []
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Binary Search Trees",
+	                "index": "12",
+	                "children": [
+	                    {
+	                        "content": "What is a binary search tree? ",
+	                        "index": "12.1",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Querying a binary search tree ",
+	                        "index": "12.2",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Insertion and deletion ",
+	                        "index": "12.3",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Randomly built binary search trees",
+	                        "index": "12.4",
+	                        "children": []
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Red-Black Trees",
+	                "index": "13",
+	                "children": [
+	                    {
+	                        "content": "Properties of red-black trees ",
+	                        "index": "13.1",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Rotations",
+	                        "index": "13.2",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Insertion ",
+	                        "index": "13.3",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Deletion",
+	                        "index": "13.4",
+	                        "children": []
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Augmenting Data Structures",
+	                "index": "14",
+	                "children": [
+	                    {
+	                        "content": "Dynamic order statistics ",
+	                        "index": "14.1",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "How to augment a data structure ",
+	                        "index": "14.2",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Interval trees",
+	                        "index": "14.3",
+	                        "children": []
+	                    }
+	                ]
+	            }
+	        ]
+	    },
+	    {
+	        "content": "Advanced Design and Analysis Technique",
+	        "index": "IV",
+	        "children": [
+	            {
+	                "content": "Dynamic Programming",
+	                "index": "15",
+	                "children": [
+	                    {
+	                        "content": "Assembly-line scheduling ",
+	                        "index": "15.1",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Matrix-chain multiplication ",
+	                        "index": "15.2",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Elements of dynamic programming ",
+	                        "index": "15.3",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Longest common subsequence ",
+	                        "index": "15.4",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Optimal binary search trees",
+	                        "index": "15.5",
+	                        "children": []
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Greedy Algorithms",
+	                "index": "16",
+	                "children": [
+	                    {
+	                        "content": "An activity-selection problem ",
+	                        "index": "16.1",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Elements of the greedy strategy ",
+	                        "index": "16.2",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Huffman codes ",
+	                        "index": "16.3",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Theoretical foundations for greedy methods ",
+	                        "index": "16.4",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "A task-scheduling problem",
+	                        "index": "16.5",
+	                        "children": []
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Amortized Analysis",
+	                "index": "17",
+	                "children": [
+	                    {
+	                        "content": "Aggregate analysis ",
+	                        "index": "17.1",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "The accounting method ",
+	                        "index": "17.2",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "The potential method ",
+	                        "index": "17.3",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Dynamic tables",
+	                        "index": "17.4",
+	                        "children": []
+	                    }
+	                ]
+	            }
+	        ]
+	    },
+	    {
+	        "content": "Advanced Data Structures",
+	        "index": "V",
+	        "children": [
+	            {
+	                "content": "B-Trees ",
+	                "index": "18",
+	                "children": [
+	                    {
+	                        "content": "Definition of B-trees ",
+	                        "index": "18.1",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Basic operations on B-trees ",
+	                        "index": "18.2",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Deleting a key from a B-tree",
+	                        "index": "18.3",
+	                        "children": []
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Binomial Heaps ",
+	                "index": "19",
+	                "children": [
+	                    {
+	                        "content": "Binomial trees and binomial heaps ",
+	                        "index": "19.1",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Operations on binomial heaps",
+	                        "index": "19.2",
+	                        "children": []
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Fibonacci Heaps ",
+	                "index": "20",
+	                "children": [
+	                    {
+	                        "content": "Structure of Fibonacci heaps ",
+	                        "index": "20.1",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Mergeable-heap operations ",
+	                        "index": "20.2",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Decreasing a key and deleting a node ",
+	                        "index": "20.3",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Bounding the maximum degree",
+	                        "index": "20.4",
+	                        "children": []
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Data Structures for Disjoint Sets ",
+	                "index": "21",
+	                "children": [
+	                    {
+	                        "content": "Disjoint-set operations ",
+	                        "index": "21.1",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Linked-list representation of disjoint sets ",
+	                        "index": "21.2",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Disjoint-set forests ",
+	                        "index": "21.3",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Analysis of union by rank with path compression",
+	                        "index": "21.4",
+	                        "children": []
+	                    }
+	                ]
+	            }
+	        ]
+	    },
+	    {
+	        "content": "Graph Algorithms",
+	        "index": "VI",
+	        "children": [
+	            {
+	                "content": "Elementary Graph Algorithms ",
+	                "index": "22",
+	                "children": [
+	                    {
+	                        "content": "Representations of graphs ",
+	                        "index": "22.1",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Breadth-first search ",
+	                        "index": "22.2",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Depth-first search ",
+	                        "index": "22.3",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Topological sort ",
+	                        "index": "22.4",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Strongly connected components",
+	                        "index": "22.5",
+	                        "children": []
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Minimum Spanning Trees ",
+	                "index": "23",
+	                "children": [
+	                    {
+	                        "content": "Growing a minimum spanning tree ",
+	                        "index": "23.1",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "The algorithms of Kruskal and Prim",
+	                        "index": "23.2",
+	                        "children": []
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Single-Source Shortest Paths ",
+	                "index": "24",
+	                "children": [
+	                    {
+	                        "content": "The Bellman-Ford algorithm ",
+	                        "index": "24.1",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Single-source shortest paths in directed acyclic graphs ",
+	                        "index": "24.2",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Dijkstra's algorithm ",
+	                        "index": "24.3",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Difference constraints and shortest paths ",
+	                        "index": "24.4",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Proofs of shortest-paths properties",
+	                        "index": "24.5",
+	                        "children": []
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "All-Pairs Shortest Paths ",
+	                "index": "25",
+	                "children": [
+	                    {
+	                        "content": "Shortest paths and matrix multiplication ",
+	                        "index": "25.1",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "The Floyd-Warshall algorithm ",
+	                        "index": "25.2",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Johnson's algorithm for sparse graphs",
+	                        "index": "25.3",
+	                        "children": []
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Maximum Flow ",
+	                "index": "26",
+	                "children": [
+	                    {
+	                        "content": "Flow networks ",
+	                        "index": "26.1",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "The Ford-Fulkerson method ",
+	                        "index": "26.2",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Maximum bipartite matching ",
+	                        "index": "26.3",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Push-relabel algorithms ",
+	                        "index": "26.4",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "The relabel-to-front algorithm",
+	                        "index": "26.5",
+	                        "children": []
+	                    }
+	                ]
+	            }
+	        ]
+	    },
+	    {
+	        "content": "Selected Topics",
+	        "index": "VII",
+	        "children": [
+	            {
+	                "content": "Sorting Networks ",
+	                "index": "27",
+	                "children": [
+	                    {
+	                        "content": "Comparison networks ",
+	                        "index": "27.1",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "The zero-one principle ",
+	                        "index": "27.2",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "A bitonic sorting network ",
+	                        "index": "27.3",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "A merging network ",
+	                        "index": "27.4",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "A sorting network",
+	                        "index": "27.5",
+	                        "children": []
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Matrix Operations ",
+	                "index": "28",
+	                "children": [
+	                    {
+	                        "content": "Properties of matrices ",
+	                        "index": "28.1",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Strassen's algorithm for matrix multiplication ",
+	                        "index": "28.2",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Solving systems of linear equations ",
+	                        "index": "28.3",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Inverting matrices ",
+	                        "index": "28.4",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Symmetric positive-definite matrices and least-squares approximation",
+	                        "index": "28.5",
+	                        "children": []
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Linear Programming ",
+	                "index": "29",
+	                "children": [
+	                    {
+	                        "content": "Standard and slack forms ",
+	                        "index": "29.1",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Formulating problems as linear programs ",
+	                        "index": "29.2",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "The simplex algorithm ",
+	                        "index": "29.3",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Duality ",
+	                        "index": "29.4",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "The initial basic feasible solution",
+	                        "index": "29.5",
+	                        "children": []
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Polynomials and the FFT",
+	                "index": "30",
+	                "children": [
+	                    {
+	                        "content": "Representation of polynomials ",
+	                        "index": "30.1",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "The DFT and FFT ",
+	                        "index": "30.2",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Efficient FFT implementations",
+	                        "index": "30.3",
+	                        "children": []
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Number-Theoretic Algorithms",
+	                "index": "31",
+	                "children": [
+	                    {
+	                        "content": "Elementary number-theoretic notions ",
+	                        "index": "31.1",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Greatest common divisor ",
+	                        "index": "31.2",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Modular arithmetic ",
+	                        "index": "31.3",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Solving modular linear equations ",
+	                        "index": "31.4",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "The Chinese remainder theorem ",
+	                        "index": "31.5",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Powers of an element ",
+	                        "index": "31.6",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "The RSA public-key cryptosystem ",
+	                        "index": "31.7",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Primality testing ",
+	                        "index": "31.8",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Integer factorization",
+	                        "index": "31.9",
+	                        "children": []
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "String Matching ",
+	                "index": "32",
+	                "children": [
+	                    {
+	                        "content": "The naive string-matching algorithm ",
+	                        "index": "32.1",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "The Rabin-Karp algorithm ",
+	                        "index": "32.2",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "String matching with finite automata ",
+	                        "index": "32.3",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "The Knuth-Morris-Pratt algorithm",
+	                        "index": "32.4",
+	                        "children": []
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Computational Geometry ",
+	                "index": "33",
+	                "children": [
+	                    {
+	                        "content": "Line-segment properties ",
+	                        "index": "33.1",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Determining whether any pair of segments intersects ",
+	                        "index": "33.2",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Finding the convex hull ",
+	                        "index": "33.3",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Finding the closest pair of points",
+	                        "index": "33.4",
+	                        "children": []
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "NP-Completeness ",
+	                "index": "34",
+	                "children": [
+	                    {
+	                        "content": "Polynomial time ",
+	                        "index": "34.1",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Polynomial-time verification ",
+	                        "index": "34.2",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "NP-completeness and reducibility ",
+	                        "index": "34.3",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "NP-completeness proofs ",
+	                        "index": "34.4",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "NP-complete problems",
+	                        "index": "34.5",
+	                        "children": []
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Approximation Algorithms ",
+	                "index": "35",
+	                "children": [
+	                    {
+	                        "content": "The vertex-cover problem ",
+	                        "index": "35.1",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "The traveling-salesman problem ",
+	                        "index": "35.2",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "The set-covering problem ",
+	                        "index": "35.3",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Randomization and linear programming ",
+	                        "index": "35.4",
+	                        "children": [{
+	                            "content": "The subset-sum problem",
+	                            "index": "35.4",
+	                            "children": []
+	                        }]
+	                    }
+	                ]
+	            }
+	        ]
+	    },
+	    {
+	        "content": "Appendix: Mathematical Background",
+	        "index": "VIII",
+	        "children": [
+	            {
+	                "content": "Summations",
+	                "index": "A",
+	                "children": [
+	                    {
+	                        "content": "Summation formulas and properties ",
+	                        "index": "A.1",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Bounding summations",
+	                        "index": "A.2",
+	                        "children": []
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Sets, Etc.",
+	                "index": "B",
+	                "children": [
+	                    {
+	                        "content": "Sets ",
+	                        "index": "B.1",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Relations",
+	                        "index": "B.2",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Functions ",
+	                        "index": "B.3",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Graphs ",
+	                        "index": "B.4",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Trees",
+	                        "index": "B.5",
+	                        "children": []
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Counting and Probability ",
+	                "index": "C",
+	                "children": [
+	                    {
+	                        "content": "Counting ",
+	                        "index": "C.1",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Probability ",
+	                        "index": "C.2",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Discrete random variables ",
+	                        "index": "C.3",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "The geometric and binomial distributions ",
+	                        "index": "C.4",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "The tails of the binomial distribution",
+	                        "index": "C.5",
+	                        "children": []
+	                    }
+	                ]
+	            }
+	        ]
+	    }
+	]}
+}

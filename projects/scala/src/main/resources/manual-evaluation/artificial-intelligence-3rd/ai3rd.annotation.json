@@ -1,0 +1,2105 @@
+{
+	"type": "tocV1.0",
+	"annotations": [
+		{
+			"text": "Reasoning: goal trees and rule-based expert systems",
+			"uris": ["Reasoning_system", "Tree_structure", "Goal", "Rule-based_system", "Expert_system"],
+			"index": "1.3"
+		},
+		{
+			"text": "Search: depth-first, hill climbing, beam",
+			"uris": ["Search_algorithm", "Depth-first_search", "Hill_climbing", "Beam_search"],
+			"index": "1.4"
+		},
+		{
+			"text": "Search: optimal, branch and bound, A*",
+			"uris": ["Search_algorithm", "Optimization_problem", "Branch_and_bound", "A*_search_algorithm"],
+			"index": "1.5"
+		},
+		{
+			"text": "Search: games, minimax, and alpha-beta	Chapter",
+			"uris": ["Search_game", "Minimax", "Alpha–beta_pruning"],
+			"index": "1.6"
+		},
+		{
+			"text": "Constraints: interpreting line drawings",
+			"uris": ["Constraint_programming", "Constraint_satisfaction", "Layered_graph_drawing"],
+			"index": "1.12"
+		},
+		{
+			"text": "Constraints: visual object recognition",
+			"uris": ["Constraint_satisfaction", "Constraint_(mathematics)", "Outline_of_object_recognition"],
+			"index": "3.1"
+		},
+		{
+			"text": "Introduction to learning, nearest neighbors",
+			"uris": ["Machine_learning", "Artificial_intelligence", "Lazy_learning", "Instance-based_learning", "Nearest_neighbor_search"],
+			"index": "2.4"
+		},
+		{
+			"text": "Learning: identification trees, disorder",
+			"uris": ["Machine_learning", "Artificial_intelligence", "Decision_tree_learning", "Identification_(information)", "Decision_tree", "Randomness"],
+			"index": "2.6"
+		},
+		{
+			"text": "Learning: genetic algorithms",
+			"uris": ["Machine_learning", "Artificial_intelligence", "Genetic_algorithm"],
+			"index": "2.10"
+		},
+		{
+			"text": "Learning: near misses, felicity conditions",
+			"uris": ["Machine_learning", "Artificial_intelligence", "Heuristic", "Material_conditional"],
+			"index": "2.1"
+		},
+		{
+			"text": "Representations: classes, trajectories, transitions",
+			"uris": ["Knowledge_representation_and_reasoning", "Class_(computer_programming)", "Frame_(artificial_intelligence)"],
+			"index": "1.9"
+		}
+	],
+	"toc": {
+		"content": "Artificial intelligence",
+		"index": "0",
+		"children": [
+	    {
+	        "content": "Representations and Methods",
+	        "index": "1",
+	        "children": [
+	            {
+	                "content": "The Intelligent Computer",
+	                "index": "1.1",
+	                "children": [
+	                    {
+	                        "content": "The Field and the Book",
+	                        "index": "1.1.1",
+	                        "children": [
+	                            {
+	                                "content": "This Book Has Three Parts",
+	                                "index": "1.1.1.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "The Long-Term Applications Stagger the Imagination",
+	                                "index": "1.1.1.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "The Near-Term Applications Involve New Opportunities",
+	                                "index": "1.1.1.3",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Artificial Intelligence Sheds New Light on Traditional Questions",
+	                                "index": "1.1.1.4",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Artificial Intelligence Helps Us to Become More Intelligent",
+	                                "index": "1.1.1.5",
+	                                "children": []
+	                            }
+	                        ]
+	                    },
+	                    {
+	                        "content": "What Artificial Intelligence Can Do",
+	                        "index": "1.1.2",
+	                        "children": [
+	                            {
+	                                "content": "Intelligent Systems Can Help Experts to Solve Difficult Analysis Problems",
+	                                "index": "1.1.2.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Intelligent Systems Can Help Experts to Design New Devices",
+	                                "index": "1.1.2.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Intelligent Systems Can Learn from Examples",
+	                                "index": "1.1.2.3",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Intelligent Systems Can Provide Answers to English Questions Using both Structured Data and Free Text",
+	                                "index": "1.1.2.4",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Artificial Intelligence Is Becoming Less Conspicuous, yet More Essential",
+	                                "index": "1.1.2.5",
+	                                "children": []
+	                            }
+	                        ]
+	                    },
+	                    {
+	                        "content": "Criteria for Success",
+	                        "index": "1.1.3",
+	                        "children": []
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Semantic Nets and Description Matching",
+	                "index": "1.2",
+	                "children": [
+	                    {
+	                        "content": "Semantic Nets",
+	                        "index": "1.2.1",
+	                        "children": [
+	                            {
+	                                "content": "Good Representations Are the Key to Good Problem Solving",
+	                                "index": "1.2.1.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Good Representations Support Explicit, Constraint-Exposing Description",
+	                                "index": "1.2.1.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "A Representation Has Four Fundamental Parts",
+	                                "index": "1.2.1.3",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Semantic Nets Convey Meaning",
+	                                "index": "1.2.1.4",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "There Are Many Schools of Thought About the Meaning of Semantics",
+	                                "index": "1.2.1.5",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Theoretical Equivalence Is Different from Practical Equivalence",
+	                                "index": "1.2.1.6",
+	                                "children": []
+	                            }
+	                        ]
+	                    },
+	                    {
+	                        "content": "The Describe-and-Match Method",
+	                        "index": "1.2.2",
+	                        "children": [{
+	                            "content": "Feature-Based Object Identification Illustrates Describe and Match",
+	                            "index": "1.2.2.1",
+	                            "children": []
+	                        }]
+	                    },
+	                    {
+	                        "content": "The Describe-and-Match Method and Analogy Problems",
+	                        "index": "1.2.3",
+	                        "children": [
+	                            {
+	                                "content": "Geometric Analogy Rules Describe Object Relations and Object Transformations",
+	                                "index": "1.2.3.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Scoring Mechanisms Rank Answers",
+	                                "index": "1.2.3.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Ambiguity Complicates Matching",
+	                                "index": "1.2.3.3",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Good Representation Supports Good Performance",
+	                                "index": "1.2.3.4",
+	                                "children": []
+	                            }
+	                        ]
+	                    },
+	                    {
+	                        "content": "The Describe-and-Match Method and Recognition of Abstractions",
+	                        "index": "1.2.4",
+	                        "children": [
+	                            {
+	                                "content": "Story Plots Can Be Viewed as Combinations of Mental States and Events",
+	                                "index": "1.2.4.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Abstraction-Unit Nets Enable Summary",
+	                                "index": "1.2.4.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Abstraction Units Enable Question Answering",
+	                                "index": "1.2.4.3",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Abstraction Units Make Patterns Explicit",
+	                                "index": "1.2.4.4",
+	                                "children": []
+	                            }
+	                        ]
+	                    },
+	                    {
+	                        "content": "Problem Solving and Understanding Knowledge",
+	                        "index": "1.2.5",
+	                        "children": []
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Generate and Test, Means-Ends Analysis, and Problem Reduction",
+	                "index": "1.3",
+	                "children": [
+	                    {
+	                        "content": "The Generate-and-Test Method",
+	                        "index": "1.3.1",
+	                        "children": [
+	                            {
+	                                "content": "Generate-and-Test Systems Often Do Identification",
+	                                "index": "1.3.1.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Good Generators Are Complete, Nonredundant, and Informed",
+	                                "index": "1.3.1.2",
+	                                "children": []
+	                            }
+	                        ]
+	                    },
+	                    {
+	                        "content": "The Means-Ends Analysis Method",
+	                        "index": "1.3.2",
+	                        "children": [
+	                            {
+	                                "content": "The Key Idea in Means-Ends Analysis Is to Reduce Differences",
+	                                "index": "1.3.2.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Dendral Analyzes Mass Spectrograms",
+	                                "index": "1.3.2.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Difference-Procedure Tables Often Determine the Means",
+	                                "index": "1.3.2.3",
+	                                "children": []
+	                            }
+	                        ]
+	                    },
+	                    {
+	                        "content": "The Problem-Reduction Method",
+	                        "index": "1.3.3",
+	                        "children": [
+	                            {
+	                                "content": "Moving Blocks Illustrates Problem Reduction",
+	                                "index": "1.3.3.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "The Key Idea in Problem Reduction Is to Explore a Goal Tree",
+	                                "index": "1.3.3.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Goal Trees Can Make Procedure Interaction Transparent",
+	                                "index": "1.3.3.3",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Goal Trees Enable Introspective Question Answering",
+	                                "index": "1.3.3.4",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Problem Reduction Is Ubiquitous in Programming",
+	                                "index": "1.3.3.5",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Problem-Solving Methods Often Work Together",
+	                                "index": "1.3.3.6",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Mathematics Toolkits Use Problem Reduction to Solve Calculus Problems",
+	                                "index": "1.3.3.7",
+	                                "children": []
+	                            }
+	                        ]
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Nets and Basic Search",
+	                "index": "1.4",
+	                "children": [
+	                    {
+	                        "content": "Blind Methods",
+	                        "index": "1.4.1",
+	                        "children": [
+	                            {
+	                                "content": "Net Search Is Really Tree Search",
+	                                "index": "1.4.1.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Search Trees Explode Exponentially",
+	                                "index": "1.4.1.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Depth-First Search Dives into the Search Tree",
+	                                "index": "1.4.1.3",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Breadth-First Search Pushes Uniformly into the Search Tree",
+	                                "index": "1.4.1.4",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "The Right Search Depends on the Tree",
+	                                "index": "1.4.1.5",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Nondeterministic Search Moves Randomly into the Search Tree",
+	                                "index": "1.4.1.6",
+	                                "children": []
+	                            }
+	                        ]
+	                    },
+	                    {
+	                        "content": "Heuristically Informed Methods",
+	                        "index": "1.4.2",
+	                        "children": [
+	                            {
+	                                "content": "Quality Measurements Turn Depth-First Search into Hill Climbing",
+	                                "index": "1.4.2.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Foothills, Plateaus, and Ridges Make Hills Hard to Climb",
+	                                "index": "1.4.2.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Beam Search Expands Several Partial Paths and Purges the Rest",
+	                                "index": "1.4.2.3",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Best-First Search Expands the Best Partial Path",
+	                                "index": "1.4.2.4",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Search May Lead to Discovery",
+	                                "index": "1.4.2.5",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Search Alternatives Form a Procedure Family",
+	                                "index": "1.4.2.6",
+	                                "children": []
+	                            }
+	                        ]
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Nets and Optimal Search",
+	                "index": "1.5",
+	                "children": [
+	                    {
+	                        "content": "The Best Path",
+	                        "index": "1.5.1",
+	                        "children": [
+	                            {
+	                                "content": "The British Museum Procedure Looks Everywhere",
+	                                "index": "1.5.1.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Branch-and-Bound Search Expands the Least-Cost Partial Path",
+	                                "index": "1.5.1.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Adding Underestimates Improves Efficiency",
+	                                "index": "1.5.1.3",
+	                                "children": []
+	                            }
+	                        ]
+	                    },
+	                    {
+	                        "content": "Redundant Paths",
+	                        "index": "1.5.2",
+	                        "children": [
+	                            {
+	                                "content": "Redundant Partial Paths Should Be Discarded",
+	                                "index": "1.5.2.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Underestimates and Dynamic Programming Improve Branch-and-Bound Search",
+	                                "index": "1.5.2.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Several Search Procedures Find the Optimal Path",
+	                                "index": "1.5.2.3",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Robot Path Planning Illustrates Search",
+	                                "index": "1.5.2.4",
+	                                "children": []
+	                            }
+	                        ]
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Trees and Adversarial Search",
+	                "index": "1.6",
+	                "children": [
+	                    {
+	                        "content": "Algorithmic Methods",
+	                        "index": "1.6.1",
+	                        "children": [
+	                            {
+	                                "content": "Nodes Represent Board Positions",
+	                                "index": "1.6.1.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Exhaustive Search Is Impossible",
+	                                "index": "1.6.1.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "The Minimax Procedure Is a Lookahead Procedure",
+	                                "index": "1.6.1.3",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "The Alpha-Beta Procedure Prunes Game Trees",
+	                                "index": "1.6.1.4",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Alpha-Beta May Not Prune Many Branches from the Tree",
+	                                "index": "1.6.1.5",
+	                                "children": []
+	                            }
+	                        ]
+	                    },
+	                    {
+	                        "content": "Heuristic Methods",
+	                        "index": "1.6.2",
+	                        "children": [
+	                            {
+	                                "content": "Progressive Deepening Keeps Computing Within Time Bounds",
+	                                "index": "1.6.2.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Heuristic Continuation Fights the Horizon Effect",
+	                                "index": "1.6.2.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Heuristic Pruning Also Limits Search",
+	                                "index": "1.6.2.3",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "DEEP THOUGHT Plays Grandmaster Chess",
+	                                "index": "1.6.2.4",
+	                                "children": []
+	                            }
+	                        ]
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Rules and Rule Chaining",
+	                "index": "1.7",
+	                "children": [
+	                    {
+	                        "content": "Rule-Based Deduction Systems",
+	                        "index": "1.7.1",
+	                        "children": [
+	                            {
+	                                "content": "Many Rule-Based Systems Are Deduction Systems",
+	                                "index": "1.7.1.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "A Toy Deduction System Identifies Animals",
+	                                "index": "1.7.1.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Rule-Based Systems Use a Working Memory and a Rule Base",
+	                                "index": "1.7.1.3",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Deduction Systems May Run Either Forward or Backward",
+	                                "index": "1.7.1.4",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "The Problem Determines Whether Chaining Should Be Forward or Backward",
+	                                "index": "1.7.1.5",
+	                                "children": []
+	                            }
+	                        ]
+	                    },
+	                    {
+	                        "content": "Rule-Based Reaction Systems",
+	                        "index": "1.7.2",
+	                        "children": [
+	                            {
+	                                "content": "Mycin Diagnoses Bacterial Infections of the Blood",
+	                                "index": "1.7.2.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "A Toy Reaction System Bags Groceries",
+	                                "index": "1.7.2.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Reaction Systems Require Conflict Resolution Strategies",
+	                                "index": "1.7.2.3",
+	                                "children": []
+	                            }
+	                        ]
+	                    },
+	                    {
+	                        "content": "Procedures for Forward and Backward Chaining",
+	                        "index": "1.7.3",
+	                        "children": [
+	                            {
+	                                "content": "Depth-First Search Can Supply Compatible Bindings for Forward Chaining",
+	                                "index": "1.7.3.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "XCON Configures Computer Systems",
+	                                "index": "1.7.3.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Depth-First Search Can Supply Compatible Bindings for Backward Chaining",
+	                                "index": "1.7.3.3",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Relational Operations Support Forward Chaining",
+	                                "index": "1.7.3.4",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "The Rete Approach Deploys Relational Operations Incrementally",
+	                                "index": "1.7.3.5",
+	                                "children": []
+	                            }
+	                        ]
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Rules, Substrates, and Cognitive Modeling",
+	                "index": "1.8",
+	                "children": [
+	                    {
+	                        "content": "Rule-based Systems Viewed as Substrate",
+	                        "index": "1.8.1",
+	                        "children": [
+	                            {
+	                                "content": "Explanation Modules Explain Reasoning",
+	                                "index": "1.8.1.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Reasoning Systems Can Exhibit Variable Reasoning Styles",
+	                                "index": "1.8.1.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Probability Modules Help You to Determine Answer Reliability",
+	                                "index": "1.8.1.3",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Two Key Heuristics Enable Knowledge Engineers to Acquire Knowledge",
+	                                "index": "1.8.1.4",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Acquisition Modules Assist Knowledge Transfer",
+	                                "index": "1.8.1.5",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Rule Interactions Can Be Troublesome",
+	                                "index": "1.8.1.6",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Rule-Based Systems Can Behave Like Idiot Savants",
+	                                "index": "1.8.1.7",
+	                                "children": []
+	                            }
+	                        ]
+	                    },
+	                    {
+	                        "content": "Rule-Based Systems Viewed as Models for Human Problem Solving",
+	                        "index": "1.8.2",
+	                        "children": [
+	                            {
+	                                "content": "Rule-Based Systems Can Model Some Human Problem Solving",
+	                                "index": "1.8.2.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Protocol Analysis Produces Production-System Conjectures",
+	                                "index": "1.8.2.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "SOAR Models Human Problem Solving, Maybe",
+	                                "index": "1.8.2.3",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "SOAR Searches Problem Spaces",
+	                                "index": "1.8.2.4",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "SOAR Uses an Automatic Preference Analyzer",
+	                                "index": "1.8.2.5",
+	                                "children": []
+	                            }
+	                        ]
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Frames and Inheritance",
+	                "index": "1.9",
+	                "children": [
+	                    {
+	                        "content": "Frames, Individuals, and Inheritance",
+	                        "index": "1.9.1",
+	                        "children": [
+	                            {
+	                                "content": "Frames Contain Slots and Slot Values",
+	                                "index": "1.9.1.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Frames may Describe Instances or Classes",
+	                                "index": "1.9.1.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Frames Have Access Procedures",
+	                                "index": "1.9.1.3",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Inheritance Enables When-Constructed Procedures to Move Default Slot Values from Classes to Instances",
+	                                "index": "1.9.1.4",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "A Class Should Appear Before All Its Superclasses",
+	                                "index": "1.9.1.5",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "A Class's Direct Superclasses Should Appear in Order",
+	                                "index": "1.9.1.6",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "The Topological-Sorting Procedure Keeps Classes in Proper Order",
+	                                "index": "1.9.1.7",
+	                                "children": []
+	                            }
+	                        ]
+	                    },
+	                    {
+	                        "content": "Demon Procedures",
+	                        "index": "1.9.2",
+	                        "children": [
+	                            {
+	                                "content": "When-Requested Procedures Override Slot Values",
+	                                "index": "1.9.2.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "When-Read and When-Written Procedures Can Maintain Constraints",
+	                                "index": "1.9.2.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "With-Respect-to Procedures Deal with Perspectives and Contexts",
+	                                "index": "1.9.2.3",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Inheritance and Demons Introduce Procedural Semantics",
+	                                "index": "1.9.2.4",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Object-Oriented Programming Focuses on Shared Knowledge",
+	                                "index": "1.9.2.5",
+	                                "children": []
+	                            }
+	                        ]
+	                    },
+	                    {
+	                        "content": "Frames, Events, and Inheritance",
+	                        "index": "1.9.3",
+	                        "children": [
+	                            {
+	                                "content": "Digesting News Seems to Involve Frame Retrieving and Slot Filling",
+	                                "index": "1.9.3.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Event-Describing Frames Make Stereotyped Information Explicit",
+	                                "index": "1.9.3.2",
+	                                "children": []
+	                            }
+	                        ]
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Frames and Commonsense",
+	                "index": "1.10",
+	                "children": [
+	                    {
+	                        "content": "Thematic-role Frames",
+	                        "index": "1.10.1",
+	                        "children": [
+	                            {
+	                                "content": "An Object's Thematic Role Specifies the Object's Relation to an Action",
+	                                "index": "1.10.1.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Filled Thematic Roles Help You to Answer Questions",
+	                                "index": "1.10.1.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Various Constraints Establish Thematic Roles",
+	                                "index": "1.10.1.3",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "A Variety of Constraints Help Establish Verb Meanings",
+	                                "index": "1.10.1.4",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Constraints Enable Sentence Analysis",
+	                                "index": "1.10.1.5",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Examples Using Take Illustrate How Constraints Interact",
+	                                "index": "1.10.1.6",
+	                                "children": []
+	                            }
+	                        ]
+	                    },
+	                    {
+	                        "content": "Expansion into Primitive Actions",
+	                        "index": "1.10.2",
+	                        "children": [
+	                            {
+	                                "content": "Primitive Actions Describe Many Higher-Level Actions",
+	                                "index": "1.10.2.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Actions Often Imply Implicit State Changes and Cause-Effect Relations",
+	                                "index": "1.10.2.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Actions Often Imply Subactions",
+	                                "index": "1.10.2.3",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Primitive-Action Frames and State-Change Frames Facilitate Question Answering and Paraphrase Recognition",
+	                                "index": "1.10.2.4",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Thematic-Role Frames and Primitive-Action Frames Have Complementary Foci",
+	                                "index": "1.10.2.5",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "CYC Captures Commonsense Knowledge",
+	                                "index": "1.10.2.6",
+	                                "children": []
+	                            }
+	                        ]
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Numeric Constraints and Propagation",
+	                "index": "1.11",
+	                "children": [
+	                    {
+	                        "content": "Propagation of Numbers Through Numeric Constraint Nets",
+	                        "index": "1.11.1",
+	                        "children": [{
+	                            "content": "Numeric Constraint Boxes Propagate Numbers through Equations",
+	                            "index": "1.11.1.1",
+	                            "children": []
+	                        }]
+	                    },
+	                    {
+	                        "content": "Propagation of Probability Bounds Through Opinion Nets",
+	                        "index": "1.11.2",
+	                        "children": [
+	                            {
+	                                "content": "Probability Bounds Express Uncertainty",
+	                                "index": "1.11.2.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Spreadsheets Propagate Numeric Constraints Through Numeric-Constraint Nets",
+	                                "index": "1.11.2.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Venn Diagrams Explain Bound Constraints",
+	                                "index": "1.11.2.3",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Propagation Moves Probability Bounds Closer Together",
+	                                "index": "1.11.2.4",
+	                                "children": []
+	                            }
+	                        ]
+	                    },
+	                    {
+	                        "content": "Propagation of Surface Altitudes Through Arrays",
+	                        "index": "1.11.3",
+	                        "children": [
+	                            {
+	                                "content": "Local Constraints Arbitrate between Smoothness Expectations and Actual Data",
+	                                "index": "1.11.3.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Constraint Propagation Achieves Global Consistency through Local Computation",
+	                                "index": "1.11.3.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "GENINFER Helps Counselors to Provide Precise Genetic Advice",
+	                                "index": "1.11.3.3",
+	                                "children": []
+	                            }
+	                        ]
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Symbolic Constraints and Propagation",
+	                "index": "1.12",
+	                "children": [
+	                    {
+	                        "content": "Propagation of Line Labels through Drawing Junctions",
+	                        "index": "1.12.1",
+	                        "children": [
+	                            {
+	                                "content": "There Are Only Four Ways to Label a Line in the Three-Faced-Vertex World",
+	                                "index": "1.12.1.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "There Are Only 18 Ways to Label a Three-Faced Junction",
+	                                "index": "1.12.1.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Finding Correct Labels Is Part of Line-Drawing Analysis",
+	                                "index": "1.12.1.3",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Waltz's Procedure Propagates Label Constraints through Junctions",
+	                                "index": "1.12.1.4",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Many Line and Junction Labels Are Needed to Handle Shadows and Cracks",
+	                                "index": "1.12.1.5",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Illumination Increases Label Count and Tightens Constraint",
+	                                "index": "1.12.1.6",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "The Flow of Labels Can Be Dramatic",
+	                                "index": "1.12.1.7",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "The Computation Required Is Proportional to Drawing Size",
+	                                "index": "1.12.1.8",
+	                                "children": []
+	                            }
+	                        ]
+	                    },
+	                    {
+	                        "content": "Propagation of Time-Interval Relations",
+	                        "index": "1.12.2",
+	                        "children": [
+	                            {
+	                                "content": "There Are 13 Ways to Label a Link between Interval Nodes Yielding 169 Constraints",
+	                                "index": "1.12.2.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Time Constraints Can Propagate across Long Distances",
+	                                "index": "1.12.2.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "A Complete Time Analysis Is Computationally Expensive",
+	                                "index": "1.12.2.3",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Reference Nodes Can Save Time",
+	                                "index": "1.12.2.4",
+	                                "children": []
+	                            }
+	                        ]
+	                    },
+	                    {
+	                        "content": "Five Points of Methodology",
+	                        "index": "1.12.3",
+	                        "children": []
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Logic and Resolution Proof",
+	                "index": "1.13",
+	                "children": [
+	                    {
+	                        "content": "Rules of Inference",
+	                        "index": "1.13.1",
+	                        "children": [
+	                            {
+	                                "content": "Logic Has a Traditional Notation",
+	                                "index": "1.13.1.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Quantifiers Determine When Expressions Are True",
+	                                "index": "1.13.1.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Logic Has a Rich Vocabulary",
+	                                "index": "1.13.1.3",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Interpretations Tie Logic Symbols to Worlds",
+	                                "index": "1.13.1.4",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Proofs Tie Axioms to Consequences",
+	                                "index": "1.13.1.5",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Resolution Is a Sound Rule of Inference",
+	                                "index": "1.13.1.6",
+	                                "children": []
+	                            }
+	                        ]
+	                    },
+	                    {
+	                        "content": "Resolution Proofs",
+	                        "index": "1.13.2",
+	                        "children": [
+	                            {
+	                                "content": "Resolution Proves Theorems by Refutation",
+	                                "index": "1.13.2.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Using Resolution Requires Axioms to Be in Clause Form",
+	                                "index": "1.13.2.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Proof Is Exponential",
+	                                "index": "1.13.2.3",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Resolution Requires Unification",
+	                                "index": "1.13.2.4",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Traditional Logic Is Monotonic",
+	                                "index": "1.13.2.5",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Theorem Proving Is Suitable for Certain Problems, but Not for All Problems",
+	                                "index": "1.13.2.6",
+	                                "children": []
+	                            }
+	                        ]
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Backtracking and Truth Maintenance",
+	                "index": "1.14",
+	                "children": [
+	                    {
+	                        "content": "Chronological and Dependency-Directed Backtracking",
+	                        "index": "1.14.1",
+	                        "children": [
+	                            {
+	                                "content": "Limit Boxes Identify Inconsistencies",
+	                                "index": "1.14.1.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Chronological Backtracking Wastes Time",
+	                                "index": "1.14.1.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Nonchronological Backtracking Exploits Dependencies",
+	                                "index": "1.14.1.3",
+	                                "children": []
+	                            }
+	                        ]
+	                    },
+	                    {
+	                        "content": "Proof by Constraint Propagation",
+	                        "index": "1.14.2",
+	                        "children": [
+	                            {
+	                                "content": "Truth Can Be Propagated",
+	                                "index": "1.14.2.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Truth Propagation Can Establish Justifications",
+	                                "index": "1.14.2.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Justification Links Enable Programs to Change Their Minds",
+	                                "index": "1.14.2.3",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Proof by Truth Propagation Has Limits",
+	                                "index": "1.14.2.4",
+	                                "children": []
+	                            }
+	                        ]
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Planning",
+	                "index": "1.15",
+	                "children": [
+	                    {
+	                        "content": "Planning Using If-Add-Delete Operators",
+	                        "index": "1.15.1",
+	                        "children": [
+	                            {
+	                                "content": "Operators Specify Add Lists and Delete Lists",
+	                                "index": "1.15.1.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "You Can Plan by Searching for a Satisfactory Sequence of Operators",
+	                                "index": "1.15.1.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Backward Chaining Can Reduce Effort",
+	                                "index": "1.15.1.3",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Impossible Plans Can Be Detected",
+	                                "index": "1.15.1.4",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Partial Instantiation Can Help Reduce Effort Too",
+	                                "index": "1.15.1.5",
+	                                "children": []
+	                            }
+	                        ]
+	                    },
+	                    {
+	                        "content": "Planning Using Situation Variables",
+	                        "index": "1.15.2",
+	                        "children": [
+	                            {
+	                                "content": "Finding Operator Sequences Requires Situation Variables",
+	                                "index": "1.15.2.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Frame Axioms Address the Frame Problem",
+	                                "index": "1.15.2.2",
+	                                "children": []
+	                            }
+	                        ]
+	                    }
+	                ]
+	            }
+	        ]
+	    },
+	    {
+	        "content": "Learning and Regularity Recognition",
+	        "index": "2",
+	        "children": [
+	            {
+	                "content": "Learning by Analyzing Differences",
+	                "index": "2.1",
+	                "children": [
+	                    {
+	                        "content": "Induction Heuristics",
+	                        "index": "2.1.1",
+	                        "children": [
+	                            {
+	                                "content": "Responding to Near Misses Improves Models",
+	                                "index": "2.1.1.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Responding to Examples Improves Models",
+	                                "index": "2.1.1.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Near-Miss Heuristics Specialize; Example Heuristics Generalize",
+	                                "index": "2.1.1.3",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Learning Procedures Should Avoid Guesses",
+	                                "index": "2.1.1.4",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Learning Usually Must Be Done in Small Steps",
+	                                "index": "2.1.1.5",
+	                                "children": []
+	                            }
+	                        ]
+	                    },
+	                    {
+	                        "content": "Identification",
+	                        "index": "2.1.2",
+	                        "children": [
+	                            {
+	                                "content": "Must Links and Must-Not Links Dominate Matching",
+	                                "index": "2.1.2.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Models May Be Arranged in Lists or in Nets",
+	                                "index": "2.1.2.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "ARIEL Learns about Proteins",
+	                                "index": "2.1.2.3",
+	                                "children": []
+	                            }
+	                        ]
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Learning by Explaining Experience",
+	                "index": "2.2",
+	                "children": [
+	                    {
+	                        "content": "Learning about Why People Act the Way they Do",
+	                        "index": "2.2.1",
+	                        "children": [
+	                            {
+	                                "content": "Reification and the Vocabulary of Thematic-Role Frames Capture Sentence-Level Meaning",
+	                                "index": "2.2.1.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Explanation Transfer Solves Problems Using Analogy",
+	                                "index": "2.2.1.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Commonsense Problem Solving Can Generate Rulelike Principles",
+	                                "index": "2.2.1.3",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "The Macbeth Procedure Illustrates the Explanation Principle",
+	                                "index": "2.2.1.4",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "The Macbeth Procedure Can Use Causal Chains to Establish Common Context",
+	                                "index": "2.2.1.5",
+	                                "children": []
+	                            }
+	                        ]
+	                    },
+	                    {
+	                        "content": "Learning about Form and Function",
+	                        "index": "2.2.2",
+	                        "children": [
+	                            {
+	                                "content": "Examples and Precedents Help Each Other",
+	                                "index": "2.2.2.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Explanation-Based Learning Offers More than Speedup",
+	                                "index": "2.2.2.2",
+	                                "children": []
+	                            }
+	                        ]
+	                    },
+	                    {
+	                        "content": "Matching",
+	                        "index": "2.2.3",
+	                        "children": [
+	                            {
+	                                "content": "Stupid Matchers Are Slow and Easy to Fool",
+	                                "index": "2.2.3.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Matching Inexact Situations Reduces to Backward Chaining",
+	                                "index": "2.2.3.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Matching Sheds Light on Analogical Problem Solving",
+	                                "index": "2.2.3.3",
+	                                "children": []
+	                            }
+	                        ]
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Learning by Correcting Mistakes",
+	                "index": "2.3",
+	                "children": [
+	                    {
+	                        "content": "Isolating Suspicious Relations",
+	                        "index": "2.3.1",
+	                        "children": [
+	                            {
+	                                "content": "Cups and Pails Illustrate the Problem",
+	                                "index": "2.3.1.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Near-Miss Groups Isolate Suspicious Relations",
+	                                "index": "2.3.1.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Suspicious Relation Types Determine Overall Repair Strategy",
+	                                "index": "2.3.1.3",
+	                                "children": []
+	                            }
+	                        ]
+	                    },
+	                    {
+	                        "content": "Intelligent Knowledge Repair",
+	                        "index": "2.3.2",
+	                        "children": [
+	                            {
+	                                "content": "The Solution May Be to Explain the True-Success Suspicious Relations",
+	                                "index": "2.3.2.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Incorporating True-Success Suspicious Relations May Require Search",
+	                                "index": "2.3.2.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "The Solution May Be to Explain the False-Success Suspicious Relations, Creating a Censor",
+	                                "index": "2.3.2.3",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Failure Can Stimulate a Search for More Detailed Descriptions",
+	                                "index": "2.3.2.4",
+	                                "children": []
+	                            }
+	                        ]
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Learning by Recording Cases",
+	                "index": "2.4",
+	                "children": [
+	                    {
+	                        "content": "Recording and Retrieving Raw Experience",
+	                        "index": "2.4.1",
+	                        "children": [
+	                            {
+	                                "content": "The Consistency Heuristic Enables Remembered Cases to Supply Properties",
+	                                "index": "2.4.1.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "The Consistency Heuristic Solves a Difficult Dynamics Problem",
+	                                "index": "2.4.1.2",
+	                                "children": []
+	                            }
+	                        ]
+	                    },
+	                    {
+	                        "content": "Finding Nearest Neighbors",
+	                        "index": "2.4.2",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "A Fast Serial Procedure Finds the Nearest Neighbor in Logarithmic Time",
+	                        "index": "2.4.3",
+	                        "children": []
+	                    },
+	                    {
+	                        "content": "Parallel Hardware Finds Nearest Neighbors Even Faster",
+	                        "index": "2.4.4",
+	                        "children": []
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Learning by Managing Multiple Models",
+	                "index": "2.5",
+	                "children": [
+	                    {
+	                        "content": "The Version-Space Method",
+	                        "index": "2.5.1",
+	                        "children": [
+	                            {
+	                                "content": "Version Space Consists of Overly General and Overly Specific Models",
+	                                "index": "2.5.1.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Generalization and Specialization Leads to Version-Space Convergence",
+	                                "index": "2.5.1.2",
+	                                "children": []
+	                            }
+	                        ]
+	                    },
+	                    {
+	                        "content": "Version-Space Characteristics",
+	                        "index": "2.5.2",
+	                        "children": [
+	                            {
+	                                "content": "The Version-Space Procedure Handles Positive and Negative Examples Symmetrically",
+	                                "index": "2.5.2.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "The Version-Space Procedure Enables Early Recognition",
+	                                "index": "2.5.2.2",
+	                                "children": []
+	                            }
+	                        ]
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Learning by Building Identification Trees",
+	                "index": "2.6",
+	                "children": [
+	                    {
+	                        "content": "From Data to Identification Trees",
+	                        "index": "2.6.1",
+	                        "children": [
+	                            {
+	                                "content": "The World Is Supposed to Be Simple",
+	                                "index": "2.6.1.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Tests Should Minimize Disorder",
+	                                "index": "2.6.1.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Information Theory Supplies a Disorder Formula",
+	                                "index": "2.6.1.3",
+	                                "children": []
+	                            }
+	                        ]
+	                    },
+	                    {
+	                        "content": "From Trees to Rules",
+	                        "index": "2.6.2",
+	                        "children": [
+	                            {
+	                                "content": "Unnecessary Rule Antecedents Should Be Eliminated",
+	                                "index": "2.6.2.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Optimizing a Nuclear Fuel Plant",
+	                                "index": "2.6.2.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Unnecessary Rules Should Be Eliminated",
+	                                "index": "2.6.2.3",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Fisher's Exact Test Brings Rule Correction in Line with Statistical Theory",
+	                                "index": "2.6.2.4",
+	                                "children": []
+	                            }
+	                        ]
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Learning by Training Neural Nets",
+	                "index": "2.7",
+	                "children": [
+	                    {
+	                        "content": "Simulated Neural Nets",
+	                        "index": "2.7.1",
+	                        "children": [
+	                            {
+	                                "content": "Real Neurons Consist of Synapses, Dendrites, Axons, and Cell Bodies",
+	                                "index": "2.7.1.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Simulated Neurons Consist of Multipliers, Adders, and Thresholds",
+	                                "index": "2.7.1.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Feed-Forward Nets Can Be Viewed as Arithmetic Constraint Nets",
+	                                "index": "2.7.1.3",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Feed-Forward Nets Can Recognize Regularity in Data",
+	                                "index": "2.7.1.4",
+	                                "children": []
+	                            }
+	                        ]
+	                    },
+	                    {
+	                        "content": "Hill Climbing and Back Propagation",
+	                        "index": "2.7.2",
+	                        "children": [
+	                            {
+	                                "content": "The Back-Propagation Procedure Does Hill Climbing by Gradient Ascent",
+	                                "index": "2.7.2.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Nonzero Thresholds Can Be Eliminated",
+	                                "index": "2.7.2.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Gradient Ascent Requires a Smooth Threshold Function",
+	                                "index": "2.7.2.3",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Back Propagation Can Be Understood Heuristically",
+	                                "index": "2.7.2.4",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Back-Propagation Follows from Gradient Descent and the Chain Rule",
+	                                "index": "2.7.2.5",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "The Back-Propagation Procedure Is Straightforward",
+	                                "index": "2.7.2.6",
+	                                "children": []
+	                            }
+	                        ]
+	                    },
+	                    {
+	                        "content": "Back-Propagation Characteristics",
+	                        "index": "2.7.3",
+	                        "children": [
+	                            {
+	                                "content": "Training May Require Thousands of Back Propagations",
+	                                "index": "2.7.3.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "ALVINN Learns to Drive",
+	                                "index": "2.7.3.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Back Propagation Can Get Stuck or Become Unstable",
+	                                "index": "2.7.3.3",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Back Propagation Can Be Done in Stages",
+	                                "index": "2.7.3.4",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Back Propagation Can Train a Net to Learn to Recognize Multiple Concepts Simultaneously",
+	                                "index": "2.7.3.5",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Trained Neural Nets Can Make Predictions",
+	                                "index": "2.7.3.6",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Excess Weights Lead to Overfitting",
+	                                "index": "2.7.3.7",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Neural-Net Training Is an Art",
+	                                "index": "2.7.3.8",
+	                                "children": []
+	                            }
+	                        ]
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Learning by Training Perceptrons",
+	                "index": "2.8",
+	                "children": [
+	                    {
+	                        "content": "Perceptrons and Perceptron Learning",
+	                        "index": "2.8.1",
+	                        "children": [
+	                            {
+	                                "content": "Perceptrons Have Logic Boxes and Stair-Step Thresholds",
+	                                "index": "2.8.1.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "The Perceptron Convergence Procedure Guarantees Success Whenever Success Is Possible",
+	                                "index": "2.8.1.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Ordinary Algebra Is Adequate to Demonstrate Convergence When There Are Two Weights",
+	                                "index": "2.8.1.3",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Vector Algebra Helps You to Demonstrate Convergence When There Are Many Weights",
+	                                "index": "2.8.1.4",
+	                                "children": []
+	                            }
+	                        ]
+	                    },
+	                    {
+	                        "content": "What Perceptrons Can and Cannot Do",
+	                        "index": "2.8.2",
+	                        "children": [
+	                            {
+	                                "content": "A Straight-Through Perceptron Can Learn to Identify Digits",
+	                                "index": "2.8.2.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "The Perceptron Convergence Procedure Is Amazing",
+	                                "index": "2.8.2.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "There Are Simple Tasks That Perceptrons Cannot Do",
+	                                "index": "2.8.2.3",
+	                                "children": []
+	                            }
+	                        ]
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Learning by Training Approximation Nets",
+	                "index": "2.9",
+	                "children": [
+	                    {
+	                        "content": "Interpolation and Approximation Nets",
+	                        "index": "2.9.1",
+	                        "children": [
+	                            {
+	                                "content": "Gaussian Functions Centered on Samples Enable Good Interpolations",
+	                                "index": "2.9.1.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Given Sufficient Nodes, Nets Can Interpolate Perfectly",
+	                                "index": "2.9.1.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Given Relatively Few Nodes, Approximation Nets Can Yield Approximate Results for All Sample Inputs",
+	                                "index": "2.9.1.3",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Too Many Samples Leads to Weight Training",
+	                                "index": "2.9.1.4",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Overlooked Dimensions May Explain Strange Data Better than Elaborate Approximation",
+	                                "index": "2.9.1.5",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "The Interpolation-Approximation Point of View Helps You to Answer Difficult Design Questions",
+	                                "index": "2.9.1.6",
+	                                "children": []
+	                            }
+	                        ]
+	                    },
+	                    {
+	                        "content": "Biological Implementation",
+	                        "index": "2.9.2",
+	                        "children": [
+	                            {
+	                                "content": "Numbers Can Be Represented by Position",
+	                                "index": "2.9.2.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Neurons Can Compute Gaussian Functions",
+	                                "index": "2.9.2.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Gaussian Functions Can Be Computed as Products of Gaussian Functions",
+	                                "index": "2.9.2.3",
+	                                "children": []
+	                            }
+	                        ]
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Learning by Simulating Evolution",
+	                "index": "2.10",
+	                "children": [
+	                    {
+	                        "content": "Survival of the Fittest",
+	                        "index": "2.10.1",
+	                        "children": [
+	                            {
+	                                "content": "Chromosomes Determine Hereditary Traits",
+	                                "index": "2.10.1.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "The Fittest Survive",
+	                                "index": "2.10.1.2",
+	                                "children": []
+	                            }
+	                        ]
+	                    },
+	                    {
+	                        "content": "Genetic Algorithms",
+	                        "index": "2.10.2",
+	                        "children": [
+	                            {
+	                                "content": "Genetic Algorithms Involve Myriad Analogs",
+	                                "index": "2.10.2.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "The Standard Method Equates Fitness with Relative Quality",
+	                                "index": "2.10.2.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Genetic Algorithms Generally Involve Many Choices",
+	                                "index": "2.10.2.3",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "It Is Easy to Climb Bump Mountain Without Crossover",
+	                                "index": "2.10.2.4",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Crossover Enables Genetic Algorithms to Search High-Dimensional Spaces Efficiently",
+	                                "index": "2.10.2.5",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Crossover Enables Genetic Algorithms to Traverse Obstructing Moats",
+	                                "index": "2.10.2.6",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "The Rank Method Links Fitness to Quality Rank",
+	                                "index": "2.10.2.7",
+	                                "children": []
+	                            }
+	                        ]
+	                    },
+	                    {
+	                        "content": "Survival of the Most Diverse",
+	                        "index": "2.10.3",
+	                        "children": [
+	                            {
+	                                "content": "The Rank-Space Method Links Fitness to Both Quality Rank and Diversity Rank",
+	                                "index": "2.10.3.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "The Rank-Space Method Does Well on Moat Mountain",
+	                                "index": "2.10.3.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Local Maxima Are Easier to Handle when Diversity Is Maintained",
+	                                "index": "2.10.3.3",
+	                                "children": []
+	                            }
+	                        ]
+	                    }
+	                ]
+	            }
+	        ]
+	    },
+	    {
+	        "content": "Vision and Language",
+	        "index": "3",
+	        "children": [
+	            {
+	                "content": "Recognizing Objects",
+	                "index": "3.1",
+	                "children": [
+	                    {
+	                        "content": "Linear Image Combinations",
+	                        "index": "3.1.1",
+	                        "children": [
+	                            {
+	                                "content": "Conventional Wisdom Has Focused on Multilevel Description",
+	                                "index": "3.1.1.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Images Contain Implicit Shape Information",
+	                                "index": "3.1.1.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "One Approach Is Matching Against Templates",
+	                                "index": "3.1.1.3",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "For One Special Case, Two Images Are Sufficient to Generate a Third",
+	                                "index": "3.1.1.4",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Identification Is a Matter of Finding Consistent Coefficients",
+	                                "index": "3.1.1.5",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "The Template Approach Handles Arbitrary Rotation and Translation",
+	                                "index": "3.1.1.6",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "The Template Approach Handles Objects with Parts",
+	                                "index": "3.1.1.7",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "The Template Approach Handles Complicated Curved Objects",
+	                                "index": "3.1.1.8",
+	                                "children": []
+	                            }
+	                        ]
+	                    },
+	                    {
+	                        "content": "Establishing Point Correspondence",
+	                        "index": "3.1.2",
+	                        "children": [
+	                            {
+	                                "content": "Tracking Enables Model Points to Be Kept in Correspondence",
+	                                "index": "3.1.2.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Only Sets of Points Need to Be Matched",
+	                                "index": "3.1.2.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Heuristics Help You to Match Unknown Points to Model Points",
+	                                "index": "3.1.2.3",
+	                                "children": []
+	                            }
+	                        ]
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Describing Images",
+	                "index": "3.2",
+	                "children": [
+	                    {
+	                        "content": "Computing Edge Distance",
+	                        "index": "3.2.1",
+	                        "children": [
+	                            {
+	                                "content": "Averaged and Differenced Images Highlight Edges",
+	                                "index": "3.2.1.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Multiple-Scale Stereo Enables Distance Determination",
+	                                "index": "3.2.1.2",
+	                                "children": []
+	                            }
+	                        ]
+	                    },
+	                    {
+	                        "content": "Computing Surface Direction",
+	                        "index": "3.2.2",
+	                        "children": [
+	                            {
+	                                "content": "Stereo Analysis Determines Elevations from Satellite Images",
+	                                "index": "3.2.2.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Reflectance Maps Embody Illumination Constraints",
+	                                "index": "3.2.2.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Making Synthetic Images Requires a Reflectance Map",
+	                                "index": "3.2.2.3",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Surface Shading Determines Surface Direction",
+	                                "index": "3.2.2.4",
+	                                "children": []
+	                            }
+	                        ]
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Expressing Language Constraints",
+	                "index": "3.3",
+	                "children": [
+	                    {
+	                        "content": "The Search for an Economical Theory",
+	                        "index": "3.3.1",
+	                        "children": [
+	                            {
+	                                "content": "You Cannot Say That",
+	                                "index": "3.3.1.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Phrases Crystallize on Words",
+	                                "index": "3.3.1.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Replacement Examples Support Binary Representation",
+	                                "index": "3.3.1.3",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Many Phrase Types Have the Same Structure",
+	                                "index": "3.3.1.4",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "The X-Bar Hypothesis Says that All Phrases Have the Same Structure",
+	                                "index": "3.3.1.5",
+	                                "children": []
+	                            }
+	                        ]
+	                    },
+	                    {
+	                        "content": "The Search for a Universal Theory",
+	                        "index": "3.3.2",
+	                        "children": [
+	                            {
+	                                "content": "A Theory of Language Ought to Be a Theory of All Languages",
+	                                "index": "3.3.2.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "A Theory of Language Ought to Account for Rapid Language Acquisition",
+	                                "index": "3.3.2.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "A Noun Phrase's Case Is Determined by Its Governor",
+	                                "index": "3.3.2.3",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Subjacency Limits Wh- Movement",
+	                                "index": "3.3.2.4",
+	                                "children": []
+	                            }
+	                        ]
+	                    },
+	                    {
+	                        "content": "Competence versus Performance",
+	                        "index": "3.3.3",
+	                        "children": [
+	                            {
+	                                "content": "Most Linguists Focus on Competence, Not on Performance",
+	                                "index": "3.3.3.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Analysis by Reversing Generation Can Be Silly",
+	                                "index": "3.3.3.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Construction of a Language Understanding Program Remains a Tough Row to Hoe",
+	                                "index": "3.3.3.3",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Engineers Must Take Shortcuts",
+	                                "index": "3.3.3.4",
+	                                "children": []
+	                            }
+	                        ]
+	                    }
+	                ]
+	            },
+	            {
+	                "content": "Responding to Questions and Commands",
+	                "index": "3.4",
+	                "children": [
+	                    {
+	                        "content": "Syntactic Transition Nets",
+	                        "index": "3.4.1",
+	                        "children": [
+	                            {
+	                                "content": "Syntactic Transition Nets Are Like Roadmaps",
+	                                "index": "3.4.1.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "A Powerful Computer Counted the Long Screwdrivers on the Big Table",
+	                                "index": "3.4.1.2",
+	                                "children": []
+	                            }
+	                        ]
+	                    },
+	                    {
+	                        "content": "Semantic Transition Trees",
+	                        "index": "3.4.2",
+	                        "children": [
+	                            {
+	                                "content": "A Relational Database Makes a Good Target",
+	                                "index": "3.4.2.1",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Pattern Instantiation Is the Key to Relational-Database Retrieval in English",
+	                                "index": "3.4.2.2",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Moving from Syntactic Nets to Semantic Trees Simplifies Grammar Construction",
+	                                "index": "3.4.2.3",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Count the Long Screwdrivers",
+	                                "index": "3.4.2.4",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Recursion Replaces Loops",
+	                                "index": "3.4.2.5",
+	                                "children": []
+	                            },
+	                            {
+	                                "content": "Q&A Translates Questions into Database-Retrieval Commands",
+	                                "index": "3.4.2.6",
+	                                "children": []
+	                            }
+	                        ]
+	                    }
+	                ]
+	            }
+	        ]
+	    }
+	]}
+}
