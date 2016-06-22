@@ -20,7 +20,7 @@ import {HelperService} from "../helper/helper.service";
         <h3>How does it work?</h3>
         
         <ol>
-            <li>Think of a topic you want to learn more about</li>
+            <li>Think about a topic you want to learn more about</li>
             <li>Type your topic in the search bar above <b>in english</b></li>
             <li>You can refine your search by adding other topics</li>
         </ol>

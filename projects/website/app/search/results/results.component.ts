@@ -100,14 +100,6 @@ import {UserstudyService} from "../../userstudy/userstudy";
             <span class="wc-com-results-topics-entry"
                   [textContent]="_topUrisToStr(entry.topUris)"></span>
         </div>
-        <div class="wc-com-results-rating-container"
-             *ngIf="!_usService.isDisabled()">
-            <wc-feedback-q4 text="How useful is this result?"
-                            id="Q4-entry"
-                            [inline]="true"
-                            [supplement]="_supplementOf(entry)"
-                            [supplementHash]="_supplementHashOf(entry)"></wc-feedback-q4>
-        </div>
     </div>
     
     <div class="wc-com-results-pagination"
@@ -152,7 +144,7 @@ export class ResultsCmp {
     @Input('searchTerms') private _searchTerms: Array<SearchTerm> = [];
 
     private _response: Response;
-    private _filter: Filter = Filter.free;
+    private _filter: Filter = Filter.paid;
     private _freeValue: Filter = Filter.free;
     private _paidValue: Filter = Filter.paid;
     private _from: number = 0;

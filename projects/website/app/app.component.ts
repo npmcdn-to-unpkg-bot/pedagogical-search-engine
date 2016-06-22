@@ -56,7 +56,7 @@ import {HelperService} from "./helper/helper.service";
             </span>
         </a>
         <span class="wc-com-app-header-text">
-            Experimental search engine for students
+            Experimental search engine
         </span>
     </div>
     
@@ -75,15 +75,7 @@ import {HelperService} from "./helper/helper.service";
             </span>
         </div>
         
-        <div class="wc-com-app-footer-right">
-            <span>
-                <a [routerLink]="['Feedback']">
-                    Give Feedback
-                </a>
-            </span>
-            
-            &#187;
-            
+        <div class="wc-com-app-footer-right">            
             <span>
                 <a [routerLink]="['HowItWorks']">
                     How it works
@@ -121,7 +113,7 @@ import {HelperService} from "./helper/helper.service";
 ])
 export class AppComponent {
     private _year = new Date().getFullYear();
-    private _month = new Date().getMonth();
+    private _month = new Date().getMonth() + 1;
 }
 
 
