@@ -1,0 +1,3 @@
+Description
+======================
+Evaluate the different indexing strategies using manual annotations of documents.
