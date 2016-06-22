@@ -183,4 +183,20 @@ class Printer(stat: Statistics) {
     s"All Search uris (distinct by run):\n$uris"
   }
 
+  def q2Votes()
+  : String = {
+    val votes = stat.q2Votes().groupBy(x => x).map {
+      case (value, xs) => s"$value: ${xs.size}"
+    }.mkString("\n")
+    s"Q2 Votes: $votes"
+  }
+
+  def q1Votes()
+  : String = {
+    val votes = stat.q1Votes().groupBy(x => x).map {
+      case (value, xs) => s"$value: ${xs.size}"
+    }.mkString("\n")
+    s"Q1 Votes: $votes"
+  }
+
 }

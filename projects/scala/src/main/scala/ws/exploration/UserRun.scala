@@ -76,6 +76,66 @@ extends Formatters {
     }.mkString("\n\n")
   }
 
+  lazy val q1Vote
+  : Option[Boolean] = {
+    // Collect the q2 answers
+    val q1Answers = ordered.flatMap {
+      case msg @ Messages(_, _, CategoryType.Feedback, content, _) =>
+        try {
+          read[Feedback](content) match {
+            case Feedback(QuestionIdType.Q1, valueStr) =>
+              val value = valueStr match {
+                case "yes" => true
+                case "no" => false
+                case "joker" => throw new Exception("")
+              }
+              List((msg.timestamp(), value))
+            case _ => Nil
+          }
+        } catch {
+          case e: Throwable => Nil
+        }
+
+      case _ => Nil
+    }
+
+    // Extract the vote of the latest one
+    q1Answers.sortBy(-_._1.getTime) match {
+      case Nil => None
+      case head::tail => Some(head._2)
+    }
+  }
+
+  lazy val q2Vote
+  : Option[Boolean] = {
+    // Collect the q2 answers
+    val q2Answers = ordered.flatMap {
+      case msg @ Messages(_, _, CategoryType.Feedback, content, _) =>
+        try {
+          read[Feedback](content) match {
+            case Feedback(QuestionIdType.Q2, valueStr) =>
+              val value = valueStr match {
+                case "yes" => true
+                case "no" => false
+                case "joker" => throw new Exception("")
+              }
+              List((msg.timestamp(), value))
+            case _ => Nil
+          }
+        } catch {
+          case e: Throwable => Nil
+        }
+
+      case _ => Nil
+    }
+
+    // Extract the vote of the latest one
+    q2Answers.sortBy(-_._1.getTime) match {
+      case Nil => None
+      case head::tail => Some(head._2)
+    }
+  }
+
   lazy val q3Vote
   : Option[Q3Type] = {
     // Collect the q3 answers

@@ -61,6 +61,12 @@ class Statistics(runs: List[UserRun],
     })
   }
 
+  def q1Votes()
+  : List[Boolean] = runs.flatMap(_.q1Vote)
+
+  def q2Votes()
+  : List[Boolean] = runs.flatMap(_.q2Vote)
+
   def totalQ3Votes()
   : Int = runs.count(run => run.q3Vote.isDefined)
 
