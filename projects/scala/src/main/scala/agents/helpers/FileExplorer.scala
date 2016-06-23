@@ -13,7 +13,9 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 class FileExplorer(jobName: String = Calendar.getInstance.getTime.toString,
                    nbTasks: Int = Runtime.getRuntime.availableProcessors(),
                    settings: Settings = new Settings(),
-                   forceProcess: Boolean = false
+                   forceProcess: Boolean = false,
+                   extensions: List[String] = List("json"),
+                   directory: Option[String] = None
                   ) {
   
   def launch(process: (File, ExecutionContext) => Future[Option[String]])
@@ -74,10 +76,10 @@ class FileExplorer(jobName: String = Calendar.getInstance.getTime.toString,
       // Prepare the iterator over resources files
       val name = jobName.replaceAll("/", "-")
       val output = new File(s"${settings.Resources.Agent.workingDir}/file-explorer-job-$name/")
-      val input = new File(settings.Resources.folder)
+      val input = new File(directory.getOrElse(settings.Resources.folder))
       val it = org.apache.commons.io.FileUtils.iterateFiles(
         input,
-        Array("json"),
+        extensions.toArray,
         true
       )
       if(!output.exists() || !output.isDirectory) {
