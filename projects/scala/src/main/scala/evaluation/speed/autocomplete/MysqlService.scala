@@ -1,4 +1,4 @@
-package evaluation.autocomplete
+package evaluation.speed.autocomplete
 
 import java.util.concurrent.atomic.AtomicInteger
 

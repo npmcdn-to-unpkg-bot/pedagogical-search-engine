@@ -1,4 +1,4 @@
-package evaluation.indices
+package evaluation.speed.indices
 
 import java.util.concurrent.atomic.AtomicInteger
 
