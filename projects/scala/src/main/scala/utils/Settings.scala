@@ -99,4 +99,9 @@ class Settings(config: Config) {
       val data = getString("resources.scholarpedia.data")
     }
   }
+  object Evaluation {
+    object Manual {
+      val folder = getString("evaluation.manual.folder")
+    }
+  }
 }

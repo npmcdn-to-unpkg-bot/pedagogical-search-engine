@@ -177,4 +177,9 @@ wikichimp {
       data = "???"
     }
   }
+  evaluation {
+    manual {
+      folder = "src/main/resources/manual-evaluation"
+    }
+  }
 }
