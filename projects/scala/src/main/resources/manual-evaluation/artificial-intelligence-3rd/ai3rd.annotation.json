@@ -57,11 +57,9 @@
 			"index": "1.9"
 		}
 	],
-	"toc": {
-		"content": "Artificial intelligence",
-		"index": "0",
-		"children": [
-	    {
+	"title": "Artificial intelligence",
+	"toc": [
+		{
 	        "content": "Representations and Methods",
 	        "index": "1",
 	        "children": [
@@ -2101,5 +2099,5 @@
 	            }
 	        ]
 	    }
-	]}
+	]
 }

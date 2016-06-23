@@ -112,10 +112,8 @@
 			"index": "25"
 		}
 	],
-	"toc": {
-	    "content": "Introduction to algorithms",
-	    "index": "0",
-	    "children": [
+	"title": "Introduction to algorithms",
+	"toc": [
 	    {
 	        "content": "Foundations",
 	        "index": "I",
@@ -1166,5 +1164,5 @@
 	            }
 	        ]
 	    }
-	]}
+	]
 }
