@@ -2,114 +2,201 @@
 	"type": "tocV1.0",
 	"annotations": [
 		{
-			"text": "Introduction to Algorithms",
-			"uris": ["Algorithm"],
-			"index": "1"
-		},
-		{
-			"text": "Analysis of Algorithms, Insertion Sort, Mergesort",
-			"uris": ["Algorithm", "Analysis_of_algorithms", "Insertion_sort", "Merge_sort"],
-			"index": "2"
-		},
-		{
-			"text": "Asymptotic Notation",
-			"uris": ["Big_O_notation"],
-			"index": "3"
-		},
-		{
-			"text": "Recurrences, Substitution, Master Method",
-			"uris": ["Recurrence_relation", "Recursion", "Master_theorem"],
-			"index": "4"
-		},
-		{
-			"text": "Strassen",
-			"uris": ["Strassen_algorithm", "Algorithm", "Matrix_multiplication"],
-			"index": "28.2"
-		},
-		{
-			"text": "Polynomial Multiplication",
-			"uris": ["Fast_Fourier_transform", "Polynomial", "Multiplication", "Polynomial_ring"],
-			"index": "30"
-		},
-		{
-			"text": "Randomized Algorithms",
-			"uris": ["Randomized_algorithm"],
-			"index": "5.3"
-		},
-		{
-			"text": "Quicksort",
-			"uris": ["Quicksort"],
-			"index": "7"
-		},
-		{
-			"text": "Heapsort, Dynamic Sets, Priority Queues",
-			"uris": ["Heapsort", "Set_(abstract_data_type)", "Priority_queue"],
-			"index": "6"
-		},
-		{
-			"text": "Linear-time Sorting: Lower Bounds, Counting Sort, Radix Sort, Bucketsort",
-			"uris": ["Sorting_algorithm", "Time_complexity", "Linearity", "Upper_and_lower_bounds", "Counting_sort", "Radix_sort", "Bucket_sort"],
-			"index": "8"
-		},
-		{
-			"text": "Order Statistics, Median",
-			"uris": ["Order_statistic", "Median"],
-			"index": "9"
-		},
-		{
-			"text": "Hashing, Hash Functions, Universal Hashing, Perfect Hashing",
-			"uris": ["Hash_function", "Hash_table", "Perfect_hash_function", "Universal_hashing"],
-			"index": "11"
-		},
-		{
-			"text": "Binary Search Trees, Tree Walks, Analysis of Random BST",
-			"uris": ["Binary_search_tree", "Binary_search_algorithm", "Tree_traversal", "Treap"],
-			"index": "12"
-		},
-		{
-			"text": "Red-black Trees, Rotations, Insertions, Deletions",
-			"uris": ["Red–black_tree", "Tree_rotation"],
-			"index": "13"
-		},
-		{
-			"text": "Augmenting Data Structures, Dynamic Order Statistics, Interval Trees",
-			"uris": ["Data_structure", "Order_statistic", "Interval_tree", "Tree_(data_structure)"],
-			"index": "14"
-		},
-		{
-			"text": "Amortized Algorithms, Table Doubling, Potential Method",
-			"uris": ["Amortized_analysis", "Algorithm", "Dynamic_array", "Potential_method"],
-			"index": "17"
-		},
-		{
-			"text": "Dynamic Programming, Longest Common Subsequence",
-			"uris": ["Dynamic_programming", "Longest_common_subsequence_problem"],
+			"uris": [
+				"Dynamic_programming",
+				"Scheduling_(computing)",
+				"Assembly_language",
+				"Source_code",
+				"Matrix_chain_multiplication",
+				"Matrix_(mathematics)",
+				"Multiplication",
+				"Longest_common_subsequence_problem",
+				"Binary_search_tree",
+				"Tree_(data_structure)",
+				"Binary_search_algorithm",
+				"Optimization_problem",
+				"Combinatorial_optimization"
+			],
 			"index": "15"
 		},
 		{
-			"text": "Minimum Spanning Trees",
-			"uris": ["Minimum_spanning_tree"],
+			"uris": [
+				"Scheduling_(computing)",
+				"Assembly_language",
+				"Source_code"
+			],
+			"index": "15.1"
+		},
+		{
+			"uris": [
+				"Matrix_chain_multiplication",
+				"Matrix_(mathematics)",
+				"Multiplication"
+			],
+			"index": "15.2"
+		},
+		{
+			"uris": [
+				"Dynamic_programming"
+			],
+			"index": "15.3"
+		},
+		{
+			"uris": [
+				"Longest_common_subsequence_problem"
+			],
+			"index": "15.4"
+		},
+		{
+			"uris": [
+				"Binary_search_tree",
+				"Tree_(data_structure)",
+				"Binary_search_algorithm",
+				"Optimization_problem",
+				"Combinatorial_optimization"
+			],
+			"index": "15.5"
+		},
+		{
+			"uris": [
+				"Maxima_and_minima",
+				"Tree_(data_structure)",
+				"Minimum_spanning_tree",
+				"Spanning_tree",
+				"Subroutine",
+				"Algorithm",
+				"Kruskal%27s_algorithm",
+				"Joseph_Kruskal",
+				"Robert_C._Prim",
+				"Prim%27s_algorithm"
+			],
 			"index": "23"
 		},
 		{
-			"text": "Greedy Algorithms",
-			"uris": ["Greedy_algorithm"],
+			"uris": [
+				"Tree_(data_structure)",
+				"Minimum_spanning_tree",
+				"Subroutine",
+				"Algorithm",
+				"Spanning_tree"
+			],
+			"index": "23.1"
+		},
+		{
+			"uris": [
+				"Subroutine",
+				"Algorithm",
+				"Kruskal%27s_algorithm",
+				"Joseph_Kruskal",
+				"Robert_C._Prim",
+				"Prim%27s_algorithm"
+			],
+			"index": "23.2"
+		},
+		{
+			"uris": [
+				"Greedy_algorithm",
+				"Strategy",
+				"Algorithm",
+				"Activity_selection_problem",
+				"Huffman_coding",
+				"David_A._Huffman",
+				"Data_transmission",
+				"Information",
+				"Scheduling_(computing)",
+				"Information_transfer",
+				"Theory",
+				"Scientific_theory",
+				"Foundation_(engineering)"
+			],
 			"index": "16"
 		},
 		{
-			"text": "Shortest Paths I: Properties, Dijkstra's Algorithm",
-			"uris": ["Shortest_path_problem", "Dijkstra's_algorithm"],
+			"uris": [
+				"Algorithm",
+				"Activity_selection_problem"
+			],
+			"index": "16.1"
+		},
+		{
+			"uris": [
+				"Greedy_algorithm",
+				"Strategy",
+				"Algorithm"
+			],
+			"index": "16.2"
+		},
+		{
+			"uris": [
+				"Huffman_coding",
+				"David_A._Huffman",
+				"Data_transmission",
+				"Information"
+			],
+			"index": "16.3"
+		},
+		{
+			"uris": [
+				"Greedy_algorithm",
+				"Theory",
+				"Scientific_theory",
+				"Foundation_(engineering)"
+			],
+			"index": "16.4"
+		},
+		{
+			"uris": [
+				"Scheduling_(computing)",
+				"Algorithm"
+			],
+			"index": "16.5"
+		},
+		{
+			"uris": [
+				"Shortest_path_problem",
+				"Bellman–Ford_algorithm",
+				"Directed_acyclic_graph",
+				"Dijkstra's_algorithm",
+				"Constraint_satisfaction",
+				"Property",
+				"Mathematical_proof"
+			],
 			"index": "24"
 		},
 		{
-			"text": "Graph Searching: Depth-first Search, Topological Sort, DAG Shortest Paths",
-			"uris": ["Graph_traversal", "Depth-first_search", "Topological_sorting", "Directed_acyclic_graph", "Shortest_path_problem"],
-			"index": "22"
+			"uris": [
+				"Bellman–Ford_algorithm"
+			],
+			"index": "24.1"
 		},
 		{
-			"text": "Shortest Paths III: All-pairs Shortest Paths, Matrix Multiplication, Floyd-Warshall, Johnson",
-			"uris": ["Shortest_path_problem", "Floyd–Warshall_algorithm", "Min-plus_matrix_multiplication", "Matrix_multiplication"],
-			"index": "25"
+			"uris": [
+				"Shortest_path_problem",
+				"Bellman–Ford_algorithm",
+				"Directed_acyclic_graph"
+			],
+			"index": "24.2"
+		},
+		{
+			"uris": [
+				"Dijkstra's_algorithm",
+				"Algorithm"
+			],
+			"index": "24.3"
+		},
+		{
+			"uris": [
+				"Shortest_path_problem",
+				"Constraint_satisfaction"
+			],
+			"index": "24.4"
+		},
+		{
+			"uris": [
+				"Shortest_path_problem",
+				"Constraint_satisfaction"
+			],
+			"index": "24.5"
 		}
 	],
 	"title": "Introduction to algorithms",

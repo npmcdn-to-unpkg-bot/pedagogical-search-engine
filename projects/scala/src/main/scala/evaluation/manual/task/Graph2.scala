@@ -16,6 +16,7 @@ class Graph2(_ec: ExecutionContext, ws: LazyWebService) extends Indexer {
 
   private val graphIndexer = new Graph(
     _ec,
+    coreMaxSize = 5,
     fizzFactor = 1
   )
 

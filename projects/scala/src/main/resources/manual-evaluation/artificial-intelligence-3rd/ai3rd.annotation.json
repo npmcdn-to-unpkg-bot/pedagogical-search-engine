@@ -2,57 +2,46 @@
 	"type": "tocV1.0",
 	"annotations": [
 		{
-			"text": "Reasoning: goal trees and rule-based expert systems",
 			"uris": ["Reasoning_system", "Tree_structure", "Goal", "Rule-based_system", "Expert_system"],
 			"index": "1.3"
 		},
 		{
-			"text": "Search: depth-first, hill climbing, beam",
 			"uris": ["Search_algorithm", "Depth-first_search", "Hill_climbing", "Beam_search"],
 			"index": "1.4"
 		},
 		{
-			"text": "Search: optimal, branch and bound, A*",
 			"uris": ["Search_algorithm", "Optimization_problem", "Branch_and_bound", "A*_search_algorithm"],
 			"index": "1.5"
 		},
 		{
-			"text": "Search: games, minimax, and alpha-beta	Chapter",
 			"uris": ["Search_game", "Minimax", "Alpha–beta_pruning"],
 			"index": "1.6"
 		},
 		{
-			"text": "Constraints: interpreting line drawings",
 			"uris": ["Constraint_programming", "Constraint_satisfaction", "Layered_graph_drawing"],
 			"index": "1.12"
 		},
 		{
-			"text": "Constraints: visual object recognition",
 			"uris": ["Constraint_satisfaction", "Constraint_(mathematics)", "Outline_of_object_recognition"],
 			"index": "3.1"
 		},
 		{
-			"text": "Introduction to learning, nearest neighbors",
 			"uris": ["Machine_learning", "Artificial_intelligence", "Lazy_learning", "Instance-based_learning", "Nearest_neighbor_search"],
 			"index": "2.4"
 		},
 		{
-			"text": "Learning: identification trees, disorder",
 			"uris": ["Machine_learning", "Artificial_intelligence", "Decision_tree_learning", "Identification_(information)", "Decision_tree", "Randomness"],
 			"index": "2.6"
 		},
 		{
-			"text": "Learning: genetic algorithms",
 			"uris": ["Machine_learning", "Artificial_intelligence", "Genetic_algorithm"],
 			"index": "2.10"
 		},
 		{
-			"text": "Learning: near misses, felicity conditions",
 			"uris": ["Machine_learning", "Artificial_intelligence", "Heuristic", "Material_conditional"],
 			"index": "2.1"
 		},
 		{
-			"text": "Representations: classes, trajectories, transitions",
 			"uris": ["Knowledge_representation_and_reasoning", "Class_(computer_programming)", "Frame_(artificial_intelligence)"],
 			"index": "1.9"
 		}

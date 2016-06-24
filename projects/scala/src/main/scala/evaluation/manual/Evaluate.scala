@@ -40,8 +40,8 @@ object Evaluate extends App with Formatters {
     graph2.index(task).map(solution => {
 
       solution.annotations.foreach {
-        case AnnotationElement(text, uris, _, indexes) =>
-          println(s"$text:")
+        case AnnotationElement(uris, _, indexes) =>
+          println()
           println(s"\turis: $uris")
           println(s"\tindexes: $indexes")
       }
