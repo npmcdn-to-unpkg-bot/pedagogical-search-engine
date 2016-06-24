@@ -1,0 +1,19 @@
+What
+------------------------
+An annotation file contains tags for a document (or for parts of the
+document in the case of table of contents).
+
+() Problem
+	() Tags cannot be exhaustive
+	() How to define the precision of our algorithm then?
+	() How to define recall?
+
+() Solution
+	() Write all tags that are relevant to the document and that users might search for
+	() Precision means: How relevant are the indexes produces
+		() Instead of counting the number of indexes that are listed as tags
+			() If index is in the tags => count 1
+			() Otherwise, score how close an index is from its closest tag.
+				e.g. WLM: [0, 16] -> count [0, 1]
+	() Recall means: What is the proportion of tags that the indexes cover?
+		() Recall is computed as usual then.
