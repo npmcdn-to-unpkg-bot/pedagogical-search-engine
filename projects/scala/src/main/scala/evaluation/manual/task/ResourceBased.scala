@@ -4,21 +4,17 @@ import evaluation.manual.json.{Annotation, TocNode}
 import rsc.Resource
 import rsc.annotators.Standard
 import rsc.attributes.{Source, Title}
-import rsc.indexers.{Graph, Indices}
+import rsc.indexers.Indices
 import rsc.toc.{Node, Toc}
 import spotlight.LazyWebService
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class Graph2(_ec: ExecutionContext, ws: LazyWebService) extends Indexer {
+class ResourceBased(_ec: ExecutionContext,
+                    ws: LazyWebService,
+                    indexFn: Resource => Future[Option[Resource]]) extends Indexer {
 
   implicit private val ec = _ec
-
-  private val graphIndexer = new Graph(
-    _ec,
-    coreMaxSize = 5,
-    fizzFactor = 1
-  )
 
   private def annotate(r: Resource)
   : Future[Resource] = Standard.annotate(r, ws)
@@ -38,7 +34,7 @@ class Graph2(_ec: ExecutionContext, ws: LazyWebService) extends Indexer {
     // Annotate the resource
     annotate(resource).flatMap(r2 => {
       // Index the resource
-      graphIndexer.index(r2).map {
+      indexFn(r2).map {
         case Some(indexed) =>
           // Create a correspondence between nodes of unannotated and annotated tocs
           val newToc = indexed.oTocs.get.head

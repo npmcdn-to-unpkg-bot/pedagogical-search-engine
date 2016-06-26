@@ -4,8 +4,10 @@ import java.io.File
 
 import agents.helpers.FileExplorer
 import evaluation.manual.json.{Annotation, AnnotationElement, Formatters}
-import evaluation.manual.task.{Graph2, Statistics}
+import evaluation.manual.task.{ResourceBased, Statistics}
 import org.json4s.native.JsonMethods._
+import rsc.Resource
+import rsc.indexers.{Graph1, Graph2, Spotlight}
 import spotlight.LazyWebService
 import utils.Settings
 
@@ -34,8 +36,14 @@ object Evaluate extends App with Formatters {
     val json = parse(file)
     val task = json.extract[Annotation]
 
+    // Create the indexers
+    val graph2Indexer = new Graph2(ec, coreMaxSize = 1000, fizzFactor = 1, ordering = false)
+    val graph1Indexer = new Graph1(ec)
+    val spotlight = new Spotlight()
+    val spotlightFn = (r: Resource) => Future.successful(spotlight.index(r))
+
     // Index the resource
-    val graph2 = new Graph2(ec, annotatorWs)
+    val graph2 = new ResourceBased(ec, annotatorWs, graph1Indexer.index)
 
     graph2.index(task).map(solution => {
 

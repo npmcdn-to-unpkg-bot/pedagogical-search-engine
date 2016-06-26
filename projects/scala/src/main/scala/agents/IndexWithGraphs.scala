@@ -4,7 +4,7 @@ import java.io.File
 
 import agents.helpers.FileExplorer
 import org.json4s.native.JsonMethods._
-import rsc.indexers.Graph
+import rsc.indexers.Graph2
 import rsc.writers.Json
 import rsc.{Formatters, Resource}
 import utils.Settings
@@ -28,7 +28,7 @@ object IndexWithGraphs extends App with Formatters {
     val r = json.extract[Resource]
 
     // Index
-    val indexer = new Graph(ec, fizzFactor = 1)
+    val indexer = new Graph2(ec, fizzFactor = 1)
     indexer.index(r).flatMap {
       case Some(newR) =>
         Json.write(newR, Some(file.getAbsolutePath))

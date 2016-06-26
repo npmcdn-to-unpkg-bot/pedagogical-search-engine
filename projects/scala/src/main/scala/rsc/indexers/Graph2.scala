@@ -13,10 +13,11 @@ import utils.Math._
 import scala.collection.JavaConverters._
 import scala.concurrent.{ExecutionContext, Future}
 
-class Graph(_ec: ExecutionContext,
-            coreMaxSize: Int = 25,
-            fizzFactor: Double = 5,
-            spotlightCoreThreshold: Double = 0.5) {
+class Graph2(_ec: ExecutionContext,
+             coreMaxSize: Int = 25,
+             fizzFactor: Double = 5,
+             spotlightCoreThreshold: Double = 0.5,
+             ordering: Boolean = true) {
   // Types for logic
   /*
    * Represents an URI with its relative context.
@@ -51,7 +52,7 @@ class Graph(_ec: ExecutionContext,
   val choiceBias: Double = 0.5
 
   // Private methods
-  private def choicesFrom(nodes: Nodes, offset: Int, blackList: Set[String], threshold: Double)
+  protected def choicesFrom(nodes: Nodes, offset: Int, blackList: Set[String], threshold: Double)
   : Choices = {
     // Extract sub-nodes and their depth
     val pairs = nodes.flatMap(node => {
@@ -175,7 +176,7 @@ class Graph(_ec: ExecutionContext,
   /*
    * Creates a minimum graph with only the core concepts
    */
-  private def miniGraphMapping(r: Resource)
+  protected def miniGraphMapping(r: Resource)
   : Map[String, CUri] = {
     val choices = choicesFrom(r, Set[String](), spotlightCoreThreshold)
     val pairs = choices.flatMap(groupedCUris => {
@@ -196,6 +197,7 @@ class Graph(_ec: ExecutionContext,
 
     distinct
   }
+
   private def miniGraph(r: Resource)
   : Future[DirectedGraph] = {
     // Build the graph
@@ -346,7 +348,10 @@ class Graph(_ec: ExecutionContext,
   def pageRankOn(digraph: DirectedGraph, biases: Map[String, (CUri, Bias)])
   : List[Index] = digraph.nbNodes() match {
     case zero if zero == 0 => Nil
-    case _ =>
+    case n if ordering =>
+      // todo: remove
+      println(s"PageRank on $n nodes")
+
       // Create a mapping: URI -> Context URI
       val mapping: Map[String, CUri] = biases.map {
         case (uri, (curi, _)) => (uri, curi)
@@ -394,6 +399,11 @@ class Graph(_ec: ExecutionContext,
 
         Index(node.getId, score)
       })
+
+    case n =>
+      val nbIndices = math.floor(biases.size.toDouble * this.fizzFactor)
+      val uris = biases.toList.sortBy(-_._2._2).take(nbIndices.toInt).map(_._1)
+      uris.map(uri => Index(uri, 1))
   }
 
   def saveGraph(digraph: DirectedGraph, name: String): Unit = {

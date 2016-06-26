@@ -16,12 +16,13 @@ public class Pagerank {
 
         if(nodes.size() != 0) {
             // iteratively compute PageRank
-            double epsilon = 1.d / Math.pow(10.d, 5.d);
+            double epsilon = 1.d / Math.pow(10.d, 2.d);
             int maxIter = 10*1000;
             double maxDelta = epsilon+1.d;
             int iter = 0;
             Map<String, Double> newScores = new HashMap<String, Double>();
             while (maxDelta > epsilon && maxIter > iter) {
+                System.out.println(iter);
 
                 // compute new scores
                 maxDelta = -1.d;
